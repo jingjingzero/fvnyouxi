@@ -5,33 +5,5 @@
  */
 import service from './request'
 export default {
-    message(data) {
-        return service({
-            method: 'post',
-            url: '/wanshengjiexg',
-            data
-        })
-    },
-    //获取验证码
-    getCodeImg() {
-        return service({
-            method: 'get',
-            url: '/captchaImage'
-        })
-    },
-    //登录
-    login(data) {
-        return service({
-            method: 'post',
-            url: '/login',
-            data
-        })
-    },
-    //测试
-    ceshi() {
-        return service({
-            method: 'post',
-            url: '/ceshi'
-        })
-    }
+ 
 }

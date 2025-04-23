@@ -1,0 +1,148 @@
+存档
+function cunchu() {
+    upsertItemById(2, {
+        name: "阿莱克·勇者",
+        level: 11,
+        time: Date.now()
+    })
+
+}
+// 读取
+getAllItems().then(data => {
+    console.log('全部数据：', data)
+})
+
+------------------------------------------------------
+眨眼黑屏
+
+<script setup>
+import { ref } from 'vue'
+import BlinkOverlay from './zujian/BlinkOverlay.vue';
+
+const blinkRef = ref()
+
+function triggerBlink() {
+  blinkRef.value?.blink()
+}
+
+function triggerFade() {
+  blinkRef.value?.fadeBlack(200)
+}
+</script>
+
+<template>
+  <button @click="triggerBlink">眨眼</button>
+  <button @click="triggerFade">四周黑一会</button>
+  <BlinkOverlay ref="blinkRef" />
+</template>
+
+//音频
+
+const sound = new Howl({
+  src: ['sound.mp3'],
+  volume: 0.5,  // 设置音量·
+  onplay: () => {
+    console.log("音频开始播放");
+  },
+  onend: () => {
+    console.log("音频播放结束");
+  }
+});
+
+// 播放音频
+sound.play();
+
+// 暂停音频
+sound.pause();
+
+// 设置音量
+sound.volume(0.8);
+
+// 循环播放
+sound.loop(true);
+
+// 播放时设置位置（用于3D音效）
+sound.pos(0, 0, 10);  // x, y, z坐标位置
+
+
+
+
+
+//特效
+
+
+<template>
+  <div class="w-full h-100 relative overflow-hidden">
+    <div ref="container" class="w-full h-full" />
+
+    <button
+      @click="shootFireball"
+      class="absolute bottom-4 left-4 px-4 py-2 bg-orange-500 text-white rounded-xl shadow hover:bg-orange-600 transition-all"
+    >
+      发射火球🔥
+    </button>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { gsap } from 'gsap'
+import fireballImg from '@/assets/logo/huoqiu.png'
+import explosionImg from '@/assets/logo/huiqiubaozha.png'
+
+const container = ref(null)
+
+// 👉 移动距离变量
+const fireballDistance = 300
+
+const shootFireball = () => {
+  const img = document.createElement('img')
+  img.src = fireballImg
+  img.className = 'absolute top-38 left--25 w-20 h-auto'
+  img.style.opacity = '1'
+
+  container.value.appendChild(img)
+
+  gsap.to(img, {
+    x: fireballDistance,
+    scale: 1.3,
+    opacity: 1,
+    duration: 1,
+     ease: 'linear', // ✅ 匀速动画
+    onComplete: () => {
+      const startLeft = img.offsetLeft
+      const startTop = img.offsetTop
+      const finalLeft = startLeft + fireballDistance
+
+      img.remove()
+
+      // 💥 爆炸图
+      const explosion = document.createElement('img')
+      explosion.src = explosionImg
+      explosion.className = 'absolute w-30 h-auto pointer-events-none'
+      explosion.style.left = `${finalLeft}px`
+      explosion.style.top = `${startTop}px`
+      explosion.style.opacity = '0'
+
+      container.value.appendChild(explosion)
+
+      gsap.to(explosion, {
+        scale: 1.4,
+        opacity: 1,
+        duration: 0.2,
+        ease: 'back.out(2)',
+        onComplete: () => {
+          gsap.to(explosion, {
+            opacity: 0,
+            duration: 0.3,
+            delay: 0.2,
+            onComplete: () => {
+              explosion.remove()
+            }
+          })
+        }
+      })
+    }
+  })
+}
+</script>

@@ -7,16 +7,18 @@
     "dev": "vite --mode development",
     "prod": "vite --mode production",
     "preview": "vite preview",
-    "build:dev": "vite build --mode development",
+    "build": "vite build --mode development",
     "build:prod": "vite build --mode production"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@tinymce/tinymce-vue": "^5.1.1",
+    "animate.css": "^4.1.1",
     "axios": "^1.7.0",
-    "element-plus": "^2.7.3",
+    "element-plus": "^2.9.7",
+    "gsap": "^3.12.7",
+    "howler": "^2.2.4",
     "mitt": "^3.0.1",
-    "node-sass": "^9.0.0",
     "path": "^0.12.7",
     "pinia": "^2.0.33",
     "pinia-plugin-persistedstate": "^3.1.0",
@@ -27,7 +29,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "sass": "^1.77.2",
+    "sass": "^1.86.3",
     "unocss": "^0.60.2",
     "vite": "^5.2.0"
   }

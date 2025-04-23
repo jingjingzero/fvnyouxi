@@ -1,7 +1,7 @@
 /*
  * @作者: 冯星悦
  * @Date: 2024-05-20 09:50:23
- * @LastEditTime: 2024-05-28 09:44:18
+ * @LastEditTime: 2025-04-15 15:41:59
  */
 import { defineConfig,loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -25,9 +25,18 @@ export default defineConfig(({ command, mode }) => {
       }
     },
     // 环境变量
-    define: {
-      // 接口地址
-      IP_ADDRESS_WEB: JSON.stringify(env.VITE_BASE_URL),
+    server: {
+      host: '0.0.0.0', //启动Network
+      port: 8081,
+      proxy: {
+        [env.VITE_BASE_URL]: { // 配置需要代理的路径 --> 这里的意思是代理http://localhost:80/api/后的所有路由
+          target: env.VITE_LOGIN_NAME, // 目标地址 --> 服务器地址
+          changeOrigin: true, // 允许跨域
+          ws: true,  // 允许websocket代理
+          // 重写路径 --> 作用与vue配置pathRewrite作用相同
+          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_BASE_URL}`), "")
+        }
+      },
     },
   }
 })
