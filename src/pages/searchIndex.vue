@@ -1,7 +1,7 @@
 <!--
  * @作者: 冯星悦
  * @Date: 2025-04-16 20:10:43
- * @LastEditTime: 2025-04-22 17:07:13
+ * @LastEditTime: 2025-05-19 17:29:45
 -->
 <template>
   <div class="image-container" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @mouseup="touchDown">
@@ -9,7 +9,7 @@
     <div v-show="!showText" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[rgba(0,0,0,0.5)] z-3 text-white py-2vh px-2vw text-2vw iconfont2">用点击探索周围环境</div>
     <img
       ref="imgRef"
-      :src="imgUrl"
+      src="@/assets/images/shiyanshi.webp"
       alt="可拖动图片"
       class="draggable-image"
       @load="onImageLoad"
@@ -43,8 +43,6 @@ import textData from "@/store/textData.json";
 import youxiyemian from "./youxiyemian/one.vue";
 import { useCounterStore } from "@/store/counter"; // pinia库
 import emitter from "@/bus"; // 引入传值组件
-import { ElMessage } from "element-plus";
-import { sleep, searchAll } from "@/pages/zujian/utils.js";
 const flashAnimate = ref(null); // 用来引用闪烁的元素
 const showText = ref(false);
 const user = useCounterStore();
@@ -76,7 +74,6 @@ async function touchDown() {
   user.text_boolean = true;
   showData();
   user.text = jiyu[user.selecttextNum]?.text;
-  console.log("jiyu=", jiyu);
   // 对话结束
   if (jiyu[user.selecttextNum] === undefined) {
     user.selecttextNum = 0;
@@ -120,7 +117,7 @@ function endText() {
 }
 
 // 图片路径和引用
-const imgUrl = ref(new URL("@/assets/image/muwu.png", import.meta.url).href);
+const imgUrl = ref(new URL("@/assets/image/muwu.webp", import.meta.url).href);
 const imgRef = ref(null);
 
 // 记录图片位置的状态
@@ -165,7 +162,6 @@ function updateMarkerPosition() {
 function onImageLoad() {
   const container = document.querySelector(".image-container");
   const img = imgRef.value;
-
   // 获取容器尺寸
   containerSize.width = container.clientWidth;
   containerSize.height = container.clientHeight;
@@ -225,13 +221,12 @@ onMounted(() => {
 });
 let textJixu = false; //是否继续对话
 let textEnd = false; //对话完成后是否删除
-let cgImg = false; //是否出现cg图
+
 let NoJixu = 2;
 // 干预物品是否可选择
 function inventoryTure() {
   emitter.off("inventoryTure");
   emitter.on("inventoryTure", (item) => {
-    console.log("item=", item);
     if (item.text.length > 0) {
       textJixu = true;
       textEnd = item.textEnd;
@@ -249,10 +244,7 @@ function inventoryTure() {
 const getImageUrl = (filename) => {
   return new URL(`../assets/wuping/${filename}`, import.meta.url).href;
 };
-//文字展示图片
-async function showData() {
-  await searchAll(jiyu[user.selecttextNum]);
-}
+
 </script>
 
 <style scoped>

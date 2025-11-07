@@ -21,6 +21,15 @@ export default defineConfig({
       'border-image-source': 'var(--border-gradient, linear-gradient(45deg, #3b82f6, #ffffff))',
       'border-image-slice': '1',
     }],
+    [
+      'red-glow-border',
+      {
+        border: '2px solid transparent',
+        'border-image-source': 'linear-gradient(90deg, #ff0000, #ff4d4d, #ff0000)',
+        'border-image-slice': '1',
+        'box-shadow': '0 0 25px rgba(255, 45, 45, 0.6)',
+      },
+    ],
   ],
   // .... 其他配置
   theme:{
@@ -34,6 +43,6 @@ export default defineConfig({
       xl:'1280px',
       x1500:'1502px',
       xxl:'1600px'
-    }
+    },
   }
 })

@@ -18,6 +18,15 @@ const routes = [
   {
     path: '/ceshi1', name: "ceshi1", component: () => import('@/pages/ceshi1.vue'),
   },
+    {
+    path: '/ceshi2', name: "ceshi2", component: () => import('@/pages/ceshi2.vue'),
+  },
+      {
+    path: '/ceshi3', component: () => import('@/pages/ceshi3.vue'),
+  },
+  {
+    path: '/shuxing_DB', name: "shuxing_DB", component: () => import('@/pages/xiaozujian/shuxing_DB.vue'),
+  },
 ]
 
 const router = createRouter({

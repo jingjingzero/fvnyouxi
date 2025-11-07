@@ -10,12 +10,17 @@
       <div ref="topRef" class="absolute top-0 w-full h-1/2 bg-black z-2"></div>
       <div ref="bottomRef" class="absolute bottom-0 w-full h-1/2 bg-black z-2"></div>
     </div>
+    <video ref="video"  poster="@/assets/lihuiImg/heiping.webp"  :src="jueseDonghua" v-if="visible === 3 && jueseDonghua" class="absolute pointer-events-none z-20" muted  playsinline webkit-playsinline    />
   </div>
 </template>
 
 <script setup>
 import { ref, watch, nextTick } from "vue";
 import { gsap } from "gsap";
+import { useCounterStore } from "@/store/counter";
+const user = useCounterStore();
+const jueseDonghua = ref(""); // 空字符串初始
+const video = ref(null);
 
 const props = defineProps({
   visible: {
@@ -47,14 +52,47 @@ watch(
   () => props.visible,
   async (newVisible) => {
     await nextTick(); // 等待 DOM 渲染
+    console.log("newVisible=", newVisible);
 
     if (newVisible === 2) {
-      await blink();  // 眼皮特效
+      await blink(); // 眼皮特效
+      setTimeout(() => {
+        user.visible = false;
+      }, 1000);
     } else if (newVisible === 1) {
-      await fadeFog();  // 黑幕渐变特效
+      await fadeFog(); // 黑幕渐变特效
+    } else if (newVisible === 3) {
+      await playVideo(); // 黑幕渐变特效
     }
   }
 );
+// 过渡webm动画
+const playVideo = async () => {
+  //  user.attributes.wujiemian = true;
+  //  return
+  console.log("触发过渡动画");
+
+  jueseDonghua.value = new URL("@/assets/donghua/guodudonghua.webm", import.meta.url).href;
+  user.attributes.textJuxu = true;
+  // ✅ 等 Vue 渲染出新的视频
+  await nextTick();
+
+  const v = video.value;
+  if (!v) return;
+
+  v.playbackRate = 1.1;
+  v.play();
+  // ✅ 播放完毕后打印 11
+  setTimeout(() => {
+    user.attributes.wujiemian = true;
+  }, 1750);
+  v.onended = () => {
+    setTimeout(() => {
+      user.attributes.textJuxu = false;
+      user.visible =false
+    }, 500);
+  };
+};
 
 // 眼皮动画
 async function blink() {
@@ -96,12 +134,15 @@ async function blink() {
 // 黑幕渐隐动画
 async function fadeFog() {
   await nextTick();
-  gsap.set(fogRef.value, { opacity: 1 });  // 初始黑幕完全不透明
+  gsap.set(fogRef.value, { opacity: 1 }); // 初始黑幕完全不透明
 
   gsap.to(fogRef.value, {
-    opacity: 0,  // 渐隐至完全透明
-    duration: 1.5,  // 渐变持续时长
-    ease: 'power2.out',  // 动画效果
+    opacity: 0, // 渐隐至完全透明
+    duration: 2.4, // 渐变持续时长
+    ease: "power2.out", // 动画效果
+    onComplete: () => {
+      user.visible = false;
+    },
   });
 }
 </script>

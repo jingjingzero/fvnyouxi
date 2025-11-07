@@ -1,5 +1,6 @@
 :root {
-  --base-font-size: 3vw;
+  --base-font-size: 3vw; /* 基于视口高度的 16:9 比例 */
+  font-display: block;
 }
 .el-pagination .el-pager li,
 .el-pagination button {
@@ -18,10 +19,22 @@ body {
 }
 @font-face {
   font-family: "钉钉进步体 Regular2";
-  font-weight: 600;
+  font-weight: 800;
   src: url("@/assets/font/DingTalk-JinBuTi.ttf") format("truetype"); /* 字体文件路径和格式 */
   font-display: swap;
 }
 .jinzhi {
   pointer-events: none;
+}
+.iconfont4 {
+  font-family: "DS-DIGI-1" !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.01px;
+}
+@font-face {
+  font-family: "DS-DIGI-1";
+  font-weight: 600;
+  src: url('@/assets/font/DS-DIGI-1.ttf') format('truetype'); /* 字体文件路径和格式 */
+  font-display: swap;
 }

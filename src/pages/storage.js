@@ -1,126 +1,73 @@
-const FILE_NAME = '_mylist.json'
-const SETTINGS_FILE_NAME = '_settings.json'
-// 判断是否为 5+APP
-function isPlus() {
-  return typeof window.plus !== 'undefined'
-}
+import { useCounterStore } from "@/store/counter";
 
-// 保存整个数组
-export async function saveArray(arrayData) {
-  const jsonStr = JSON.stringify(arrayData)
-  if (isPlus()) {
-    saveToFile(jsonStr)
-  } else {
-    localStorage.setItem(FILE_NAME, jsonStr)
-  }
-}
-
-// 读取整个数组
-export async function readArray() {
-  if (isPlus()) {
-    return await readFromFile()
-  } else {
-    const str = localStorage.getItem(FILE_NAME)
-    return str ? JSON.parse(str) : []
-  }
-}
-
-// ✅ 添加一条数据（自动 push）
-export async function pushItem(item) {
-  const array = await readArray()
-  array.push(item)
-  await saveArray(array)
-}
-
-// ✅ 获取全部数据
-export async function getAllItems() {
-  return await readArray()
-}
-
-// ✅ 清空所有数据
-export async function clearAll() {
-  await saveArray([])
-}
-
-// ✅ 删除某一项（通过索引）
-export async function deleteItem(index) {
-  const array = await readArray()
-  array.splice(index, 1)
-  await saveArray(array)
-}
-export async function upsertItemById(id, newItem) {
-  const array = await readArray()
-  const index = array.findIndex(item => item.id === id)
-
-  if (index !== -1) {
-    array[index] = { ...array[index], ...newItem }
-  } else {
-    array.push({ id, ...newItem })
-  }
-
-  await saveArray(array)
-}
-// ------------------- 设置项（音量、文字速度）------------------- //
-
+const SETTINGS_FILE_NAME = "_settings.json";
 const DEFAULT_SETTINGS = {
   volume: 0.6,
-  text_speed: 94,
+  text_speed: 98,
+  textSize: 18,
+};
+
+// 判断是否为 5+APP 环境
+function isPlus() {
+  return typeof window.plus !== "undefined";
 }
 
-export async function saveSettings(settings) {
-  const jsonStr = JSON.stringify(settings)
+// 通用存储方法
+export function setStorage(key, value) {
+  console.log("保存存档");
+  const stringValue = typeof value === "string" ? value : JSON.stringify(value);
   if (isPlus()) {
-    saveToFile(SETTINGS_FILE_NAME, jsonStr)
+    plus.storage.setItem(key, stringValue);
   } else {
-    localStorage.setItem(SETTINGS_FILE_NAME, jsonStr)
+    localStorage.setItem(key, stringValue);
   }
 }
 
+export function getStorage(key) {
+  let value;
+  if (isPlus()) {
+    value = plus.storage.getItem(key);
+  } else {
+    value = localStorage.getItem(key);
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value; // 如果不是 JSON 字符串，直接返回原始值
+  }
+}
+
+// 读取设置
 export async function readSettings() {
+  let str;
   if (isPlus()) {
-    const res = await readFromFile(SETTINGS_FILE_NAME, {})
-    return Object.assign({}, DEFAULT_SETTINGS, res)
+    str = plus.storage.getItem(SETTINGS_FILE_NAME);
   } else {
-    const str = localStorage.getItem(SETTINGS_FILE_NAME)
-    const obj = str ? JSON.parse(str) : {}
-    return Object.assign({}, DEFAULT_SETTINGS, obj)
+    str = localStorage.getItem(SETTINGS_FILE_NAME);
+  }
+
+  const obj = str ? JSON.parse(str) : {};
+  return Object.assign({}, DEFAULT_SETTINGS, obj);
+}
+
+// 保存设置
+export async function saveSettings(settings) {
+  const user = useCounterStore();
+  const jsonStr = JSON.stringify(settings);
+
+  if (isPlus()) {
+    user.shoujitishi.con1 = "5+APP";
+    plus.storage.setItem(SETTINGS_FILE_NAME, jsonStr);
+  } else {
+    user.shoujitishi.con1 = "本地";
+    localStorage.setItem(SETTINGS_FILE_NAME, jsonStr);
   }
 }
 
+// 更新单个设置
 export async function updateSetting(key, value) {
-  const settings = await readSettings()
-  settings[key] = value
-  await saveSettings(settings)
-}
-
-// ----------- 5+ APP 文件操作 ----------- //
-
-function saveToFile(jsonStr) {
-  plus.io.requestFileSystem(plus.io.PRIVATE_DOC, (fs) => {
-    fs.root.getFile(FILE_NAME, { create: true }, (fileEntry) => {
-      fileEntry.createWriter((writer) => {
-        writer.write(jsonStr)
-      })
-    })
-  })
-}
-
-function readFromFile() {
-  return new Promise((resolve, reject) => {
-    plus.io.requestFileSystem(plus.io.PRIVATE_DOC, (fs) => {
-      fs.root.getFile(FILE_NAME, { create: false }, (fileEntry) => {
-        fileEntry.file((file) => {
-          const reader = new plus.io.FileReader()
-          reader.onloadend = (e) => {
-            try {
-              resolve(JSON.parse(e.target.result))
-            } catch (err) {
-              reject(err)
-            }
-          }
-          reader.readAsText(file)
-        })
-      }, () => resolve([])) // 如果文件不存在则返回空数组
-    })
-  })
+  const settings = await readSettings();
+  settings[key] = value;
+  await saveSettings(settings);
 }
