@@ -186,6 +186,7 @@ function nextDay() {
     user.attributes.shiyan = undefined;
     user.attributes.weishi = undefined;
     user.attributes.duihua = undefined;
+    user.attributes.anwei = undefined;
     emitter.emit("text_num");
   }
 }
@@ -361,13 +362,17 @@ function fullBodyVideos() {
       }
       if (item1.show1 === true) {
         console.log("触发显示", item1);
+        console.log("index=", index);
         if (index === -1) {
           // 🟢 新增
           user.animations.push(item1);
         } else {
           // 🟡 更新
-          if (item1.x) {
-            user.animations[index].x1 = item1.x1;
+          console.log("item1.x=", item1.x);
+          if (item1.x !== undefined) {
+            console.log("触发x");
+            user.animations[index].x1 = item1.x;
+            user.animations[index].juzhong1 = false;
             if (item1.img) {
               user.animations[index].src = item1.src;
               user.animations[index].Imgsrc = item1.Imgsrc;

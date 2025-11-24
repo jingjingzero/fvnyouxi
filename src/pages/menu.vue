@@ -1,8 +1,8 @@
 <template>
-  <div class="text-white flex w-full box-border px-6vw py-9vh box-border h-full bg-[rgba(0,0,0,0.5)]">
+  <div class="text-white flex w-full box-border px-6vw py-9vh box-border h-100vh  bg-[rgba(0,0,0,0.5)]">
     <img src="@/assets/image/load.webp" class="w-100vw h-100vh object-cover absolute top-0 left-0 z-1" />
     <div class="flex w-full h-full z-1">
-      <div class="w-25% h-full">
+      <div class="w-30% h-full">
         <span class="text-#79BBFF iconfont2 text-4vw">菜单栏</span>
         <div class="mt-3vh flex flex-col gap-y-1.2vh">
           <div v-for="(item, index) in info" :key="index" @click="menuNum(index)">
@@ -11,9 +11,9 @@
           <img class="w-4.5vw mt-3vh" src="@/assets/icon/back.png" @click="fanhui()" />
         </div>
       </div>
-      <div class="w-2px h-full bg-#79BBFF z-1"></div>
+
       <!-- 右侧栏 -->
-      <div v-show="user.menuSelect === 0" ref="messageContainer" class="flex-1 ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white">
+      <div v-show="user.menuSelect === 0" ref="messageContainer" class="h-88vh ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white ">
         <div v-for="(msg, index) in user.messages" :key="index" class="mb-5">
           <div class="flex flex-col text-1.8vw">
             <span class="font-bold text-[clamp(17px,1.7vw,27px)]">{{ msg.name }}</span>
@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      <div class="flex-1 ml-4vw" v-show="user.menuSelect === 3">
+      <div class="flex-1 " v-show="user.menuSelect === 3">
         <div>
           <div>
             <div class="flex justify-center items-center text-white">文字速度</div>

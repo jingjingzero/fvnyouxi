@@ -64,11 +64,14 @@
           </div>
 
           <!-- 消息面板 -->
-          <div class="bg-black flex-1 ml-2 rounded-3 flex flex-col h-72vh min-w-[300px]">
+          <div v-if="!qunIndex" class="bg-black flex-1 ml-2 rounded-3 flex flex-col h-72vh min-w-[300px]">
             <!-- 面板标题 -->
-            <div class="px-3 py-1.5vh flex items-center gap-x-2 bottomB">
-              <img src="@/assets/icon/lianxi.png" class="h-25px w-25px" />
-              <span class="font-bold text-16px">{{ tactName }}</span>
+            <div class="px-3 py-1.5vh flex items-center justify-between gap-x-2 bottomB">
+              <div class="flex items-center gap-x-2">
+                <img src="@/assets/icon/lianxi.png" class="h-25px w-25px" />
+                <span class="font-bold text-16px">{{ tactName }}</span>
+              </div>
+              <el-icon v-show="qun !== undefined" size="25px" color="white" @click="qunxinxi"><MoreFilled /></el-icon>
             </div>
 
             <!-- 消息内容 -->
@@ -82,11 +85,29 @@
                   <!-- 气泡内容 -->
                   <div class="relative px-2.5 pt-1.2 pb-1 rounded-2 bg-white text-black font-bold break-words text-16px max-w-85%" :class="item.user === '琳恩' ? 'bubble-right' : 'bubble-left'" v-html="item.text" @touchstart="item.shijian ? shijianTou(item) : null"></div>
                 </template>
+                <template v-else-if="item.choices!==undefined">
+                  
+                 </template>
                 <template v-else>
                   <div class="w-full justify-center flex text-12px text-white/60">{{ item.text }}</div>
                 </template>
               </div>
               <el-divider style="margin: 2.5vh 0">最新消息</el-divider>
+            </div>
+          </div>
+          <div v-else class="bg-black flex-1 ml-2 rounded-3 flex flex-col h-72vh min-w-[300px]">
+            <!-- 面板标题 -->
+            <div class="px-3 py-1.5vh flex items-center justify-between gap-x-2 bottomB">
+              <div class="flex items-center gap-x-2">
+                <el-icon size="22px" @touchstart="qunIndex = false"><ArrowLeftBold /></el-icon>
+                <span class="font-bold text-16px">{{ tactName }}</span>
+              </div>
+            </div>
+            <div class="mt-2vh w-full h-full flex flex-wrap gap-x-5 px-3 py-2 box-border">
+              <div class="flex flex-col items-center gap-y-1 w-20" v-for="item of qun" :key="item.name">
+                <img :src="headImg(item.src)" class="h-40px w-40px object-contain rounded-full border-1 border-solid border-white shrink-0" />
+                <span class="text-20px">{{ item.name }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -232,7 +253,7 @@
         <el-carousel :autoplay="false" type="card" height="78vh" indicator-position="none">
           <el-carousel-item v-for="item in lihuiArr" :key="item.name" class="border-1 border-solid border-#E4E7ED">
             <img :src="bgImg(item.bgSrc)" class="w-full h-full object-cover absolute -z-2" />
-            <div class="flex justify-center relative ">
+            <div class="flex justify-center relative">
               <span class="absolute text-20px left-2 top-2 text-#333 iconfont2 bg-white py-2 px-3 border border-solid border-#333 rounded-1">{{ item.name }}</span>
               <span class="absolute text-20px right-2 top-2 text-red-600 iconfont2 bg-white py-2 px-3 border border-solid border-#333 rounded-1">{{ item.power }}</span>
               <span class="absolute text-16px left-2 top-15vh bg-#10B981 text-#FFFFFF px-3 pt-1 pb-1.1 rounded-2" @touchstart="selectJilu(item, 0)">实验记录</span>
@@ -370,12 +391,18 @@ function shijianTou(item) {
   if (item.shijian === 1) {
   }
 }
+const qun = ref(undefined);
+const qunIndex = ref(false);
 //切换联系人
 function tactChange(item, index) {
+  qunIndex.value = false;
   user.playSound("clickS", false, user.volume * 0.5);
   tactIndex.value = index;
   tactName.value = item.name;
   tactArr.value = item.messages;
+  qun.value = item.qun;
+  console.log("item=", item);
+
   // 下一次 DOM 更新后滚动到底部
   nextTick(() => {
     if (messageContainer.value) {
@@ -386,16 +413,24 @@ function tactChange(item, index) {
 function yingyong(id) {
   user.playSound("clickS", false, user.volume * 0.5);
   num1.value = id;
+  qunIndex.value = false;
+  console.log("id=", id);
   if (id === 1) {
     nextTick(() => {
       if (messageContainer.value) {
         messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
       }
     });
+    if (user.attributes.contacts[0].qun !== undefined) {
+      qun.value = user.attributes.contacts[0].qun;
+    }
   } else if (id === 2) {
   }
 }
-
+//群成员
+function qunxinxi() {
+  qunIndex.value = true;
+}
 //实验记录/选择
 function selectJilu(item, index) {
   user.playSound("clickS", false, user.volume * 0.5);

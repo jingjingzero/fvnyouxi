@@ -259,32 +259,48 @@ export const useCounterStore = defineStore("counter", {
           {
             name: "萨米",
             src: "touxiang1.png",
-            xiaoxi: "我只是提醒你快点行动。",
+            xiaoxi: "我会的，麻烦你了。",
             messages: [
               { text: "2013 年 8 月 7 日" },
-              { user: "萨米", text: "你打算什么时候拿到苍穹的安全权限？", src: "touxiang1.png" },
-              { user: "琳恩", text: "我有自己的打算。", src: "mytouxiang.png" },
-              { user: "萨米", text: "希望你知道我将你调去苍穹的意义。", src: "touxiang1.png" },
-              { user: "萨米", text: "二个月内必须给我弄到，否则你入侵 “群星” 安全系统的痕迹就要暴露了。", src: "touxiang1.png" },
-              { user: "琳恩", text: "那你觉得你帮我隐瞒这个罪行很轻吗？", src: "mytouxiang.png" },
-              { user: "萨米", text: "我们没必要双输，完全可以双赢的，完成后你就自由了，不是很好吗？", src: "touxiang1.png" },
-              { user: "琳恩", text: "知道了，别威胁我了，我会做的。", src: "mytouxiang.png" },
-              { user: "萨米", text: "我只是提醒你快点行动。", src: "touxiang1.png" },
+              { user: "萨米", text: "你打算什么时候行动？", src: "touxiang1.png" },
+              { user: "琳恩", text: "这个安全系统很难破解，我会尽量找其他办法的，再给我点时间。", src: "mytouxiang.png" },
+              { user: "萨米", text: "可以，有什么困难随时联系我，希望你尽早能完成这项任务。", src: "touxiang1.png" },
+              { user: "琳恩", text: "我了解的，毕竟也是为了我自己。", src: "mytouxiang.png" },
+              { user: "琳恩", text: "你可以将我调去培育部门吗？那个部门的主任拥有最高权限，如果我能将病毒植入她的设备的话…", src: "mytouxiang.png" },
+              { user: "萨米", text: "……", src: "touxiang1.png" },
+              { user: "萨米", text: "行，我希望你能对得起我对你的投资。", src: "touxiang1.png" },
+              { user: "琳恩", text: "我会的，麻烦你了。", src: "mytouxiang.png" },
             ], tips: false
           },
           {
             name: "实验体培育部",
+            qun:[{
+              name:"主任",
+              src: "touxiangzhuren.webp"
+            },{
+              name:"西奥",
+              src: "touxiangxiao.webp"
+            },{
+              name:"法伯尔",
+              src: "touxiangfaboer.webp"
+            },{
+              name:"马库斯",
+              src: "touxiangmakusi.webp"
+            },{
+              name:"琳恩",
+              src: "mytouxiang.png"
+            }],
             src: "touxiang2.png",
             xiaoxi: "收到",
             messages: [
               { text: "2013 年 8 月 13 日" },
               { text: "琳恩已加入群聊" },
-              { user: "主任", text: "@全体成员 大家欢迎琳恩！她之前是群星一号科研设施的科学家，最近调岗到苍穹工作，以后就是部门的一员了。", src: "touxiangzhuren.webp" },
+              { user: "主任", text: "@全体成员 大家欢迎琳恩！她之前在群星一号科研设施工作，最近调岗到苍穹工作，以后就是部门的一员了。", src: "touxiangzhuren.webp" },
               { user: "西奥", text: "欢迎。", src: "touxiangxiao.webp" },
               { user: "法伯尔", text: "欢迎。", src: "touxiangfaboer.webp" },
               { user: "马库斯", text: "欢迎。", src: "touxiangmakusi.webp" },
               { user: "琳恩", text: "谢谢大家，以后请多指教。", src: "mytouxiang.png" },
-              { user: "法伯尔", text: "群星的科学家怎么会来到苍穹工作？", src: "touxiangfaboer.webp" },
+              { user: "法伯尔", text: "群星的员工怎么会来到苍穹工作？", src: "touxiangfaboer.webp" },
               { user: "西奥", text: "我记得，能进群星的都是能力特别突出的人，而且薪资非常吓人。", src: "touxiangxiao.webp" },
               { user: "法伯尔", text: "工资很高吗？真羡慕。", src: "touxiangfaboer.webp" },
               { user: "琳恩", text: "不是这样的，是因为工作出了失误，才被调过来的。", src: "mytouxiang.png" },

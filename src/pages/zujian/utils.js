@@ -9,7 +9,7 @@ function sleep(ms) {
 }
 async function DuihuaPanduan(item) {
     const user = useCounterStore();
-    console.log("item=", item);
+    // console.log("item=", item);
 
     if (item === undefined || item.text === user.text) {
         return
@@ -184,8 +184,11 @@ async function DuihuaPanduan(item) {
             user.attributes.baise = true
         } else {
             user.attributes.baise = false
-            user.backgroundImage = new URL(`../../assets/images/${item.backgroundImage}.webp`, import.meta.url).href;
-            user.bg_img = item.backgroundImage;
+            if (item.backgroundImage !== user.bg_img) {
+                user.backgroundImage = new URL(`../../assets/images/${item.backgroundImage}.webp`, import.meta.url).href;
+                user.bg_img = item.backgroundImage;
+            }
+
         }
     }
     //边框颜色
@@ -249,6 +252,10 @@ async function DuihuaPanduan(item) {
     //返还行动点
     if (item.tiredness !== undefined) {
         user.attributes.tiredness = item.tiredness
+    }
+    //触发安慰事件
+    if (item.anwei === true) {
+        emitter.emit("anwei");
     }
     //任务
     if (item.finishedTasks !== undefined) {

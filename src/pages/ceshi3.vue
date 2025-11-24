@@ -2,7 +2,7 @@
   <div class="relative">
     <div class="absolute flex justify-center w-full -mt-3vh" ref="wrap">
       <!-- 视频 -->
-      <video ref="bg" :src="user.attributes.jueseDonghua" v-show="isReady && user.attributes.jueseDonghua !== undefined && user.attributes.showActions !== 2 && user.attributes.liaotian < 3" autoplay muted loop playsinline webkit-playsinline preload="auto" @canplay="handleCanPlay" class="absolute pointer-events-none z-10 h-140vh" />
+      <video ref="bg" :src="user.attributes.jueseDonghua" v-show="isReady && user.attributes.jueseDonghua !== undefined && user.attributes.showActions !== 2 && user.attributes.liaotian < 3 && !user.attributes.baise" autoplay muted loop playsinline webkit-playsinline preload="auto" @canplay="handleCanPlay" class="absolute pointer-events-none z-10 h-140vh" />
 
       <div
         v-for="(box, index) in boxs"
@@ -170,6 +170,7 @@ onMounted(() => {
   updateAllBoxes();
   user.attributes.jueseDonghua = new URL("@/assets/lihui/tuziHappy.webm", import.meta.url).href;
   text_num1();
+  anwei();
   window.addEventListener("resize", onResize);
 });
 onBeforeUnmount(() => {
@@ -230,6 +231,7 @@ function getDayKey(day) {
   return "defaultDay"; // 如果超出范围，返回默认值
 }
 async function hudong(param, i) {
+  console.log("hudong=", param);
   user.attributes.liaotianNodeKey = getDayKey(user.attributes.Day);
   user.playSound("clickS", false, user.volume * 0.5);
   if (param === "返回") {
@@ -329,25 +331,84 @@ async function hudong(param, i) {
     user.attributes.shiwu++;
     emitter.emit("text_num1");
   } else if (param === "结束") {
+    console.log("user.attributes.anwei=", user.attributes.anwei);
     if (user.attributes.shiyan === undefined) {
       ElMessText("还没进行实验呢，我可不想培育不达标。");
       return;
+    } else if (user.attributes.anwei === undefined) {
+      user.attributes.anwei = true;
+      if (!user.attributes.selectselected.includes("anwei01")) {
+        anweiKey = "anwei01";
+        user.attributes.selectselected.push("anwei01");
+        emitter.emit("anwei");
+        return;
+      } else if (!user.attributes.selectselected.includes("anwei02")) {
+        anweiKey = "anwei02";
+        user.attributes.selectselected.push("anwei02");
+        emitter.emit("anwei");
+        return;
+      } else if (!user.attributes.selectselected.includes("anwei03")) {
+        anweiKey = "anwei03";
+        user.attributes.selectselected.push("anwei03");
+        emitter.emit("anwei");
+        return;
+      }
     }
     user.attributes.liaotian = false;
     console.log("user.attributes.Day=", user.attributes.Day);
-
     if (user.attributes.Day === 1) {
       user.currentNodeKey = "oneDay";
       user.attributes.dangqianrenwu = "电脑";
       user.attributes.bjWuping[0].boxes[6].show = true;
       user.attributes.bjWuping[0].boxes[1].liang = true;
       user.attributes.bjWuping[0].boxes[2].tip = "（最好还是让他休息下，不要再去吵他了。)";
-    } else if (user.attributes.Day === 2) {
+    } else if (user.attributes.Day === 3) {
+      user.currentNodeKey = "threeDay";
+      // user.attributes.bjWuping[0].boxes[6].show = true;
+      // user.attributes.bjWuping[0].boxes[1].liang = true;
+      user.attributes.userApps[0].tips = true;
+      user.attributes.contacts[0].tips = true;
+      user.attributes.contacts[0].messages = [
+        ...user.attributes.contacts[0].messages,
+        ...[
+          { text: "2013 年 8 月 19 日" },
+          {
+            user: "主任",
+            text: `@全体成员 为搭建常态化沟通桥梁，现确定 “部门走访交流日” 安排：以今日为起始日，后续按 “每 5 日一周期” 循环推进。
+ <br class='indent-line' />为促进技术互通、共享培育经验，现允许各实验室间研究员自由走动参观 —— 可前往其他同事负责的实验区域，查看其他实验体的培育状态，互相交流培育技术。
+ <br class='indent-line' />1. 不可无故拒绝其他研究员的合理参观请求。
+ <br class='indent-line' />2. 自愿原则，研究员可自主选择是否参与走访。
+ <br class='indent-line' />3. 不强制要求分享涉密技术细节，所有交流以自愿、平等、尊重的态度开展。
+ <br class='indent-line' />预祝各位研究员交流顺利，共同提升培育效率！`,
+            src: "touxiangzhuren.webp",
+          },
+          {
+            user: "西奥",
+            text: "收到。",
+            src: "touxiangxiao.webp",
+          },
+          {
+            user: "马库斯",
+            text: "收到。",
+            src: "touxiangmakusi.webp",
+          },
+        ],
+      ];
+      console.log("   user.attributes.contacts[0]=", user.attributes.contacts);
+      user.attributes.bjWuping[0].boxes[2].tip = "（最好还是让他休息下，不要再去吵他了。)";
+    } else {
       user.currentNodeKey = "twoDay";
       user.attributes.dangqianrenwu = "电脑";
       user.attributes.bjWuping[0].boxes[6].show = true;
       user.attributes.bjWuping[0].boxes[1].liang = true;
       user.attributes.bjWuping[0].boxes[2].tip = "（最好还是让他休息下，不要再去吵他了。)";
+    }
+    if (user.attributes.Day === 1) {
+      user.attributes.selectselected.push("d01_LT");
+    } else if (user.attributes.Day === 2) {
+      user.attributes.selectselected.push("d02_LT");
+    } else if (user.attributes.Day === 3) {
+      user.attributes.selectselected.push("d03_LT");
     }
     user.youxi = 1;
     emitter.emit("text_num");
@@ -376,8 +437,8 @@ function shiyan(index) {
       } else {
         user.attributes.shiyan = "dianji01";
       }
-      user.attributes.liaotianNodeKey = "dayCon";
     }
+    user.attributes.liaotianNodeKey = "dayCon";
     user.attributes.DH02Cur = user.attributes.shiyan;
     user.attributes.jingshenData.Pressure += 40;
     user.attributes.jingshenData.SpiritPower += 2;
@@ -394,8 +455,8 @@ function shiyan(index) {
       } else {
         user.attributes.shiyan = "zhushe01";
       }
-      user.attributes.liaotianNodeKey = "dayCon";
     }
+    user.attributes.liaotianNodeKey = "dayCon";
     user.attributes.DH02Cur = user.attributes.shiyan;
     user.attributes.jingshenData.Pressure += 25;
     user.attributes.jingshenData.SpiritPower += 1;
@@ -414,14 +475,21 @@ function text_num1() {
   emitter.on("text_num1", async () => {
     user.attributes.liaotian = 2;
     user.text_boolean = true;
-    console.log(" user.youxi01=", user.youxi01);
-    console.log("user.attributes.DH02Cur=", user.attributes.DH02Cur);
-    console.log("user.attributes.liaotianNodeKey=", user.attributes.liaotianNodeKey);
-    console.log("dialogueTree=", dialogueTree[user.attributes.liaotianNodeKey]);
     const content = dialogueTree[user.attributes.liaotianNodeKey][user.attributes.DH02Cur];
-    console.log("content", content);
+    console.log("content=", content);
     await DuihuaPanduan(content[user.youxi01]);
-    console.log("user.youxi=", user.selectBoolean);
+  });
+}
+let anweiKey;
+function anwei() {
+  emitter.off("anwei");
+  emitter.on("anwei", () => {
+    console.log("触发安慰事件");
+    user.youxi01 = 0;
+    user.attributes.liaotianNodeKey = "dayCon";
+    user.attributes.DH02Cur = anweiKey;
+    user.attributes.jingshenData.Pressure -= 10;
+    emitter.emit("text_num1");
   });
 }
 </script>
