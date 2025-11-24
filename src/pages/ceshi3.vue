@@ -392,6 +392,9 @@ async function hudong(param, i) {
             text: "收到。",
             src: "touxiangmakusi.webp",
           },
+          {
+            choices: [{ text: "收到",text:"zoufang" }],
+          },
         ],
       ];
       console.log("   user.attributes.contacts[0]=", user.attributes.contacts);

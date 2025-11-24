@@ -82,7 +82,7 @@
           </div>
         </div>
 
-        <div v-show="!user.textYincang">
+        <div v-show="!user.textYincang && user.wupingShow !== 2">
           <img ref="waichu" v-show="user.attributes.waichu" src="@/assets/icon/waichu.webp" class="w-10 absolute right-2.5vw bottom-30.5vh rounded-100%" @click.stop="menu('行动')" />
           <img ref="xinxi" v-show="user.attributes.kucun" src="@/assets/icon/pingban.webp" class="w-8 absolute right-2.5vw bottom-2vh object-contain" @click.stop="menu('背包')" />
           <div v-show="!user.selectBoolean" class="h-5vh flex fixed bottom-26.5vh justify-between w-[calc(100%-14vw)] z-3" :class="{ 'justify-end!': !user.name || user.name === '' }" @touchstart.stop="">

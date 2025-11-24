@@ -81,13 +81,25 @@
                   <!-- 头像 -->
                   <img :src="headImg(item.src)" class="h-28px w-28px object-contain rounded-full border-1 border-solid border-white shrink-0" />
                   <!-- 三角箭头 -->
-                  <span class="absolute mt-1.5" :class="item.user !== '琳恩' ? 'ml-6.65 triangle-right' : 'mr-6.65 triangle-left'"></span>
+                  <span class="absolute mt-1.5" :class="item.user !== '琳恩' ? 'ml-6.65 triangle-right' : 'mr-6.2 triangle-left'"></span>
                   <!-- 气泡内容 -->
-                  <div class="relative px-2.5 pt-1.2 pb-1 rounded-2 bg-white text-black font-bold break-words text-16px max-w-85%" :class="item.user === '琳恩' ? 'bubble-right' : 'bubble-left'" v-html="item.text" @touchstart="item.shijian ? shijianTou(item) : null"></div>
+                  <div class="relative px-2.5 pt-1.2 pb-1 rounded-2 font-bold break-words text-16px max-w-85%" :class="item.user === '琳恩' ? 'bubble-right bg-#409EFF text-white' : 'bubble-left bg-white text-black'" v-html="item.text" @touchstart="item.shijian ? shijianTou(item) : null"></div>
                 </template>
-                <template v-else-if="item.choices!==undefined">
-                  
-                 </template>
+                <template v-else-if="item.choices !== undefined">
+                  <div class="w-full text-20px flex flex-col items-end box-border pr-5">
+                    <div class="flex flex-row-reverse w-75%">
+                      <img :src="headImg('mytouxiang.png')" class="h-28px w-28px object-contain rounded-full border-1 border-solid border-white shrink-0" />
+                      <span class="mt-1.5 triangle-right-me scale-x-[-1]"></span>
+                      <div class="flex flex-col w-full gap-y-0.5 bg-#409EFF text-white font-bold break-words text-16px max-w-85% rounded-2 px-2.5 pt-1.7 pb-1.5">
+                        <div class="flex items-center gap-x-1.5">
+                          <img src="@/assets/icon/lianxi.png" class="scale-x-[-1] w-25px" />
+                          <span>短信回复</span>
+                        </div>
+                        <div class="text-red">你好123123</div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
                 <template v-else>
                   <div class="w-full justify-center flex text-12px text-white/60">{{ item.text }}</div>
                 </template>
@@ -525,7 +537,7 @@ img {
   width: 0;
   height: 0;
   border: 7px solid transparent;
-  border-left-color: white; /* 👉 朝右的白色三角 */
+  border-left-color: #409eff; /* 👉 朝右的白色三角 */
 }
 .triangle-right {
   width: 0;
@@ -533,7 +545,12 @@ img {
   border: 7px solid transparent;
   border-right-color: white; /* 👉 朝右的白色三角 */
 }
-
+.triangle-right-me {
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-right-color: #409eff; /* 👉 朝右的白色三角 */
+}
 :deep(.text-blue-600) {
   color: #2563eb;
   text-decoration: underline;
