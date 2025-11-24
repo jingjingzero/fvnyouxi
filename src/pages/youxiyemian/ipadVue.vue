@@ -74,7 +74,7 @@
               <el-icon v-show="qun !== undefined" size="25px" color="white" @click="qunxinxi"><MoreFilled /></el-icon>
             </div>
 
-            <!-- 消息内容 -->
+            <!-- 消息内容1 -->
             <div class="flex relative pt-2vh pb-1.5vh overflow-y-auto h-full px-3 rounded-bl-3 rounded-br-3 text-16px flex-col gap-y-6" ref="messageContainer">
               <div v-for="item of tactArr" :key="item.name" class="flex gap-x-2" :class="item.user === '琳恩' ? 'flex-row-reverse' : ''">
                 <template v-if="item.user">
