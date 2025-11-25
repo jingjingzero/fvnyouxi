@@ -463,9 +463,7 @@ async function DuihuaPanduan(item) {
     //漫游式提示
     if (item.tishi !== undefined) {
         setTimeout(() => {
-            if (item.tishi === "tishi01") {
-                user.attributes.tishi01 = true
-            }
+            user.attributes.tishi01 = item.tishi
         }, 400);
     }
     //经验值成长

@@ -393,7 +393,7 @@ async function hudong(param, i) {
             src: "touxiangmakusi.webp",
           },
           {
-            choices: [{ text: "收到",text:"zoufang" }],
+            choices: [{ text: "收到",rengwu:"zoufang" }],
           },
         ],
       ];

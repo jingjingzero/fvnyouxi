@@ -6,7 +6,7 @@
 <template>
   <div class="relative overflow-hidden" @touchstart="touchDown">
     <div class="absolute top-5vh left-5vw text-1.6vw z-5 text-black z-99999">
-      {{user.attributes.Day }} 天
+      <!-- {{ user.attributes.tishi01  }} 天 -->
       <!-- {{ user.attributes.liaotian }} --- {{ user.textYincang }} --- {{ user.attributes.Day }}天 -->
       <!-- 状态: {{ user.youxi }} /{{ user.attributes.Day }}天 / {{ user.currentNodeKey }}/聊天{{ user.attributes.liaotian }} 好感度 {{ user.attributes?.Character?.[0]?.Affinity ?? 0 }}
       {{ user.text }} -->
@@ -33,7 +33,7 @@
         <div class="bg-white w-full h-full"></div>
       </template>
 
-        <img v-show="!user.attributes.baise" ref="bg" :src="user.backgroundImage" class="w-full h-full object-cover select-none" />
+      <img v-show="!user.attributes.baise" ref="bg" :src="user.backgroundImage" class="w-full h-full object-cover select-none" />
       <!-- 红框 -->
       <template v-if="user.attributes.bjIndex !== -1">
         <div
@@ -239,8 +239,8 @@ async function touchDown() {
   } else if (user.textYincang && user.textYincang !== 2) {
     user.textYincang = false;
     textYin = true;
-  }else if(user.textYincang!==2 && user.attributes.liaotian !==1){
-  emitter.emit("touchGongo");
+  } else if (user.textYincang !== 2 && user.attributes.liaotian !== 1) {
+    emitter.emit("touchGongo");
   }
 }
 let textYin = false;

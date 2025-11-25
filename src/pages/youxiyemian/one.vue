@@ -83,7 +83,7 @@
         </div>
 
         <div v-show="!user.textYincang && user.wupingShow !== 2">
-          <img ref="waichu" v-show="user.attributes.waichu" src="@/assets/icon/waichu.webp" class="w-10 absolute right-2.5vw bottom-30.5vh rounded-100%" @click.stop="menu('行动')" />
+          <img ref="waichu" v-show="user.attributes.waichu" src="@/assets/icon/waichu.webp" class="w-8 absolute right-2.5vw bottom-17vh object-contain" @click.stop="menu('行动')" />
           <img ref="xinxi" v-show="user.attributes.kucun" src="@/assets/icon/pingban.webp" class="w-8 absolute right-2.5vw bottom-2vh object-contain" @click.stop="menu('背包')" />
           <div v-show="!user.selectBoolean" class="h-5vh flex fixed bottom-26.5vh justify-between w-[calc(100%-14vw)] z-3" :class="{ 'justify-end!': !user.name || user.name === '' }" @touchstart.stop="">
             <div v-show="user.name && user.name !== ''" class="py-0.7vh text-white text-2vw bg-[rgba(0,0,0,0.6)] rounded-4 iconfont2 flex justify-center items-center min-w-16vw">{{ user.name }}</div>
@@ -110,7 +110,8 @@
         <Buy />
       </div>
       <el-tour v-model="user.attributes.tishi01" :show-close="false">
-        <el-tour-step :target="xinxi" title="琳恩的平板" description="你可以使用平板进行一些操作。" />
+        <el-tour-step v-if="user.attributes.tishi01 === 1" :target="xinxi" title="琳恩的平板" description="你可以使用平板进行一些操作。" />
+        <el-tour-step v-else-if="user.attributes.tishi01 === 2" :target="waichu" title="外出" description="你可以点击这个去往别的地方。" />
         <template #indicators="{ current, total }">
           <span class="text-17px">{{ current + 1 }} / {{ total }}</span>
         </template>

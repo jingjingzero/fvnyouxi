@@ -90,12 +90,12 @@
                     <div class="flex flex-row-reverse w-75%">
                       <img :src="headImg('mytouxiang.png')" class="h-28px w-28px object-contain rounded-full border-1 border-solid border-white shrink-0" />
                       <span class="mt-1.5 triangle-right-me scale-x-[-1]"></span>
-                      <div class="flex flex-col w-full gap-y-0.5 bg-#409EFF text-white font-bold break-words text-16px max-w-85% rounded-2 px-2.5 pt-1.7 pb-1.5">
+                      <div class="flex flex-col w-full gap-y-1 bg-#409EFF text-white font-bold break-words text-16px max-w-85% rounded-2 px-2.5 pt-1.7 pb-2.5">
                         <div class="flex items-center gap-x-1.5">
                           <img src="@/assets/icon/lianxi.png" class="scale-x-[-1] w-25px" />
                           <span>短信回复</span>
                         </div>
-                        <div class="text-red">你好123123</div>
+                        <div class="text-black bg-white rounded-full flex justify-center items-center py-1 text-14px" v-for="item in item.choices" :key="item.text" @touchstart="huifu(item.rengwu)">{{ item.text }}</div>
                       </div>
                     </div>
                   </div>
@@ -304,6 +304,7 @@ import { useCounterStore } from "@/store/counter"; // pinia库
 import { ElMessText } from "@/pages/zujian/utils.js";
 import emitter from "@/bus"; // 引入传值组件
 import { ElMessageBox } from "element-plus";
+import { doCheck } from "./duanxin.js";
 const user = useCounterStore();
 const visible = ref(false);
 const num1 = ref(0);
@@ -412,6 +413,7 @@ function tactChange(item, index) {
   tactIndex.value = index;
   tactName.value = item.name;
   tactArr.value = item.messages;
+  console.log("tactIndex=", tactIndex.value);
   qun.value = item.qun;
   console.log("item=", item);
 
@@ -499,6 +501,20 @@ function selectJilu(item, index) {
         // ❌ 点击“取消”或关闭弹窗时执行的逻辑
       });
   }
+}
+//回复短信
+function huifu(item) {
+  const result = doCheck(item); // 传参
+  tactArr.value.pop();
+  tactArr.value.push(result);
+  user.attributes.contacts[tactIndex.value].tips = false;
+  //判断短信是否没有感叹号
+  const allFalse = user.attributes.contacts.every((item) => item.tips === false);
+  if (allFalse) {
+    user.attributes.userApps[0].tips = false;
+  }
+  user.attributes.textJuxu = false;
+  emitter.emit("touchGongo");
 }
 </script>
 
