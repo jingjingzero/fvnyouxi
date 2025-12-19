@@ -3,17 +3,14 @@ export const dialogueTree = {
         shiyan1: [
             {
                 text: "（琳恩开始自己今天的培育计划，琳恩将220带到了一个密闭的房间，密闭房间里只有顶灯泛着冷白的光，照亮中央那把缠着黑色束缚带的椅子。琳恩站在椅旁，目光落在 220 身上，声音尽量放得平稳。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
-                ]
+                ],
             },
             {
                 name: "琳恩",
@@ -21,11 +18,13 @@ export const dialogueTree = {
             },
             {
                 text: "（220 的脚步顿了顿，眼神扫过椅子，手掌蜷缩起来， 他显然是抗拒的，肩线都绷直了些。但也只是一瞬，长久实验刻在骨子里的习惯压过了本能，他还是慢慢走过去，乖乖坐在了椅子上。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
                     },
+                ],
+                fullBodyVideos: [
                     {
                         id: 3,
                         show: true,
@@ -58,15 +57,12 @@ export const dialogueTree = {
         shiyan2: [
             {
                 text: "（琳恩开始自己今天的培育计划，琳恩将220带到了一个密闭的房间，密闭房间里只有顶灯泛着冷白的光，照亮中央那把缠着黑色束缚带的椅子。琳恩站在椅旁，目光落在 220 身上，声音尽量放得平稳。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
                 ],
             },
@@ -105,11 +101,13 @@ export const dialogueTree = {
             },
             {
                 text: "（当220被束缚住时，能清晰感觉到 220 身体的僵硬，眼神透露出恐惧和失望，整个人处于不安中。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
                     },
+                ],
+                fullBodyVideos: [
                     {
                         id: 3,
                         show: true,
@@ -135,17 +133,14 @@ export const dialogueTree = {
         shiyan3: [
             {
                 text: "（琳恩开始自己今天的培育计划，琳恩将220带到了一个密闭的房间，密闭房间里只有顶灯泛着冷白的光，照亮中央那把缠着黑色束缚带的椅子。琳恩站在椅旁，目光落在 220 身上，声音尽量放得平稳。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
-                ]
+                ],
             },
             {
                 name: "琳恩",
@@ -161,11 +156,13 @@ export const dialogueTree = {
             },
             {
                 text: "（220 的脚步顿了顿，眼神扫过椅子，手掌蜷缩起来， 他显然是抗拒的，肩线都绷直了些。但也只是一瞬，长久实验刻在骨子里的习惯压过了本能，他还是慢慢走过去，乖乖坐在了椅子上。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
                     },
+                ],
+                fullBodyVideos: [
                     {
                         id: 3,
                         show: true,
@@ -395,7 +392,8 @@ export const dialogueTree = {
                     {
                         select: "结束聊天",
                         currentNodeKey: "Day03_lt02",
-                        Day: "dayCon"
+                        Day: "dayCon",
+                        no:true
                     },
                 ]
             },
@@ -612,10 +610,6 @@ export const dialogueTree = {
                 text: "（琳恩带着220前往之前的房间，220有些抗拒，但还是听话的坐到束缚椅上。）",
                 fullBodyVideos: [
                     {
-                        id: 2,
-                        show: false,
-                    },
-                    {
                         id: 3,
                         show: true,
                         img: "tuziSy01",
@@ -637,43 +631,18 @@ export const dialogueTree = {
             {
                 liaotian: 2,
                 jueseDonghua: false,
-                text: "(琳恩如往常那般给220贴好电极。)",
-                fullBodyVideos: [
-                    {
-                        id: 3,
-                        show: true,
-                        img: "tuziSyDj0",
-                        x: 35,
-                    },
-                ],
-            },
-            {
-                text: "（220依旧恐惧地盯着琳恩的动作。）",
-            },
-            {
-                text: "（伴随着机器的启动，220的惨叫随之响起。）",
-                fullBodyVideos: [
-                    {
-                        id: 3,
-                        show: true,
-                        img: "tuziSyDj",
-                    },
-                ],
-            },
-            {
-                text: "（琳恩默默在一旁安慰着220并紧盯着精神情况。）",
-            },
-            {
-                text: "（当数据到达临界值时，琳恩即使关闭了电击。）",
-            },
-            {
-                text: "（一切结束时，琳恩扶起半昏迷的220回到床上。）",
+                heipingWenzi: "电击实验中",
+                backgroundImage: "heise",
                 fullBodyVideos: [
                     {
                         id: 3,
                         show: false,
                     },
                 ],
+                text: "（一切结束时，琳恩扶起半昏迷的220回到床上。）",
+            },
+            {
+                text: "……",
                 liaotian: 1,
                 backgroundImage: "fangjian01",
             },
@@ -789,44 +758,18 @@ export const dialogueTree = {
             {
                 liaotian: 2,
                 jueseDonghua: false,
-                text: "(琳恩再次拿起试剂，轻轻弹了弹管壁，220恐惧着紧紧盯着琳恩的动作。)",
+                heipingWenzi: "注射药剂中",
+                backgroundImage: "heise",
                 fullBodyVideos: [
                     {
                         id: 3,
-                        show: true,
-                        img: "tuziSy01",
-                        x: 35,
+                        show: false,
                     },
                 ],
+                text: "（一切结束时，琳恩扶起半昏迷的220回到床上。）",
             },
             {
-                text: "（随着琳恩的靠近，220 的目光像被钉在针管上，瞳孔随琳恩的靠近缓缓收缩。）",
-                fullBodyVideos: [
-                    {
-                        id: 3,
-                        show: true,
-                        img: "tuziSydazhen01",
-                    },
-                ],
-            },
-            {
-                text: "（琳恩抽出酒精棉，为即将插入的额头擦了擦，在安慰话语中将针管插了进去并注射。）",
-                fullBodyVideos: [
-                    {
-                        id: 3,
-                        show: true,
-                        img: "tuziSydazhen",
-                    },
-                ],
-            },
-            {
-                text: "（220的惨叫声随之响起，身体瞬间绷成一张弓，本能地想要挣扎，又被拘束带狠狠定住。）",
-            },
-            {
-                text: "（随着药效发作，220身体不断发热并伴随着抽搐。）",
-            },
-            {
-                text: "（当一切结束时，琳恩将瘫软的220抱回了床上。）",
+                text: "……",
                 fullBodyVideos: [
                     {
                         id: 3,
@@ -1073,11 +1016,11 @@ export const dialogueTree = {
             {
                 text: "(琳恩再次来到220床边，看着眼前这个坚强地孩子，胸口有些闷闷地，有种说不上来的感觉。）",
                 backgroundImage: "baise",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep1",
+                        img: "tuzi/tuzisleep1.webp",
                         juzhong: true,
                         daxiao: 82,
                     },
@@ -1093,12 +1036,13 @@ export const dialogueTree = {
             {
                 name: "我",
                 text: "这是什么？头好疼…",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep2",
+                        img: "tuzi/tuzisleep2.webp",
                         juzhong: true,
+                        daxiao: 82,
                     },
                 ],
             },
@@ -1108,31 +1052,24 @@ export const dialogueTree = {
             {
                 text: "(220被琳恩的痛呼惊醒了，看着琳恩痛苦的样子，虚弱地撑起身体走下床，想要扶住琳恩。)",
                 backgroundImage: "fangjian",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: false,
                     },
                     {
-                        id: 2,
-                        show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
-                    },
-                ],
-                fullBodyImages: [
-                    {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
+                        img: "boshi/boshi1.webp",
+                        x: -5,
                         speakX: -5
-                    }
+                    },
+                    {
+                        id: 2,
+                        show: true,
+                        img: "tuzi/tuzi.webp",
+                        x: 55,
+                    },
                 ],
             },
             {
@@ -1142,7 +1079,7 @@ export const dialogueTree = {
             {
 
                 text: "(220有些虚弱地扶住琳恩，但却因为自己什么都做不到，焦急又担心。)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
@@ -1172,18 +1109,16 @@ export const dialogueTree = {
             },
             {
                 text: "...",
-                fullBodyVideos: [
-                    {
-                        id: 2,
-                        show: false,
-                    },
-                ],
                 fullBodyImages: [
                     {
                         id: 1,
                         show: false,
 
-                    }
+                    },
+                    {
+                        id: 2,
+                        show: false,
+                    },
                 ],
                 backgroundImage: "fangjian01",
                 liaotian: 1
@@ -1197,11 +1132,11 @@ export const dialogueTree = {
                 name: "我",
                 text: "怎么了吗？哪里不舒服吗？",
                 backgroundImage: "baise",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep2",
+                        img: "tuzi/tuzisleep2.webp",
                         juzhong: true,
                         daxiao: 82,
                     },
@@ -1359,13 +1294,11 @@ export const dialogueTree = {
                 text: "（他心里或许清楚这可能是个谎言，但他愿意相信琳恩。至于 “一直在一起” 到底要怎么实现，他不想问，也不敢问，此刻他是幸福的就足够了。）",
             },         {
                 text: "...",
-                fullBodyVideos:[
+                fullBodyImages: [
                     {
                         id: 199,
                         show: false,
                     },
-                ],
-                fullBodyImages: [
                     {
                         id: 1,
                         show: false,

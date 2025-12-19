@@ -181,7 +181,9 @@ async function DuihuaPanduan(item) {
     // 背景图片
     if (item.backgroundImage !== undefined) {
         if (item.backgroundImage === 'baise') {
-            user.attributes.baise = true
+            user.attributes.baise = 1
+        } else if (item.backgroundImage === 'heise') {
+            user.attributes.baise = 2
         } else {
             user.attributes.baise = false
             if (item.backgroundImage !== user.bg_img) {
@@ -301,6 +303,10 @@ async function DuihuaPanduan(item) {
             }
         }
     }
+    //CG特写，其他立绘消失
+    if (item.texieCg !== undefined) {
+      user.attributes.texieCg = item.texieCg        
+    }
     // 立绘
     if (item.fullBodyImages !== undefined) {
         if (item.fullBodyImages.allDelete) {
@@ -308,7 +314,9 @@ async function DuihuaPanduan(item) {
         }
         let index;
         Object.assign(user.fullBodyImages, user.fullBodyImages.map(v => ({ ...v, isSpeaking: false })))
+        console.log('item.text=', item.text);
         item.fullBodyImages.forEach((item1) => {
+            console.log('item1=', item1);
             index = user.fullBodyImages.findIndex((image) => image.id === item1.id);
             if (item1.show === undefined && item1.isSpeaking > 0 && index !== -1) {
                 user.fullBodyImages[index].isSpeaking = item1.isSpeaking;
@@ -319,8 +327,13 @@ async function DuihuaPanduan(item) {
                 if (!item1.show) {
                     // 如果 show 为 false，则移除该项
                     user.fullBodyImages.splice(index, 1);
-                } else if (item1.y === undefined && item1.x !== undefined) {
-                    user.fullBodyImages[index].x = item1.x
+                } else if (item1.x !== undefined || item1.img !== undefined) {
+                    if (item1.img !== undefined) {
+                        user.fullBodyImages[index].img = item1.img
+                    }
+                    if (item1.x !== undefined) {
+                        user.fullBodyImages[index].x = item1.x
+                    }
                     return
                 } else {
                     // 如果 show 为 true，覆盖更新该项
@@ -330,6 +343,17 @@ async function DuihuaPanduan(item) {
                 // 如果没有相同 id 的项，添加新项
                 if (user.fullBodyImages === undefined) {
                     user.fullBodyImages = [];
+                }
+                if (item1.img !== undefined) {
+                    if (item1.juzhong===undefined) {
+                        let name = item1.img.indexOf("/");
+                        name = name === -1 ? item1.img : item1.img.slice(0, name);
+                        name = lihuiName(name)
+                        item1.y = name.y
+                        item1.daxiao = name.daxiao
+                    }
+                }else if(!item1.show){
+                    return
                 }
                 user.fullBodyImages.push(item1);
             }
@@ -381,11 +405,16 @@ async function DuihuaPanduan(item) {
     if (item.heipingWenzi !== undefined) {
         user.attributes.textJuxu = true
         user.heipingWenzi = item.heipingWenzi;
-        await sleep(1300);
+        await sleep(item.heipingWenziS ? item.heipingWenziS : 1300);
         user.heipingWenzi = "";
         user.text = item.text
         await sleep(450);
         user.attributes.textJuxu = false
+    }
+    //黑屏叙事
+    if (item.HPxushi !== undefined) {
+        user.attributes.HPxushi = item.HPxushi
+        user.attributes.textJuxu = true
     }
     if (item.liaotian !== undefined) {
         clearInterval(user.kuaijin);
@@ -598,6 +627,31 @@ function ElMessText(content, type) {
         ElMessage.closeAll();
         closeTimer = null;
     }, 1750);
+}
+function lihuiName(name) {
+    let type;
+    if (name === 'boshi') {
+        type = {
+            y: 50,
+            daxiao: 95
+        }
+    } else if (name === "tuzi") {
+        type = {
+            y: 25,
+            daxiao: 90
+        }
+    } else if (name === "robot") {
+        type = {
+            y: 25,
+            daxiao: 90
+        }
+    } else {
+        type = {
+            y: 0,
+            daxiao: 0
+        }
+    }
+    return type
 }
 // 导出 sleep 函数，便于其他文件引用
 export { sleep, ElMessText, DuihuaPanduan };

@@ -10,7 +10,7 @@
       <div ref="topRef" class="absolute top-0 w-full h-1/2 bg-black z-2"></div>
       <div ref="bottomRef" class="absolute bottom-0 w-full h-1/2 bg-black z-2"></div>
     </div>
-    <video ref="video"  poster="@/assets/lihuiImg/heiping.webp"  :src="jueseDonghua" v-if="visible === 3 && jueseDonghua" class="absolute pointer-events-none z-20" muted  playsinline webkit-playsinline    />
+    <video ref="video" poster="@/assets/lihuiImg/heiping.webp" :src="jueseDonghua" v-if="visible === 3 && jueseDonghua" class="w-100vw h-100vh object-cover" muted playsinline webkit-playsinline />
   </div>
 </template>
 
@@ -80,7 +80,7 @@ const playVideo = async () => {
   const v = video.value;
   if (!v) return;
 
-  v.playbackRate = 1.1;
+  v.playbackRate = 1;
   v.play();
   // ✅ 播放完毕后打印 11
   setTimeout(() => {
@@ -89,7 +89,7 @@ const playVideo = async () => {
   v.onended = () => {
     setTimeout(() => {
       user.attributes.textJuxu = false;
-      user.visible =false
+      user.visible = false;
     }, 500);
   };
 };

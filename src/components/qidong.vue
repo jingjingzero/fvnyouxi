@@ -15,11 +15,11 @@
       <!-- <div class="w-50% h-full text-white font-bold iconfont2 text-4vw flex justify-end">
         <div class="mt-10vh gradient-text">名为自由的彼岸</div>
       </div> -->
-      <video poster="@/assets/lihuiImg/zhujue1.webp"  :src="jueseDonghua" autoplay muted loop playsinline webkit-playsinline preload="auto" class="absolute pointer-events-none z-10 h-120vh mt-24vh -right-15 select-none" />
+      <video poster="@/assets/lihuiImg/zhujue1.webp" :src="jueseDonghua" autoplay muted loop playsinline webkit-playsinline preload="auto" class="absolute pointer-events-none z-10 h-120vh mt-24vh -right-15 select-none" />
     </div>
     <div v-else class="w-full h-full relative flex items-center justify-center z-1">
       <!-- 背景视频 -->
-      <video  poster="@/assets/lihuiImg/heiping.webp"  src="@/assets/donghua/waterBg.webm" autoplay muted loop playsinline webkit-playsinline preload="auto" class="absolute w-full h-full object-cover pointer-events-none" />
+      <video poster="@/assets/lihuiImg/heiping.webp" src="@/assets/donghua/waterBg.webm" autoplay muted loop playsinline webkit-playsinline preload="auto" class="absolute w-full h-full object-cover pointer-events-none" />
 
       <template v-if="startSelect.index === 1">
         <div class="absolute top-1/5 w-full text-center text-white text-36px font-bold iconfont2 opacity-0 animate-fadeIn">如果让你选择，你希望主角的性别是？</div>
@@ -82,7 +82,6 @@
 import { ref, reactive, onMounted } from "vue";
 import { useCounterStore } from "@/store/counter"; //pinia库
 import { ElMessText } from "@/pages/zujian/utils.js";
-
 const startSelect = reactive({
   index: 0,
   animationFinished: false,
@@ -115,37 +114,51 @@ const value = ref("实验体");
 const options = ["实验体", "研究员"];
 const user = useCounterStore();
 const info = reactive(["开始游戏", "读取游戏", "画廊", "设置", "笔记"]);
+let enterLock = false;
+
 async function enter(index) {
-  user.text = "";
-  user.playSound("clickS", false, user.volume * 0.5);
-  if (index === 0) {
-    if (user.SoundArr.length === 0) {
-      return;
+  if (enterLock) return; // 正在等待，直接返回
+  enterLock = true;       // 上锁，阻止短时间内再次触发
+
+  try {
+    user.text = "";
+    user.playSound("clickS", false, user.volume * 0.5);
+
+    if (index === 0) {
+      if (user.SoundArr.length === 0) return;
+
+      console.log("开始");
+      user.resetUser();
+      user.zhujue01.name = "琳恩";
+      user.zhujue01.sex = 0;
+      user.stopAllSounds();
+      startSelect.index++;
+      user.playSound("water", true, user.volume * 0.5);
+      setTimeout(() => {
+        startSelect.animationFinished = true;
+      }, 1600);
+
+    } else if (index === 1) {
+      user.stopAllSounds();
+      user.cundang(2);
+    } else if (index === 2) {
+      ElMessText("未开放");
+    } else if (index === 3) {
+      user.menu = 2;
+      user.menuSelect = 3;
+    } else if (index === 4) {
+      tujian.value = true;
+      value.value = "实验体";
     }
-    console.log("开始");
-    // user.resetUser();
-    user.stopAllSounds();
-    startSelect.index++;
-    user.playSound("water", true, user.volume * 0.5);
+
+  } finally {
+    // 0.25 秒后释放锁
     setTimeout(() => {
-      startSelect.animationFinished = true;
-    }, 1600);
-  } else if (index === 1) {
-    user.stopAllSounds();
-    user.cundang(2);
-  } else if (index === 2) {
-    ElMessText("未开放");
-  } else if (index === 3) {
-    user.menu = 2;
-    user.menuSelect = 3;
-  } else if (index === 4) {
-    tujian.value = true;
-    value.value = "实验体";
-    // router.push({ name: "ceshi1" });
-    // user.menu = 2;
-    // user.menuSelect = 5;
+      enterLock = false;
+    }, 250);
   }
 }
+
 const selectGender = (gender, index) => {
   if (!startSelect.animationFinished) return;
   user.playSound("clickS", false, user.volume * 0.5);

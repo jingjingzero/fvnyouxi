@@ -2,7 +2,7 @@
   <div class="relative">
     <div class="absolute flex justify-center w-full -mt-3vh" ref="wrap">
       <!-- 视频 -->
-      <video ref="bg" :src="user.attributes.jueseDonghua" v-show="isReady && user.attributes.jueseDonghua !== undefined && user.attributes.showActions !== 2 && user.attributes.liaotian < 3 && !user.attributes.baise" autoplay muted loop playsinline webkit-playsinline preload="auto" @canplay="handleCanPlay" class="absolute pointer-events-none z-10 h-140vh" />
+      <video ref="bg" :src="user.attributes.jueseDonghua" v-show="isReady && user.attributes.jueseDonghua !== undefined && user.attributes.showActions !== 2 && user.attributes.liaotian < 3 && !user.attributes.baise && (user.bg_img === 'fangjian' || user.bg_img === 'fangjianhei')" autoplay muted loop playsinline webkit-playsinline preload="auto" @canplay="handleCanPlay" class="absolute pointer-events-none z-10 h-140vh" />
 
       <div
         v-for="(box, index) in boxs"
@@ -79,10 +79,10 @@
             <span class="text-white font-bold text-outline-poison text-25px">注射(+25压力)</span>
             <img src="@/assets/icon/zhushe.png" class="w-40px h-40px" />
           </div>
-          <div class="flex items-center justify-center gap-x-3 border-2 border-solid border-[#409EFF] py-3 rounded-1 w-65 bg-white" @touchstart="shiyan(1)">
+          <!-- <div class="flex items-center justify-center gap-x-3 border-2 border-solid border-[#409EFF] py-3 rounded-1 w-65 bg-white" @touchstart="shiyan(1)">
             <span class="text-white font-bold text-outline-electric text-25px">电击(+40压力)</span>
             <img src="@/assets/icon/dianji.png" class="w-40px h-40px" />
-          </div>
+          </div> -->
         </div>
       </div>
     </transition>
@@ -268,6 +268,14 @@ async function hudong(param, i) {
       user.attributes.showActions = undefined;
     }
   } else if (param === "实验") {
+    console.log("sdsd");
+    if (user.attributes.duihua === undefined) {
+      ElMessText("先和他聊聊天吧");
+      return;
+    } else if (user.attributes.weishi === undefined) {
+      ElMessText("还没给他喂食");
+      return;
+    }
     user.attributes.showActions = 1;
   } else if (param === "观察") {
     dialogVisible.value = true;
@@ -393,7 +401,7 @@ async function hudong(param, i) {
             src: "touxiangmakusi.webp",
           },
           {
-            choices: [{ text: "收到",rengwu:"zoufang" }],
+            choices: [{ text: "收到", rengwu: "zoufang" }],
           },
         ],
       ];
@@ -429,9 +437,6 @@ function shiyan(index) {
   user.attributes.liaotianNodeKey = getDayKey(user.attributes.Day);
   if (index === 1) {
     //电击
-    if (!user.attributes.selectselected.includes("dianji")) {
-      user.attributes.selectselected.push("dianji");
-    }
     if (user.attributes.Day === 1) {
       user.attributes.shiyan = "dianji01";
     } else {
@@ -441,23 +446,26 @@ function shiyan(index) {
         user.attributes.shiyan = "dianji01";
       }
     }
+    if (!user.attributes.selectselected.includes("dianji")) {
+      user.attributes.selectselected.push("dianji");
+    }
     user.attributes.liaotianNodeKey = "dayCon";
     user.attributes.DH02Cur = user.attributes.shiyan;
     user.attributes.jingshenData.Pressure += 40;
     user.attributes.jingshenData.SpiritPower += 2;
   } else if (index === 2) {
     //注射
-    if (!user.attributes.selectselected.includes("zhushe")) {
-      user.attributes.selectselected.push("zhushe");
-    }
     if (user.attributes.Day === 1) {
       user.attributes.shiyan = "zhushe01";
     } else {
-      if (user.attributes.selectselected.includes("dianji")) {
+      if (user.attributes.selectselected.includes("zhushe")) {
         user.attributes.shiyan = "zhushe";
       } else {
         user.attributes.shiyan = "zhushe01";
       }
+    }
+    if (!user.attributes.selectselected.includes("zhushe")) {
+      user.attributes.selectselected.push("zhushe");
     }
     user.attributes.liaotianNodeKey = "dayCon";
     user.attributes.DH02Cur = user.attributes.shiyan;

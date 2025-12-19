@@ -252,6 +252,7 @@ export const useCounterStore = defineStore("counter", {
       // ]
       this.attributes = {
         baise: undefined,
+        HPxushi:undefined,//黑屏叙事
         jueseDonghua: undefined,
         dangqianrenwu: "电脑",
         shiwu: 0,
@@ -306,7 +307,7 @@ export const useCounterStore = defineStore("counter", {
               { user: "琳恩", text: "不是这样的，是因为工作出了失误，才被调过来的。", src: "mytouxiang.png" },
               { user: "西奥", text: "那可真糟糕，有什么问题可以问我，我会尽量帮你的。", src: "touxiangxiao.webp" },
               { user: "琳恩", text: "谢谢。", src: "mytouxiang.png" },
-              { text: "2013 年 8 月 20 日" },
+              { text: "2013 年 8 月 16 日" },
               { user: "主任", text: "@全体成员 明日实验体将正式送入苍穹基地，大家准备好培育工作。", src: "touxiangzhuren.webp" },
               { user: "主任", text: "补充：实验体选择顺序已确定 琳恩>西奥>马库斯>法伯尔。请各位研究员于今日18:00前，通过平板选择好自己想要负责的实验体。", src: "touxiangzhuren.webp" },
               {

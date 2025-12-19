@@ -6,7 +6,7 @@
 <template>
   <div class="relative overflow-hidden" @touchstart="touchDown">
     <div class="absolute top-5vh left-5vw text-1.6vw z-5 text-black z-99999">
-      <!-- {{ user.attributes.tishi01  }} 天 -->
+      {{ user.youxi  }} /{{ user.fullBodyImages}}
       <!-- {{ user.attributes.liaotian }} --- {{ user.textYincang }} --- {{ user.attributes.Day }}天 -->
       <!-- 状态: {{ user.youxi }} /{{ user.attributes.Day }}天 / {{ user.currentNodeKey }}/聊天{{ user.attributes.liaotian }} 好感度 {{ user.attributes?.Character?.[0]?.Affinity ?? 0 }}
       {{ user.text }} -->
@@ -18,9 +18,12 @@
       <div v-if="user.heipingWenzi !== ''" class="absolute top-0 w-full text-white text-4.5vw iconfont2 z-5 h-full flex items-center justify-center bg-[rgba(0,0,0,0.9)]">
         {{ user.heipingWenzi }}
       </div>
+      <div v-else-if="user.attributes.HPxushi !== undefined" class="absolute top-0 py-30vh w-full text-white text-30px box-border px-10vw z-5 h-full flex justify-center font-600 bg-[rgba(0,0,0,0.75)]">
+        <TypeWriterHtml :content="user.attributes.HPxushi" :speed="25" />
+      </div>
     </transition>
     <div v-if="user.attributes.Day > 0 && user.attributes.liaotian < 1" class="absolute left-0.5 border-2 px-1.5 py-0.5 bg-white/75 border-solid border-#409EFF top-0.5 z-1 text-16px flex gap-x-1 items-center">
-      <img src="@/assets/icon/rili.png" class="w-20px h-20px" />
+      <!-- <img src="@/assets/icon/rili.png" class="w-20px h-20px" /> -->
       <span class="iconfont2"
         >第<span class="text-16px mx-1">{{ user.attributes.Day }}</span
         >天</span
@@ -30,7 +33,8 @@
     <div ref="wrap" v-show="user.youxi !== 0 && user.menu !== 2" class="z-0 absolute w-full h-[100vh] overflow-hidden">
       <!-- 背景图 -->
       <template v-if="user.attributes.baise">
-        <div class="bg-white w-full h-full"></div>
+        <div v-if="user.attributes.baise === 1" class="bg-white w-full h-full"></div>
+        <div v-else class="bg-black w-full h-full"></div>
       </template>
 
       <img v-show="!user.attributes.baise" ref="bg" :src="user.backgroundImage" class="w-full h-full object-cover select-none" />
@@ -83,6 +87,7 @@ import qidong from "@/components/qidong.vue";
 import youxiyemian from "./youxiyemian/one.vue";
 import youxiyemian1 from "./ceshi3.vue";
 import Menu from "./menu.vue";
+import TypeWriterHtml from "@/zujian/TypeWriterHtml.vue";
 import emitter from "@/bus";
 import { gsap } from "gsap";
 import BlinkOverlay from "@/pages/zujian/BlinkOverlay.vue";
@@ -270,7 +275,7 @@ function touchGongo() {
         emitter.emit("text_num");
       }
       clickGoole = false;
-    }, 150);
+    }, 300);
   });
 }
 function text_num() {

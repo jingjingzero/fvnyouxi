@@ -32,24 +32,28 @@
         <div v-show="user.fullBodyImages?.length > 0" class="absolute w-full h-full z-0.51 flex left-0 bottom-0 pointer-events-none">
           <div v-for="(item, index) in user.fullBodyImages" :key="item.id" class="relative">
             <div
+              v-show="item.juzhong"
+              class="absolute z-1 border-2 border-solid border-#D4D7DE"
+              :style="{
+                left: '50vw',
+                bottom: '50%',
+                height: '100vh',
+                transform: 'translate(-50%, 50%)',
+                transition: 'all 0.5s ease-in-out',
+              }">
+              <img :ref="(el) => (imgRefs[index] = el)" :src="fullBodyImagesImg(item.img)" class="h-full w-auto object-contain" />
+            </div>
+            <div
+              v-show="!user.attributes.texieCg"
               class="absolute z-1"
               :style="{
                 left: item.x + 'vw',
-                bottom: item.y + 35 + 'vh',
-                width: item.daxiao + 40 + 'vh',
+                bottom: -item.y + 'vh',
+                width: item.daxiao + 'vh',
                 transform: item.fanzhuan ? 'scaleX(-1)' : 'scaleX(1)',
                 transition: 'left 0.5s ease-in-out',
               }">
-              <img :ref="(el) => (imgRefs[index] = el)" :src="fullBodyImagesImg(item.img)" class="w-full object-contain" />
-              <img
-                v-show="item.isSpeaking"
-                src="@/assets/icon/duihua.webp"
-                class="absolute z-1 top-5 w-20vh"
-                :style="{
-                  left: item.isSpeaking === 2 && item.speakX !== undefined ? `${item.speakX}vw` : 'auto',
-                  right: item.isSpeaking === 1 && item.speakX !== undefined ? `${item.speakX}vw` : '-5vw',
-                  transform: item.isSpeaking === 2 ? 'scaleX(-1)' : 'scaleX(1)',
-                }" />
+              <img :ref="(el) => (imgRefs[index] = el)" :src="fullBodyImagesImg(item.img)" class="w-full object-contain" :style="{ filter: `brightness(${item.isSpeaking ? 1 : 0.9})` }" />
             </div>
           </div>
         </div>
@@ -151,7 +155,6 @@ import Buy from "./Buy.vue";
 import { ElMessText } from "@/pages/zujian/utils.js";
 import { setStorage, readSettings } from "../storage.js";
 import { ElMessageBox } from "element-plus";
-import { dialogueTree } from "@/juqing_wz/DH01.js";
 import yemian1 from "../ceshi3.vue";
 const user = useCounterStore();
 const dialogTableVisible = ref(false);

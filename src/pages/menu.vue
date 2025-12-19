@@ -13,7 +13,7 @@
       </div>
 
       <!-- 右侧栏 -->
-      <div v-show="user.menuSelect === 0" ref="messageContainer" class="h-88vh ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white ">
+      <div v-show="user.menuSelect === 0" ref="messageContainer" class="h-88vh ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white w-full">
         <div v-for="(msg, index) in user.messages" :key="index" class="mb-5">
           <div class="flex flex-col text-1.8vw">
             <span class="font-bold text-[clamp(17px,1.7vw,27px)]">{{ msg.name }}</span>

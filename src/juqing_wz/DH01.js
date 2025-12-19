@@ -1,22 +1,49 @@
 export const dialogueTree = {
-
     start01: {
         content: [
+            //   {
+            //       backgroundImage: "light",
+            //       HPxushi: [
+            //           "黑，再次睁开双眼，映入眼帘的是一望无际的黑暗。<br/>恐惧、不安，茫然，一系列的负面情绪钻入我的脑海。"
+            //           , "想要逃离，却被困于此地。",
+            //           "所能做的，便只有呼喊。"
+            //       ],
+            //       textYincang: 2,
+            //   },
+            //   {
+            //     action: 3,
+            //     heipingWenzi: "第一章：笼中鸟",
+            //     text:"……"
+            //   },
             {
-                name: "我", text: "(今天是来”苍穹”设施的第一个月,琳恩申请的幼体培育计划正式通过了。)",
+                name: "我", text: "不！",
                 backgroundImage: "shiyanshi",
+                textYincang: false,
                 fullBodyImages: [
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi2.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
-                        speakX: -5
+                        img: "boshi/boshi1.webp",
+                        x: -5,
                     }
                 ],
-                action: 3,
+            },
+            {
+                name: "我", text: "（琳恩茫然地看着四周，才发现刚刚的景象原来是一场梦。自从摆脱了洗脑的控制，她就经常在睡着后陷入这可怕的梦境。）",
+            },
+            {
+                name: "我", text: "或许这就是我的报应吧……",
+            },
+            {
+                name: "我", text: "(今天是来”苍穹”设施的第一个月,琳恩申请的幼体培育计划正式通过了。)",
+                fullBodyImages: [
+                    {
+                        id: 1,
+                        show: true,
+                        img: "boshi/boshi2.webp",
+                        x: -5,
+                    }
+                ],
             },
             {
                 text: "(请点击右下角的平板挑选要培育的实验体吧。)",
@@ -34,32 +61,24 @@ export const dialogueTree = {
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
+                        img: "boshi/boshi1.webp",
+                        x: -5,
                     }
                 ],
             },
             {
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 40,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
                     {
                         id: 99,
                         show: true,
-                        img: "robot",
+                        img: "robot/robot.webp",
                         x: 65,
-                        y: 0,
-                        daxiao: 18,
-                        z: 0
                     },
                 ],
                 name: "机器人安保",
@@ -77,10 +96,11 @@ export const dialogueTree = {
             },
             {
                 text: "(收到指令后,机器人安保转身沿着原路退出,实验室门 “咔嗒” 一声自动闭合,室内瞬间安静下来)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
-                        x: 65,
+                        show: true,
+                        x:65
                     },
                     {
                         id: 99,
@@ -147,7 +167,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "你……你是好人吗？",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -166,22 +186,18 @@ export const dialogueTree = {
             },
             {
                 text: "（220缓缓走了过来，轻轻握住琳恩的手，动作小心而谨慎。）",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 27,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        x: 20,
                     },
                 ],
             },
             {
                 name: "220",
                 text: "我相信你。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -204,7 +220,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "那…我该怎么喊你呢？",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -250,15 +266,11 @@ export const dialogueTree = {
                 name: "我",
                 text: "（琳恩带他来到了为他准备的房间，这里有着为他准备的玩具和书籍以及一张睡觉的床。）",
                 backgroundImage: "fangjian",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
                         x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
                     },
                 ],
             },
@@ -278,7 +290,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "我喜欢这里，这里有很多玩具。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -301,7 +313,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "你没有说可以玩。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -321,7 +333,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "谢谢你，琳恩。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -343,7 +355,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "那个…我饿了。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -393,7 +405,7 @@ export const dialogueTree = {
                 text: "(琳恩回到了大厅,坐在椅子上,按了按太阳穴,劳累了一天,想到还有数据分析的工作要做,琳恩感到一阵脑涨。)",
                 action: 2,
                 backgroundImage: "shiyanshi",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
@@ -475,19 +487,6 @@ export const dialogueTree = {
             {
                 text: "(点击电脑开始今日的工作吧。)",
                 backgroundImage: "shiyanshi",
-                fullBodyVideos: [
-                    {
-                        id: 2,
-                        show: false
-                    },
-                ],
-                fullBodyVideos: [
-                    {
-                        id: 2,
-                        show: false
-                    },
-
-                ],
                 textJuxu: true,
                 bjWuping: "shiyanshi.webp",
                 xiaoxi: {
@@ -538,35 +537,30 @@ export const dialogueTree = {
             {
                 text: "(琳恩放轻脚步缓缓走到220的床边,发现他正在闭着眼睛侧过头睡觉。)",
                 backgroundImage: "baise",
+                texieCg:true,
                 fullBodyImages: [
-                    {
-                        id: 1,
-                        show: false
-                    },
-                ],
-                fullBodyVideos: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep1",
+                        img: "tuzi/tuzisleep1.webp",
                         juzhong: true,
                         daxiao: 82,
                     },
                 ],
-                dengdai: 2000
+                dengdai: 1500
             },
             {
                 text: "(当琳恩仔细观察时,220似乎感觉到了注视,突然睁开了双眼,紧紧盯着床边的人,眸子在昏暗中亮得吓人,瞳孔紧紧缩着,像是被刺激到了,但他没有动作,就这样死死盯着。)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep2",
+                        img: "tuzi/tuzisleep2.webp",
                         juzhong: true,
                         daxiao: 82,
                     },
                 ],
-                dengdai: 2000
+                dengdai: 1500
             },
             {
                 name: "琳恩",
@@ -584,16 +578,16 @@ export const dialogueTree = {
             },
             {
                 text: "(过了好一会,220才从不变地表情中缓了过来,委屈巴巴地表示被吓坏了。)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: true,
-                        img: "tuzisleep3",
+                        img: "tuzi/tuzisleep3.webp",
                         juzhong: true,
                         daxiao: 82,
                     },
                 ],
-                dengdai: 2000
+                dengdai: 1500
             },
             {
                 text: "(原来刚刚琳恩把220吓应激了,导致无法动弹,琳恩了解后只好再次朝220道歉并用手抚摸着安慰他,过了好一会,220没事了,琳恩才起身。)",
@@ -604,12 +598,13 @@ export const dialogueTree = {
             },
             {
                 text: "(琳恩说完离开了房间。)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 199,
                         show: false,
                     },
                 ],
+                texieCg:false,
                 backgroundImage: "fangjian01hei",
                 currentNodeKey: "start05"
             },
@@ -686,10 +681,8 @@ export const dialogueTree = {
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
+                        img: "boshi/boshi1.webp",
+                        x: -5,
                     }
                 ],
 
@@ -708,15 +701,12 @@ export const dialogueTree = {
             {
                 text: "(220点点头,起身下床了,等待着琳恩的指令。)",
                 backgroundImage: "fangjian",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
                 ],
             },
@@ -729,7 +719,7 @@ export const dialogueTree = {
                         show: false,
                     },
                 ],
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
@@ -772,15 +762,12 @@ export const dialogueTree = {
                 name: "220",
                 text: "嗯。",
                 backgroundImage: "fangjian",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
                         img: "tuziHappy",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        x: 50,
                     },
                 ],
             },
@@ -792,13 +779,10 @@ export const dialogueTree = {
                         id: 1,
                         show: false,
                     },
-                ],
-                fullBodyVideos: [
                     {
                         id: 2,
                         show: false,
                     },
-
                 ],
             },
         ]
@@ -836,16 +820,13 @@ export const dialogueTree = {
                 name: "220",
                 text: "嗯…",
                 backgroundImage: "fangjian",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                         isSpeaking: 2,
-                        z: 0
                     },
                 ],
             },
@@ -870,13 +851,10 @@ export const dialogueTree = {
                         id: 1,
                         show: false,
                     },
-                ],
-                fullBodyVideos: [
                     {
                         id: 2,
                         show: false,
                     },
-
                 ],
             },
         ]
@@ -893,12 +871,9 @@ export const dialogueTree = {
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
-                        speakX: -5
-                    }
+                        img: "boshi/boshi1.webp",
+                        x: -5,
+                 }
                 ],
             },
             {
@@ -932,15 +907,17 @@ export const dialogueTree = {
             {
                 backgroundImage: "fangjian",
                 text: "（当琳恩推开220的房门时，220 听见动静，猛地从床上坐起身，怯生生地抬头看向琳恩。）",
-                fullBodyVideos: [
+                fullBodyImages: [
+                    {
+                     id:1,
+                     show:true,
+                     x:-5
+                    },
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
                 ],
 
@@ -972,7 +949,7 @@ export const dialogueTree = {
             {
                 name: "220",
                 text: "嗯。",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         isSpeaking: 2,
@@ -990,7 +967,7 @@ export const dialogueTree = {
             },
             {
                 name: "我",
-                text: "（这种想法太邪恶了，他毕竟也是个生命呀…）",
+                text: "（我真是罪孽深重的人……）",
             },
             {
                 text: "...",
@@ -1000,8 +977,6 @@ export const dialogueTree = {
                         id: 1,
                         show: false,
                     },
-                ],
-                fullBodyVideos: [
                     {
                         id: 2,
                         show: false,
@@ -1022,11 +997,8 @@ export const dialogueTree = {
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
-                        speakX: -5
+                        img: "boshi/boshi1.webp",
+                        x: -5,
                     }
                 ],
             },
@@ -1067,11 +1039,9 @@ export const dialogueTree = {
                     {
                         id: 1,
                         show: true,
-                        img: "zhujue/boshi1.webp",
-                        x: 5,
-                        y: -82,
-                        daxiao: 5,
-                        speakX: -5
+                        img: "boshi/boshi1.webp",
+                        x: -5,
+
                     }
                 ],
             },
@@ -1098,15 +1068,12 @@ export const dialogueTree = {
             {
                 backgroundImage: "fangjian",
                 text: "(当琳恩推开220的房门时,220早已起身在等候她了。)",
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: true,
-                        img: "tuzi01",
-                        x: 65,
-                        y: 0,
-                        daxiao: 25,
-                        z: 0
+                        img: "tuzi/tuzi.webp",
+                        x: 50,
                     },
                 ],
             },
@@ -1119,7 +1086,7 @@ export const dialogueTree = {
                         show: false,
                     },
                 ],
-                fullBodyVideos: [
+                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
