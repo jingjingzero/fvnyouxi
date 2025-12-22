@@ -2,6 +2,10 @@
   --base-font-size: 3vw; /* 基于视口高度的 16:9 比例 */
   font-display: block;
 }
+
+/* 横竖屏 */
+/* 竖屏 */
+
 .el-pagination .el-pager li,
 .el-pagination button {
   background-color: transparent !important;

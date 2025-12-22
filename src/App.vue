@@ -5,19 +5,23 @@
 -->
 
 <template>
-  <router-view></router-view>
+  <LandscapeOnly>
+    <router-view />
+  </LandscapeOnly>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+import LandscapeOnly from "./zujian/LandscapeOnly.vue";
 const videos = import.meta.glob("@/assets/lihui/*.webm", { eager: true });
 const videos2 = import.meta.glob("@/assets/donghua/*.webm", { eager: true });
 const icons = import.meta.glob("@/assets/icon/*.{png,webp}", { eager: true });
 const bgImg = import.meta.glob("@/assets/images/*.{webp}", { eager: true });
+const teshu = import.meta.glob("@/assets/teshu/*.{webp}", { eager: true });
 const zhujue = import.meta.glob("@/assets/fullBody/zhujue/*.{webp}", { eager: true });
 
 // 合并资源对象
-const allAssets = { ...videos, ...videos2, ...icons, ...bgImg, ...zhujue };
+const allAssets = { ...videos, ...videos2, ...icons, ...bgImg,...teshu, ...zhujue };
 
 onMounted(async () => {
   // 2️⃣ 获取所有 URL 并过滤 undefined
