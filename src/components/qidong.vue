@@ -54,27 +54,6 @@
         </div>
       </template>
     </div>
-    <el-dialog v-model="tujian" header-class="pb-1!" width="80vw" :show-close="false" class="overflow-y-auto h-70vh">
-      <el-segmented v-model="value" :options="options" />
-      <div class="px-1vw mt-2vh">
-        <div v-show="value === '实验体'">
-          <el-row :gutter="30">
-            <el-col class="h-28vw relative" :span="8" v-for="item in shiyanti" :key="item.name">
-              <div class="flex justify-center items-center h-full flex-col gap-y-1.5%">
-                <img :src="headImg(item.src)" class="h-50vh -top-12vh object-cover absolute z-0" />
-                <span class="z-10 absolute top-36vh bg-white w-12vw rounded-3 pt-0.5vh pb-0.6vh text-center iconfont2 text-black border border-solid"> 编号:{{ item.name }}</span>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-        <div v-show="value === '研究员'">未收录</div>
-      </div>
-      <template #footer>
-        <div class="fixed bottom-18vh right-11vw">
-          <el-button @click="tujian = false">关闭</el-button>
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -82,6 +61,7 @@
 import { ref, reactive, onMounted } from "vue";
 import { useCounterStore } from "@/store/counter"; //pinia库
 import { ElMessText } from "@/pages/zujian/utils.js";
+import router from "@/router"; //引入路由
 const startSelect = reactive({
   index: 0,
   animationFinished: false,
@@ -109,7 +89,7 @@ const headImg = (src) => {
 };
 
 const jueseDonghua = ref();
-const tujian = ref(false);
+
 const value = ref("实验体");
 const options = ["实验体", "研究员"];
 const user = useCounterStore();
@@ -132,11 +112,11 @@ async function enter(index) {
       user.zhujue01.name = "琳恩";
       user.zhujue01.sex = 0;
       user.stopAllSounds();
-      startSelect.index++;
+      // startSelect.index++;
       user.playSound("water", true, user.volume * 0.5);
-      setTimeout(() => {
-        startSelect.animationFinished = true;
-      }, 1600);
+      // setTimeout(() => {
+      //   startSelect.animationFinished = true;
+      // }, 1600);
 
     } else if (index === 1) {
       user.stopAllSounds();
@@ -147,8 +127,7 @@ async function enter(index) {
       user.menu = 2;
       user.menuSelect = 3;
     } else if (index === 4) {
-      tujian.value = true;
-      value.value = "实验体";
+         router.push({ name: "ceshi" });
     }
 
   } finally {

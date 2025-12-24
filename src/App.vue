@@ -18,10 +18,9 @@ const videos2 = import.meta.glob("@/assets/donghua/*.webm", { eager: true });
 const icons = import.meta.glob("@/assets/icon/*.{png,webp}", { eager: true });
 const bgImg = import.meta.glob("@/assets/images/*.{webp}", { eager: true });
 const teshu = import.meta.glob("@/assets/teshu/*.{webp}", { eager: true });
-const zhujue = import.meta.glob("@/assets/fullBody/zhujue/*.{webp}", { eager: true });
 
 // 合并资源对象
-const allAssets = { ...videos, ...videos2, ...icons, ...bgImg,...teshu, ...zhujue };
+const allAssets = { ...videos, ...videos2, ...icons, ...bgImg,...teshu };
 
 onMounted(async () => {
   // 2️⃣ 获取所有 URL 并过滤 undefined

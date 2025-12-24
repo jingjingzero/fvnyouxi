@@ -5,8 +5,7 @@
 -->
 <template>
   <div class="relative overflow-hidden" @touchstart="touchDown">
-    <div class="absolute top-5vh left-5vw text-1.6vw z-5 text-black z-99999">
-      {{ user.youxi  }} /{{ user.fullBodyImages}}
+    <div class="absolute top-5vh left-5vw text-1.6vw z-5 text-red z-99999">
       <!-- {{ user.attributes.liaotian }} --- {{ user.textYincang }} --- {{ user.attributes.Day }}天 -->
       <!-- 状态: {{ user.youxi }} /{{ user.attributes.Day }}天 / {{ user.currentNodeKey }}/聊天{{ user.attributes.liaotian }} 好感度 {{ user.attributes?.Character?.[0]?.Affinity ?? 0 }}
       {{ user.text }} -->

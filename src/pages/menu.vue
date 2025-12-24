@@ -138,10 +138,9 @@ function fanhui() {
   }, 200);
 }
 const dataJson = ref([]);
-let textData;
+
 // 获取存档数据
 onMounted(async () => {
-  textData = await import("@/store/textData.json");
   const settings = await readSettings();
   console.log("settings=", settings);
 

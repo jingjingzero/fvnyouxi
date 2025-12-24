@@ -175,7 +175,7 @@ async function DuihuaPanduan(item) {
         user.text = user.text + text
     }
     //隐藏文本框
-    if (item.textYincang) {
+    if (item.textYincang !== undefined) {
         user.textYincang = item.textYincang
     }
     // 背景图片
@@ -409,6 +409,7 @@ async function DuihuaPanduan(item) {
         user.heipingWenzi = "";
         user.text = item.text
         await sleep(450);
+        user.textYincang=false
         user.attributes.textJuxu = false
     }
     //黑屏叙事
@@ -487,6 +488,9 @@ async function DuihuaPanduan(item) {
             user.backgroundImage = new URL(`../../assets/images/jiemian0.webp`, import.meta.url).href;
         }, 1500);
         return
+    }
+    if(item.stopAllSounds !== undefined){
+        user.stopAllSounds();
     }
 
     //漫游式提示

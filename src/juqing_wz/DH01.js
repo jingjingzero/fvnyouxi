@@ -1,24 +1,25 @@
 export const dialogueTree = {
     start01: {
         content: [
-            //   {
-            //       backgroundImage: "light",
-            //       HPxushi: [
-            //           "黑，再次睁开双眼，映入眼帘的是一望无际的黑暗。<br/>恐惧、不安，茫然，一系列的负面情绪钻入我的脑海。"
-            //           , "想要逃离，却被困于此地。",
-            //           "所能做的，便只有呼喊。"
-            //       ],
-            //       textYincang: 2,
-            //   },
-            //   {
-            //     action: 3,
-            //     heipingWenzi: "第一章：笼中鸟",
-            //     text:"……"
-            //   },
+            {
+                backgroundImage: "light",
+                HPxushi: [
+                    "黑，再次睁开双眼，映入眼帘的是一望无际的黑暗。<br/>恐惧、不安，茫然，一系列的负面情绪钻入我的脑海。"
+                    , "想要逃离，却被困于此地。",
+                    "所能做的，便只有呼喊。"
+                ],
+                textYincang: 2,
+            },
+            {
+                action: 3,
+                heipingWenzi: "第一章：笼中鸟",
+                heipingWenziS:2000,
+                text: "……",
+                stopAllSounds:true
+            },
             {
                 name: "我", text: "不！",
                 backgroundImage: "shiyanshi",
-                textYincang: false,
                 fullBodyImages: [
                     {
                         id: 1,
@@ -100,7 +101,7 @@ export const dialogueTree = {
                     {
                         id: 2,
                         show: true,
-                        x:65
+                        x: 65
                     },
                     {
                         id: 99,
@@ -537,7 +538,7 @@ export const dialogueTree = {
             {
                 text: "(琳恩放轻脚步缓缓走到220的床边,发现他正在闭着眼睛侧过头睡觉。)",
                 backgroundImage: "baise",
-                texieCg:true,
+                texieCg: true,
                 fullBodyImages: [
                     {
                         id: 199,
@@ -604,7 +605,7 @@ export const dialogueTree = {
                         show: false,
                     },
                 ],
-                texieCg:false,
+                texieCg: false,
                 backgroundImage: "fangjian01hei",
                 currentNodeKey: "start05"
             },
@@ -694,7 +695,6 @@ export const dialogueTree = {
                     {
                         id: 1,
                         isSpeaking: 1,
-
                     }
                 ],
             },
@@ -718,8 +718,6 @@ export const dialogueTree = {
                         id: 1,
                         show: false,
                     },
-                ],
-                fullBodyImages: [
                     {
                         id: 2,
                         show: false,
@@ -873,7 +871,7 @@ export const dialogueTree = {
                         show: true,
                         img: "boshi/boshi1.webp",
                         x: -5,
-                 }
+                    }
                 ],
             },
             {
@@ -909,9 +907,9 @@ export const dialogueTree = {
                 text: "（当琳恩推开220的房门时，220 听见动静，猛地从床上坐起身，怯生生地抬头看向琳恩。）",
                 fullBodyImages: [
                     {
-                     id:1,
-                     show:true,
-                     x:-5
+                        id: 1,
+                        show: true,
+                        x: -5
                     },
                     {
                         id: 2,
@@ -1085,8 +1083,6 @@ export const dialogueTree = {
                         id: 1,
                         show: false,
                     },
-                ],
-                fullBodyImages: [
                     {
                         id: 2,
                         show: false,

@@ -1,6 +1,6 @@
 <template>
   <div class="relative" @click.stop="skip">
-    <div ref="el" class="iconfont2 type-writer"></div>
+    <div ref="el" class="iconfont2 type-writer text-2.5vw"></div>
 
     <!-- ⭐ 打印完成后显示的 Element Plus 图标 -->
     <div v-if="finished" class="w-94% flex justify-end mt-2">

@@ -39,7 +39,6 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import textData from "@/store/textData.json";
 import youxiyemian from "./youxiyemian/one.vue";
 import { useCounterStore } from "@/store/counter"; // pinia库
 import emitter from "@/bus"; // 引入传值组件

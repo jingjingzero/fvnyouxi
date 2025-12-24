@@ -10,7 +10,7 @@
       <div ref="topRef" class="absolute top-0 w-full h-1/2 bg-black z-2"></div>
       <div ref="bottomRef" class="absolute bottom-0 w-full h-1/2 bg-black z-2"></div>
     </div>
-    <video ref="video" poster="@/assets/lihuiImg/heiping.webp" :src="jueseDonghua" v-if="visible === 3 && jueseDonghua" class="w-100vw h-100vh object-cover" muted playsinline webkit-playsinline />
+    <video ref="video" poster="@/assets/lihuiImg/heiping.webp" :src="jueseDonghua" v-if="visible === 3 && jueseDonghua" class="transition-video" muted playsinline webkit-playsinline />
   </div>
 </template>
 
@@ -66,34 +66,60 @@ watch(
     }
   }
 );
-// 过渡webm动画
+// 过渡 webm 动画（淡入 → 播放 → 淡出）
 const playVideo = async () => {
-  //  user.attributes.wujiemian = true;
-  //  return
   console.log("触发过渡动画");
 
-  jueseDonghua.value = new URL("@/assets/donghua/guodudonghua.webm", import.meta.url).href;
+  jueseDonghua.value = new URL(
+    "@/assets/donghua/guodudonghua.webm",
+    import.meta.url
+  ).href;
+
   user.attributes.textJuxu = true;
-  // ✅ 等 Vue 渲染出新的视频
+
   await nextTick();
 
   const v = video.value;
   if (!v) return;
 
+  // 初始化
+  v.currentTime = 0;
   v.playbackRate = 1;
+
+  // 👉 强制初始透明
+  gsap.set(v, { opacity: 0 });
+
+  // 👉 淡入
+  gsap.to(v, {
+    opacity: 1,
+    duration: 0.5,
+    ease: "power2.out",
+  });
+
   v.play();
-  // ✅ 播放完毕后打印 11
-  setTimeout(() => {
-    user.attributes.wujiemian = true;
-  }, 1750);
+
+  const fadeTime = 0.2;      // 淡出时长
+  const videoTime = 1.75;    // webm 总时长（秒）
+
+  // 👉 快结束前淡出
+  gsap.to(v, {
+    opacity: 0,
+    duration: fadeTime,
+    ease: "power2.inOut",
+    delay: videoTime - fadeTime,
+    onStart: () => {
+      user.attributes.wujiemian = true;
+    },
+  });
+
+  // 👉 播放结束
   v.onended = () => {
     setTimeout(() => {
       user.attributes.textJuxu = false;
       user.visible = false;
-    }, 500);
+    }, fadeTime * 1000);
   };
 };
-
 // 眼皮动画
 async function blink() {
   await nextTick();
@@ -146,3 +172,19 @@ async function fadeFog() {
   });
 }
 </script>
+
+
+<style scoped>
+.transition-video {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+</style>

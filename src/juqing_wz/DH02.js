@@ -5,6 +5,12 @@ export const dialogueTree = {
                 text: "（琳恩开始自己今天的培育计划，琳恩将220带到了一个密闭的房间，密闭房间里只有顶灯泛着冷白的光，照亮中央那把缠着黑色束缚带的椅子。琳恩站在椅旁，目光落在 220 身上，声音尽量放得平稳。）",
                 fullBodyImages: [
                     {
+                        id: 1,
+                        show: true,
+                        img: "boshi/boshi1.webp",
+                        x: -5,
+                    },
+                    {
                         id: 2,
                         show: true,
                         img: "tuzi/tuzi.webp",
@@ -19,6 +25,10 @@ export const dialogueTree = {
             {
                 text: "（220 的脚步顿了顿，眼神扫过椅子，手掌蜷缩起来， 他显然是抗拒的，肩线都绷直了些。但也只是一瞬，长久实验刻在骨子里的习惯压过了本能，他还是慢慢走过去，乖乖坐在了椅子上。）",
                 fullBodyImages: [
+                    {
+                        id: 1,
+                        show: false,
+                    },
                     {
                         id: 2,
                         show: false,
@@ -393,7 +403,7 @@ export const dialogueTree = {
                         select: "结束聊天",
                         currentNodeKey: "Day03_lt02",
                         Day: "dayCon",
-                        no:true
+                        no: true
                     },
                 ]
             },
@@ -1016,6 +1026,7 @@ export const dialogueTree = {
             {
                 text: "(琳恩再次来到220床边，看着眼前这个坚强地孩子，胸口有些闷闷地，有种说不上来的感觉。）",
                 backgroundImage: "baise",
+                texieCg: true,
                 fullBodyImages: [
                     {
                         id: 199,
@@ -1048,8 +1059,10 @@ export const dialogueTree = {
             },
             {
                 text: "(琳恩不知道刚刚闪过的记忆是什么，但却有股熟悉的感觉。)",
+                jueseDonghua: false,
             },
             {
+                texieCg: false,
                 text: "(220被琳恩的痛呼惊醒了，看着琳恩痛苦的样子，虚弱地撑起身体走下床，想要扶住琳恩。)",
                 backgroundImage: "fangjian",
                 fullBodyImages: [
@@ -1132,6 +1145,7 @@ export const dialogueTree = {
                 name: "我",
                 text: "怎么了吗？哪里不舒服吗？",
                 backgroundImage: "baise",
+                texieCg: true,
                 fullBodyImages: [
                     {
                         id: 199,
@@ -1292,7 +1306,8 @@ export const dialogueTree = {
             },
             {
                 text: "（他心里或许清楚这可能是个谎言，但他愿意相信琳恩。至于 “一直在一起” 到底要怎么实现，他不想问，也不敢问，此刻他是幸福的就足够了。）",
-            },         {
+            }, {
+                texieCg: false,
                 text: "...",
                 fullBodyImages: [
                     {

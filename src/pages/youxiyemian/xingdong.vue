@@ -31,7 +31,6 @@ import emitter from "@/bus"; // 引入传值组件
 import { ElMessageBox } from "element-plus";
 const user = useCounterStore();
 const handleClose = () => {
-  ElMessText("已关闭");
   user.wupingShow = 1;
 };
 //二维数组
@@ -76,6 +75,7 @@ async function chuqu(item) {
     } else if (item.id === 3) {
       //马库斯 219
     }
+          ElMessText("剧情未完成");
   } catch {
     // ===== 用户点击 取消 或 关闭 =====
     console.log("用户取消了");
