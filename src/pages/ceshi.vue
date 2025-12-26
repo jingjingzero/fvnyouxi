@@ -13,74 +13,92 @@
         <div class="text-center mt-5vh box-border mx-3 rounded-1 line-height-12 text-20px iconfont2 cursor-pointer transition-all duration-300 bg-white text-black/70" @click="fanhui(0)">返回</div>
       </div>
       <div v-show="!detail">
-          <div class="text-center mt-15vh  box-border mx-3 rounded-1 line-height-12 text-20px iconfont2 cursor-pointer transition-all duration-300 bg-#F56C6C text-white/90 font-bold" @click="fanhui(1)">返回</div>
+        <div class="text-center mt-15vh box-border mx-3 rounded-1 line-height-12 text-20px iconfont2 cursor-pointer transition-all duration-300 bg-#F56C6C text-white/90 font-bold" @click="fanhui(1)">返回</div>
       </div>
     </div>
 
-    <!-- 右侧 -->
-    <div class="flex-1 relative h-100vh box-border bg-black/80 px-8">
-      <!-- 右侧背景（只背景，不吃事件） -->
-      <img src="@/assets/teshu/zero.webp" class="absolute inset-0 object-cover w-full h-100vh opacity-30 pointer-events-none" />
+    <div class="flex-1 relative h-100vh box-border bg-black/80">
+      <!-- 右侧 -->
+      <BorderBox8>
+        <!-- 右侧背景（只背景，不吃事件） -->
+        <img src="@/assets/teshu/zero.webp" class="absolute inset-0 object-cover w-full h-100vh opacity-30 pointer-events-none" />
 
-      <!-- 内容层（明确在上面） -->
-      <div v-show="!detail">
-        <Transition name="fade">
-          <el-row v-if="show" :gutter="20" class="relative z-10 w-full h-full py-3vh">
-            <el-col v-for="item in info1" :key="item.name" :span="6" class="mb-5">
-              <!-- 卡片（唯一可点区域） -->
-              <div class="bg-white/90 rounded-1 overflow-hidden relative cursor-pointer select-none" @click="goDetail(item.name)">
-                <!-- 图片 -->
-                <div class="relative w-full aspect-[99/100] bg-gray-300/30">
-                  <img :src="Img(item.img)" class="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+        <!-- 内容层（明确在上面） -->
+        <div v-show="!detail">
+          <Transition name="fade">
+            <el-row v-if="show && infoIndex !== 2" :gutter="20" class="px-8 relative z-10 w-full h-100vh py-3vh overflow-y-auto  box-border">
+              <el-col v-for="item in info1" :key="item.name" :span="6" class="mb-5">
+                <!-- 卡片（唯一可点区域） -->
+                <div class="bg-white/90 rounded-1 overflow-hidden relative cursor-pointer select-none" @click="goDetail(item.name)">
+                  <!-- 图片 -->
+                  <div class="relative w-full aspect-[99/100] bg-gray-300/30">
+                    <img :src="Img(item.img)" class="absolute inset-0 w-full h-full object-cover pointer-events-none" />
+                  </div>
+
+                  <!-- 名称 -->
+                  <div class="h-6vh flex items-center justify-center text-white bg-#409EFF/65 text-18px font-bold iconfont2 pointer-events-none">
+                    {{ item.name }}
+                  </div>
                 </div>
-
-                <!-- 名称 -->
-                <div class="h-6vh flex items-center justify-center text-white bg-#409EFF/65 text-18px font-bold iconfont2 pointer-events-none">
+              </el-col>
+            </el-row>
+            <el-row v-else-if="show && infoIndex === 2" :gutter="20" class="px-8 relative z-10 w-full h-full py-6vh">
+              <el-col v-for="(item, index) in info1" :key="item.name" :span="6" class="mb-10">
+                <!-- 卡片（唯一可点区域） -->
+                <div class="bg-#409EFF/90 rounded-1 select-none text-white iconfont2 text-2.6vw text-center py-3 underline" @click="goDetail(item.name, index)">
                   {{ item.name }}
                 </div>
+              </el-col>
+            </el-row>
+          </Transition>
+        </div>
+        <div v-if="detail" class="h-full z-1 relative">
+          <!-- 人物档案卡 -->
+          <div v-show="infoIndex !== 2" class="w-full h-full bg-black/40 flex rounded-2 flex-col border border-white/60 shadow-xl">
+            <div class="flex items-center mt-3vh mb-3vh">
+              <!-- 左侧头像 -->
+              <div class="w-30% relative flex items-start justify-center px-3">
+                <div class="w-35 h-35 rounded-1 overflow-hidden border border-cyan-400/40 bg-white/80">
+                  <img :src="Img(xinxi.img)" class="w-full h-full object-cover pointer-events-none" />
+                </div>
               </div>
-            </el-col>
-          </el-row>
-        </Transition>
-      </div>
-      <div v-if="detail" class="h-full z-1 relative">
-        <!-- 人物档案卡 -->
-        <div class="w-full h-full bg-black/40 flex rounded-2 flex-col border border-white/60 shadow-xl">
-          <div class="flex items-center mt-3vh mb-3vh">
-            <!-- 左侧头像 -->
-            <div class="w-30% relative flex items-start justify-center px-3">
-              <div class="w-35 h-35 rounded-1 overflow-hidden border border-cyan-400/40 bg-white/80">
-                <img :src="Img(xinxi.img)" class="w-full h-full object-cover pointer-events-none" />
+              <!-- 标题 -->
+              <div class="text-white">
+                <div class="flex items-center mb-2">
+                  <span class="text-24px font-bold tracking-widest iconfont2"> 人物档案 </span>
+                  <span class="ml-3 text-14px text-cyan-300 opacity-80 iconfont2"> PERSONNEL FILE </span>
+                </div>
+
+                <!-- 信息表 -->
+                <div class="grid grid-cols-2 gap-y-2 gap-x-6 text-16px mb-3">
+                  <div><span class="text-cyan-300">姓名：</span>{{ xinxi.name }}</div>
+                  <div><span class="text-cyan-300">类型：</span>{{ xinxi.type }}</div>
+                  <div><span class="text-cyan-300">性格：</span>{{ xinxi.xingge }}</div>
+                  <div><span class="text-cyan-300">身份：</span>{{ xinxi.shenfen }}</div>
+                  <div><span class="text-cyan-300">状态：</span>{{ xinxi.status }}</div>
+                </div>
               </div>
             </div>
-            <!-- 标题 -->
-            <div class="text-white">
-              <div class="flex items-center mb-2">
-                <span class="text-24px font-bold tracking-widest iconfont2"> 人物档案 </span>
-                <span class="ml-3 text-14px text-cyan-300 opacity-80 iconfont2"> PERSONNEL FILE </span>
-              </div>
 
-              <!-- 信息表 -->
-              <div class="grid grid-cols-2 gap-y-2 gap-x-6 text-16px mb-3">
-                <div><span class="text-cyan-300">姓名：</span>{{ xinxi.name }}</div>
-                <div><span class="text-cyan-300">类型：</span>{{ xinxi.type }}</div>
-                <div><span class="text-cyan-300">性格：</span>{{ xinxi.xingge }}</div>
-                <div><span class="text-cyan-300">身份：</span>{{ xinxi.shenfen }}</div>
-                <div><span class="text-cyan-300">状态：</span>{{ xinxi.status }}</div>
-              </div>
+            <div class="flex-1 flex flex-col px-4 text-white overflow-y-auto box-border box-border">
+              <!-- <div class="flex-1 text-17px leading-6 text-white font-bold iconfont2 overflow-y-auto">{{ xinxi.beijing[0] }}</div> -->
+              <el-collapse v-model="activeName" accordion>
+                <el-collapse-item v-for="item of xinxi.beijing" :key="item.name" :title="item.title" :name="item.name">
+                  <div class="iconfont2 text-15px indent-2em box-border px-4">{{ item.text }}</div>
+                </el-collapse-item>
+              </el-collapse>
             </div>
           </div>
-
-          <div class="flex-1 flex flex-col px-4 text-white overflow-y-auto box-border box-border">
-            <!-- <div class="flex-1 text-17px leading-6 text-white font-bold iconfont2 overflow-y-auto">{{ xinxi.beijing[0] }}</div> -->
-            <el-collapse v-model="activeName" accordion>
-              <el-collapse-item v-for="item of xinxi.beijing" :key="item.name" :title="item.title" :name="item.name">
-                <div class="iconfont2 text-15px indent-2em box-border px-4">{{ item.text }}</div>
-              </el-collapse-item>
-            </el-collapse>
+          <!-- 设定 -->
+          <div v-show="infoIndex === 2" class="w-full h-full relative bg-black/40">
+            <img src="@/assets/teshu/feisheng.webp" class="absolute inset-0 object-cover w-full h-100vh pointer-events-none" />
+            <div class="text-white flex h-40vh absolute z-1 w-full h-full flex-col">
+              <div class="w-full text-center mt-4vh font-bold text-36px iconfont2">{{ sheding.title }}</div>
+              <div class="text-20px mx-3 py-3 box-border rounded-2 bg-black/30 text-left px-5 h-full overflow-y-auto mb-3vh indent-2em" v-html="sheding.content"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </BorderBox8>
     </div>
   </div>
 </template>
@@ -88,6 +106,7 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import router from "@/router"; //引入路由
+import { BorderBox8 } from "@kjgl77/datav-vue3";
 const zhujue = import.meta.glob("@/assets/fullBody/zhujue/*.{webp}", { eager: true });
 const Img = (src) => {
   return new URL(`../assets/fullBody/zhujue/${src}.webp`, import.meta.url).href;
@@ -115,7 +134,7 @@ function preloadImages(modules) {
 }
 
 function selectIndex(index) {
-  if (!show.value||infoIndex.value===index) return;
+  if (!show.value || infoIndex.value === index) return;
 
   infoIndex.value = index;
   show.value = false;
@@ -337,43 +356,94 @@ const xinxiArr = [
     ],
   },
 ];
-function goDetail(name) {
+const sheding = ref(0);
+const shedingArr = [
+  {
+    title: "世界观",
+    content: `
+  <p>这是一个异能至上的世界，但它并未因力量而失序。</p>
+  <p>异能极为罕见，绝大多数人一生都只是普通人，社会的法律、秩序与运转结构仍以普通人为主体建立，异能者同样必须遵守规则，不能凌驾于制度之上。</p>
+  <p>然而，异能的稀缺性使其天然带着光环，一旦有人觉醒，便会立刻从“人群”中被区分出来，受到羡慕、关注与记录。异能者因此被默认为“优等人”，这种认知并非写入法律，却早已渗透进社会共识之中。</p>
+  <p>异能者分为天生觉醒与后天觉醒两类，天生异能者通常精神力更高、更稳定，与自身能力的契合度也更强；而后天觉醒者往往在强烈的精神刺激、极端情绪或特殊环境中被迫觉醒，常常拥有不同程度的精神疾病。为了防止异能失控并维持社会平衡，所有异能者都受到政府的统一管理与监管。</p>
+`,
+  },
+  {
+    title: "奥米集团",
+    content: `
+<p>奥米集团是一家垄断着巨额财富与尖端科技的超级企业，由科学家与资本家联合构成，其影响力早已超越普通商业组织。</p>
+<p>集团掌控着大量前沿技术，包括克隆技术、人造生命培育、记忆烙印等相关科技手段，其表面上是风光无限的大公司，暗地里却游走在法律与道德的灰色边缘。</p>
+<p>奥米集团内部掌握着数名S级异能者，这使其在力量层面与政府形成微妙的对峙关系——即便官方同样拥有S级战力，也不敢轻易与其正面冲突，双方如同同时握有“核弹”，维持着巧妙的平衡。</p>
+<p>对奥米集团而言，道德并非必须遵守的准则，成果才是唯一标准。</p>
+<p>集团真正的野心并非维持现状，而是试图通过实验与培育手段，实现异能者的批量制造。</p>
+`,
+  },
+  {
+    title: "实验体",
+    content: `
+<p>
+  实验体是由集团依托科技制造出的人造生命体，此类人造生命在法律层面被明令禁止，其存在本身便被视为对自然秩序的亵渎。它们从诞生之初就被设计为“可塑容器”，通过药物注入、精神刺激与极端手段，使他们觉醒能力。
+</p>
+<p>
+  在早期阶段，由于人手与技术条件有限，那些未能成功觉醒异能的实验体并不会被立刻舍弃。集团会安排专门的异能者对其进行记忆封闭与思想烙印，将原本的人格与过去彻底抹除，使其转化为对集团绝对服从的员工，继续发挥“价值”。
+</p>
+<p>
+  然而，随着机械生命技术的成熟与量产，觉醒失败的实验体逐渐失去了存在意义。他们的价值大大降低，也被视为潜在的风险源。为了避免这些手段暴露，这些实验体往往会被秘密“处理”，其存在记录也随之从系统中抹除，仿佛从未在世界上出现过。
+</p>
+`,
+  },
+  {
+    title: "克隆人",
+    content: `
+<p>克隆人是集团在早期阶段所进行的实验性研究产物。</p>
+
+<p>最初，研究团队认为通过克隆异能者，能够让克隆人继承本体的异能，从而以低成本批量制造高价值战力。</p>
+
+<p>然而实验结果却彻底推翻了这一设想——被克隆出的生命体在生理层面几乎与原体一致，却始终无法觉醒任何异能，仿佛受到某种无法突破的限制。</p>
+
+<p>在多次重复实验均未取得实质性进展后，集团最终认定克隆路线在异能继承方面毫无前景，该项目随即被全面叫停，所有相关资料被封存处理。</p>
+
+`,
+  },
+    {
+    title: "苍穹基地",
+    content: `
+<p>是奥米集团最新秘密建立的一处核心设施，尚未完全投入正式运行。</p>
+
+<p>该基地目前仍处于封闭阶段，尚未接入集团主网系统。正因如此，其内部网络防火墙相对简陋，安全防护远低于集团其他成熟据点。</p>
+
+`,
+  },
+];
+function goDetail(name, index) {
   console.log("跳转", name);
   detail.value = true;
-  if (name === "220") {
-    xinxi.value = xinxiArr[0];
-  } else if (name === "198") {
-    xinxi.value = xinxiArr[1];
-  } else if (name === "219") {
-    xinxi.value = xinxiArr[2];
-  } else if (name === "218") {
-    xinxi.value = xinxiArr[3];
-  } else if (name === "217") {
-    xinxi.value = xinxiArr[4];
-  } else if (name === "兰陵") {
-    xinxi.value = xinxiArr[5];
-  } else if (name === "琳恩") {
-    xinxi.value = xinxiArr[6];
-  } else if (name === "拉格尔") {
-    xinxi.value = xinxiArr[7];
-  } else if (name === "西奥") {
-    xinxi.value = xinxiArr[8];
-  } else if (name === "马库斯") {
-    xinxi.value = xinxiArr[9];
-  } else if (name === "法伯尔") {
-    xinxi.value = xinxiArr[10];
-  } else if (name === "主任") {
-    xinxi.value = xinxiArr[11];
-  } else if (name === "机械安保") {
-    xinxi.value = xinxiArr[12];
+  if (index !== undefined) {
+    sheding.value = shedingArr[index];
+  } else {
+    const xinxiMap = {
+      220: xinxiArr[0],
+      198: xinxiArr[1],
+      219: xinxiArr[2],
+      218: xinxiArr[3],
+      217: xinxiArr[4],
+      兰陵: xinxiArr[5],
+      琳恩: xinxiArr[6],
+      拉格尔: xinxiArr[7],
+      西奥: xinxiArr[8],
+      马库斯: xinxiArr[9],
+      法伯尔: xinxiArr[10],
+      主任: xinxiArr[11],
+      机械安保: xinxiArr[12],
+    };
+    xinxi.value = xinxiMap[name];
   }
 }
 function fanhui(index) {
   if (index === 0) {
     detail.value = false;
     activeName.value = "1";
-  }else{
-      router.push({ name: "index" });
+  } else {
+    router.push({ name: "index" });
   }
 }
 
@@ -396,7 +466,23 @@ const arr2 = [
   { name: "机械安保", img: "robot" },
 ];
 
-const arr3 = [];
+const arr3 = [
+  {
+    name: "世界观设定",
+  },
+  {
+    name: "奥米集团",
+  },
+  {
+    name: "实验体",
+  },
+  {
+    name: "克隆人",
+  },
+  {
+    name: "苍穹基地",
+  },
+];
 </script>
 
 <style scoped>
