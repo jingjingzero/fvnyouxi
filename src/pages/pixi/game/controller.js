@@ -1,4 +1,7 @@
-export function createController() {
+// src/game/controller.js
+import nipplejs from "nipplejs";
+
+export function createController(joystickContainer) {
   const keys = {
     left: { pressed: false, doubleTap: false, last: 0 },
     right: { pressed: false, doubleTap: false, last: 0 },
@@ -6,7 +9,8 @@ export function createController() {
     space: { pressed: false },
   };
 
-  function handle(e, pressed) {
+  /** ===== 键盘控制 ===== */
+  function handleKey(e, pressed) {
     let key;
     if (e.code === "ArrowLeft" || e.code === "KeyA") key = keys.left;
     if (e.code === "ArrowRight" || e.code === "KeyD") key = keys.right;
@@ -24,8 +28,39 @@ export function createController() {
     if (!pressed && key.doubleTap !== undefined) key.doubleTap = false;
   }
 
-  window.addEventListener("keydown", (e) => handle(e, true));
-  window.addEventListener("keyup", (e) => handle(e, false));
+  window.addEventListener("keydown", (e) => handleKey(e, true));
+  window.addEventListener("keyup", (e) => handleKey(e, false));
+
+  /** ===== 摇杆控制 ===== */
+  const joystick = nipplejs.create({
+    zone: joystickContainer,
+    mode: "static",
+    position: { left: "100px", bottom: "100px" },
+    color: "#888",
+    size: 100,
+    restOpacity: 0.3,
+  });
+
+  joystick.on("move", (_, data) => {
+    if (!data || !data.angle) return;
+    const angle = data.angle.degree;
+
+    if (angle >= 135 && angle <= 225) {
+      keys.left.pressed = true;
+      keys.right.pressed = false;
+    } else if (angle <= 45 || angle >= 315) {
+      keys.right.pressed = true;
+      keys.left.pressed = false;
+    } else {
+      keys.left.pressed = false;
+      keys.right.pressed = false;
+    }
+  });
+
+  joystick.on("end", () => {
+    keys.left.pressed = false;
+    keys.right.pressed = false;
+  });
 
   return { keys };
 }
