@@ -5,7 +5,7 @@
  */
 import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
-  { path: '/', redirect: { name: "index" }, },
+  { path: '/', redirect: { name: "ceshipixi" }, },
   {
     path: '/index01', name: "index", component: () => import('@/pages/index.vue'),
   },

@@ -9,7 +9,7 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       vue(),
-      Unocss()
+      Unocss(),
     ],
     base: "./",
     resolve: {
@@ -17,6 +17,7 @@ export default defineConfig(({ command, mode }) => {
         '@': path.resolve(__dirname, 'src')
       }
     },
+
     server: {
       host: '0.0.0.0',
       port: 8081,

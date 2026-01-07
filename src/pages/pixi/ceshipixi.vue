@@ -1,15 +1,18 @@
 <template>
-  <div ref="root" class="game-root"></div>
-  <div ref="joystickContainer" class="joystick-container"></div>
+<div ref="root" class="w-screen h-screen overflow-hidden relative">
+  <!-- 摇杆挂载在这里 -->
+  <div ref="joystickContainer" class="absolute left-[100px] bottom-[100px] w-[150px] h-[150px]"></div>
+</div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import nipplejs from "nipplejs";
 import { createApp } from "./game/app";
 import { loadAssets } from "./game/assets";
+import { createController } from "./game/controller";
 import { createScene } from "./game/scene";
 import { createSpineBoy } from "./game/spineBoy";
-import { createController } from "./game/controller";
 
 const root = ref(null);
 const joystickContainer = ref(null);
@@ -20,67 +23,41 @@ onMounted(async () => {
   app = await createApp(root.value);
   await loadAssets();
 
-  // 初始化控制器，传入摇杆容器
-  controller = createController(joystickContainer.value);
+  // 创建控制器时，把 joystickContainer 传进去
+  controller = createController({ joystickZone: joystickContainer.value });
 
   scene = createScene(app.screen.width, app.screen.height);
   spineBoy = createSpineBoy();
 
-  // Spine 初始状态
   spineBoy.spine.scale.set(scene.scale * 0.32);
   spineBoy.playSpawn();
 
   app.stage.addChild(scene.view);
   app.stage.addChild(spineBoy.view);
 
-  // 游戏主循环
   app.ticker.add(() => {
-    const keys = controller.keys;
-
-    spineBoy.state.walk = keys.left.pressed || keys.right.pressed;
-    spineBoy.state.run = spineBoy.state.walk && (keys.left.doubleTap || keys.right.doubleTap);
-    spineBoy.state.hover = keys.down.pressed;
-    spineBoy.state.jump = keys.space.pressed;
+    spineBoy.state.walk =
+      controller.keys.left.pressed || controller.keys.right.pressed;
 
     if (spineBoy.state.walk) {
-      spineBoy.setDirection(keys.left.pressed ? -1 : 1);
+      spineBoy.setDirection(
+        controller.keys.left.pressed ? -1 : 1
+      );
     }
 
     spineBoy.update();
 
-    let speed = 8;
-    if (spineBoy.state.hover) speed = 10;
-    else if (spineBoy.state.run) speed = 9;
+    const speed = spineBoy.state.walk ? 8 : 0;
 
     if (spineBoy.state.walk) {
-      const dx = speed * spineBoy.direction;
-      scene.movePlayer(dx);
+      scene.movePlayer(speed * spineBoy.direction);
     }
 
     spineBoy.view.x = (scene.player.x + scene.camera.x) * scene.scale;
     spineBoy.view.y = scene.player.y * scene.scale;
   });
 });
-
 onBeforeUnmount(() => {
   app?.destroy(true);
 });
 </script>
-
-<style scoped>
-.game-root {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-}
-
-.joystick-container {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 150px;
-  height: 150px;
-  touch-action: none;
-}
-</style>

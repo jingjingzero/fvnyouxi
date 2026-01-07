@@ -12,6 +12,7 @@ import emitter from "@/bus"; // 引入传值组件
 export const useCounterStore = defineStore("counter", {
   state: () => {
     return {
+      ceshi:0,
       youxi01: 0,
       textYincang: false,//文字是否隐藏
       currentNodeKey: "",
