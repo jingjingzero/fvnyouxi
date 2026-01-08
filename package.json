@@ -11,6 +11,9 @@
     "build:prod": "vite build --mode production"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@esotericsoftware/spine-core": "^4.2.96",
     "@esotericsoftware/spine-pixi-v8": "^4.2.96",
@@ -20,6 +23,7 @@
     "element-plus": "^2.11.1",
     "gsap": "^3.12.7",
     "howler": "^2.2.4",
+    "matter-js": "^0.20.0",
     "mitt": "^3.0.1",
     "nipplejs": "^0.10.2",
     "path": "^0.12.7",

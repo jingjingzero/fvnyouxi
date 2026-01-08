@@ -4,12 +4,14 @@ export function loadAssets() {
   return Assets.load([
     {
       alias: "spineSkeleton",
-      src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pro.skel",
+      src:"/pixi/spineboy.skel",
     },
     {
       alias: "spineAtlas",
-      src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pma.atlas",
+      src:"/pixi/spineboy.atlas",
     },
-    { alias: "tp1", src: "/public/pixi/tp1.jpg" },
+    { alias: "tp1", src: new URL("../../../assets/pixi/tp1.jpg", import.meta.url).href },
+    { alias: "wall", src: new URL("../../../assets/pixi/wall.webp", import.meta.url).href },
+
   ]);
 }

@@ -1,4 +1,4 @@
-import "@esotericsoftware/spine-pixi-v8";
+
 import { Container } from "pixi.js";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
 
@@ -34,7 +34,7 @@ export function createSpineBoy() {
     hover: { name: "hoverboard", loop: true },
     spawn: { name: "portal", loop: false },
   };
-
+  console.log(' spine.skeleton.data.animations.map(a => a.name)=', spine.skeleton.data.animations.map(a => a.name));
   function play(a) {
     const cur = spine.state.getCurrent(0);
     if (cur && cur.animation.name === a.name) return;

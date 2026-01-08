@@ -12,7 +12,9 @@ import emitter from "@/bus"; // 引入传值组件
 export const useCounterStore = defineStore("counter", {
   state: () => {
     return {
-      ceshi:0,
+      ceshi1: 0,
+      ceshi2: 0,
+      ceshi3: 0,
       youxi01: 0,
       textYincang: false,//文字是否隐藏
       currentNodeKey: "",
@@ -253,7 +255,7 @@ export const useCounterStore = defineStore("counter", {
       // ]
       this.attributes = {
         baise: undefined,
-        HPxushi:undefined,//黑屏叙事
+        HPxushi: undefined,//黑屏叙事
         jueseDonghua: undefined,
         dangqianrenwu: "电脑",
         shiwu: 0,
@@ -276,20 +278,20 @@ export const useCounterStore = defineStore("counter", {
           },
           {
             name: "实验体培育部",
-            qun:[{
-              name:"主任",
+            qun: [{
+              name: "主任",
               src: "touxiangzhuren.webp"
-            },{
-              name:"西奥",
+            }, {
+              name: "西奥",
               src: "touxiangxiao.webp"
-            },{
-              name:"法伯尔",
+            }, {
+              name: "法伯尔",
               src: "touxiangfaboer.webp"
-            },{
-              name:"马库斯",
+            }, {
+              name: "马库斯",
               src: "touxiangmakusi.webp"
-            },{
-              name:"琳恩",
+            }, {
+              name: "琳恩",
               src: "mytouxiang.png"
             }],
             src: "touxiang2.png",
@@ -415,7 +417,7 @@ export const useCounterStore = defineStore("counter", {
             name: "shiyanshi.webp",
             boxes: [
               { x: 0.942, y: 0.254, width: 0.06, height: 0.1, name: "小鸟", tip: "(这是琳恩最喜欢的画。)" },
-              { x: 0.826, y: 0.324, width: 0.125, height: 0.14, name: "电脑", tip: "(琳恩日常工作所用的电脑。)",liang:true },
+              { x: 0.826, y: 0.324, width: 0.125, height: 0.14, name: "电脑", tip: "(琳恩日常工作所用的电脑。)", liang: true },
               { x: 0.236, y: 0.406, width: 0.11, height: 0.4, name: "房门", tip: "(这是实验体的房间。)" },
               { x: 0.404, y: 0.559, width: 0.09, height: 0.18, name: "花盆", tip: "(平平无奇的装饰花盆，花不是真的，不过不用打理，是个不错的装饰品。)" },
               { x: 0.6, y: 0.245, width: 0.17, height: 0.22, name: "电视机", tip: "(一台电视机而已，并没有想看的节目。)" },

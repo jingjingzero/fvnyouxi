@@ -127,7 +127,7 @@ async function enter(index) {
       user.menu = 2;
       user.menuSelect = 3;
     } else if (index === 4) {
-         router.push({ name: "ceshi" });
+         router.push({ name: "ceshipixi" });
     }
 
   } finally {

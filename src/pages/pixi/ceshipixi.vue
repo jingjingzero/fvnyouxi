@@ -1,4 +1,9 @@
 <template>
+  <div class="absolute z-2">
+    <div>{{ user.ceshi1 }}</div>
+      <div>{{ user.ceshi2 }}</div>
+        <div>{{ user.ceshi3 }}</div>
+  </div>
 <div ref="root" class="w-screen h-screen overflow-hidden relative">
   <!-- 摇杆挂载在这里 -->
   <div ref="joystickContainer" class="absolute left-[100px] bottom-[100px] w-[150px] h-[150px]"></div>
@@ -13,7 +18,8 @@ import { loadAssets } from "./game/assets";
 import { createController } from "./game/controller";
 import { createScene } from "./game/scene";
 import { createSpineBoy } from "./game/spineBoy";
-
+import { useCounterStore } from "@/store/counter";
+const user = useCounterStore();
 const root = ref(null);
 const joystickContainer = ref(null);
 
@@ -21,6 +27,7 @@ let app, scene, spineBoy, controller;
 
 onMounted(async () => {
   app = await createApp(root.value);
+  user.ceshi1 = "通过1"
   await loadAssets();
 
   // 创建控制器时，把 joystickContainer 传进去

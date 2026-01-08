@@ -15,8 +15,11 @@ import 'animate.css';
 import './main.css'; // 引入全局 CSS 文件
 import apis from '@/axios/apis'
 import 'element-plus/dist/index.css'
+import VConsole from 'vconsole';
 // 引入element-plus icon
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+  new VConsole(); // 页面底部会出现可拖动的小控制台
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 const app = createApp(App);
@@ -24,6 +27,7 @@ const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component);
 }
+
 app.use(router)
 app.use(pinia)
 app.use(ElementPlus, {
