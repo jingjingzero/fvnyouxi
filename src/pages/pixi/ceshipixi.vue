@@ -33,7 +33,7 @@ function ceshi5() {
   //相机视角
   //scene.camera.x+=100
   //玩家位置
-   //scene.player.y += 10;
+  //scene.player.y += 10;
   //  scene.player.x += 50;
 }
 //跳跃
@@ -80,21 +80,18 @@ onMounted(async () => {
       // 如果按的是左键 → 朝左（-1）
       // 否则就是右键 → 朝右（+1）
       spineBoy.setDirection(controller.keys.left.pressed ? -1 : 1);
-
-      const speed = spineBoy.state.walk ? 8 : 0;
-      scene.movePlayer(speed * spineBoy.direction);
     }
 
     // 3. 跳跃（只触发一次）
     if (controller.keys.space.pressed && spineBoy.state.onGround) {
       spineBoy.state.onGround = false;
-      spineBoy.vy = -25;
+      spineBoy.vy = -30;
     } else {
       controller.keys.space.pressed = false;
     }
     // 4. 垂直方向（重力 & 落地）
     if (!spineBoy.state.onGround) {
-      spineBoy.vy += 1.2;
+      spineBoy.vy += 1.2; 
       scene.player.y += spineBoy.vy;
       const groundY = scene.groundY ?? scene.player.y;
       // 落地检测（只触发一次）
@@ -105,6 +102,8 @@ onMounted(async () => {
       }
     }
 
+    const speed = spineBoy.state.walk ? 8 : 0;
+    scene.movePlayer(speed * spineBoy.direction, spineBoy);
     spineBoy.update();
 
     // 6. 同步 Pixi 视图坐标
@@ -115,9 +114,9 @@ onMounted(async () => {
     // scale：屏幕缩放比例
     spineBoy.view.x = (scene.player.x + scene.camera.x) * scene.scale;
     spineBoy.view.y = scene.player.y * scene.scale;
-    user.ceshi3 = spineBoy.view.y;
     user.ceshi1 = scene.player.x;
     user.ceshi2 = scene.player.y;
+    user.ceshi3 = spineBoy.vy;
   });
 });
 onBeforeUnmount(() => {
