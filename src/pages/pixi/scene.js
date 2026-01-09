@@ -1,38 +1,37 @@
 import { Container, TilingSprite, Texture, Sprite, Graphics } from 'pixi.js';
 
-const DESIGN_HEIGHT = 720; // 设计稿高度（核心）
+const DESIGN_HEIGHT = 720;
 
 /**
- * 生成物品并放在地面上（高清不糊版本）
+ * 生成物品（像素对齐版）
  */
 function spawnItem(parent, textureAlias, xPercent, floorY, designH, worldWidth) {
   const item = new Sprite(Texture.from(textureAlias));
   item.anchor.set(0.5, 1);
+  item.roundPixels = true;
 
-  // 设计尺寸下的 30vh
   const designSize = designH * 0.3;
   const scale = designSize / item.texture.height;
   item.scale.set(scale);
 
-  item.x = xPercent * worldWidth;
-  item.y = floorY;
+  item.x = Math.round(xPercent * worldWidth);
+  item.y = Math.round(floorY);
 
   parent.addChild(item);
   return item;
 }
 
 /**
- * 创建场景（手机 / PC 都清晰）
+ * 创建场景（不糊 / 不抖 / 手机友好）
  */
 export function createScene(screenW, screenH) {
-  /* ================= 基础容器 ================= */
+  /* ================= 根视图 ================= */
   const view = new Container();
 
-  // 核心：只按高度缩放
+  // 按高度等比缩放
   const scale = screenH / DESIGN_HEIGHT;
   view.scale.set(scale);
 
-  // 设计坐标系尺寸
   const designW = screenW / scale;
   const designH = DESIGN_HEIGHT;
 
@@ -41,20 +40,18 @@ export function createScene(screenW, screenH) {
   bg.beginFill(0xf5f5f5);
   bg.drawRect(0, 0, designW * 2, designH);
   bg.endFill();
+  bg.cacheAsBitmap = true;
   view.addChild(bg);
 
   const wallTexture = Texture.from('wall');
-  wallTexture.baseTexture.mipmap = true; // Android 更清晰
+  wallTexture.baseTexture.mipmap = true;
 
-  // 新的 TilingSprite 构造方式
   const wall = new TilingSprite({
     texture: wallTexture,
     width: designW * 2,
     height: designH,
   });
-  wall.tileScale.set(1, 1);
-  wall.x = 0;
-  wall.y = 0;
+  wall.roundPixels = true;
   view.addChild(wall);
 
   /* ================= 世界 & 相机 ================= */
@@ -65,14 +62,22 @@ export function createScene(screenW, screenH) {
   const worldWidth = designW * 3;
   const worldHeight = designH;
 
+  // 世界容器
+  const world = new Container();
+  world.roundPixels = true;
+  view.addChild(world);
+
+  // 相机容器
   const camera = new Container();
-  view.addChild(camera);
+  world.addChild(camera);
 
   /* ================= 玩家 ================= */
-  const player = new Sprite(Texture.WHITE); // 创建一个透明的纹理，避免加载 player 纹理
+  const player = new Sprite(Texture.WHITE);
   player.anchor.set(0.5, 1);
-  player.x = (designW - CAMERA_LEFT - CAMERA_RIGHT) / 2 + CAMERA_LEFT;
-  player.y = worldHeight - floorHeight;
+  player.roundPixels = true;
+
+  player.x = Math.round((designW - CAMERA_LEFT - CAMERA_RIGHT) / 2 + CAMERA_LEFT);
+  player.y = Math.round(worldHeight - floorHeight);
   camera.addChild(player);
 
   /* ================= 物品 ================= */
@@ -80,28 +85,40 @@ export function createScene(screenW, screenH) {
   const itemPositions = [0.1, 0.25, 0.5, 0.8];
 
   itemPositions.forEach(xPercent => {
-    const item = spawnItem(camera, 'tp1', xPercent, player.y, designH, worldWidth);
-    items.push(item);
+    items.push(
+      spawnItem(camera, 'tp1', xPercent, player.y, designH, worldWidth)
+    );
   });
 
-  /* ================= 移动接口 ================= */
+  /* ================= 相机核心参数 ================= */
+  const screenCenterX = designW / 2;
+  const minCameraX = designW - worldWidth;
+  const maxCameraX = 0;
+
+  /* ================= 相机跟随（核心） ================= */
+  function updateCameraFollow() {
+    let targetX = screenCenterX - player.x;
+    // 边界限制
+    targetX = Math.min(maxCameraX, targetX);
+    targetX = Math.max(minCameraX, targetX);
+
+    // 像素对齐
+    camera.x = Math.round(targetX);
+
+    // 背景同步
+    wall.tilePosition.x = camera.x;
+  }
+
+  /* ================= 玩家移动 ================= */
   function movePlayer(dx) {
     player.x += dx;
 
-    player.x = Math.max(CAMERA_LEFT, Math.min(worldWidth - CAMERA_RIGHT, player.x));
+    // 玩家世界边界
+    player.x = Math.round(
+      Math.max(CAMERA_LEFT, Math.min(worldWidth - CAMERA_RIGHT, player.x))
+    );
 
-    const screenX = player.x + camera.x;
-
-    if (screenX < CAMERA_LEFT) {
-      camera.x = CAMERA_LEFT - player.x;
-    } else if (screenX > designW - CAMERA_RIGHT) {
-      camera.x = (designW - CAMERA_RIGHT) - player.x;
-    }
-
-    camera.x = Math.min(0, camera.x);
-    camera.x = Math.max(designW - worldWidth, camera.x);
-
-    wall.tilePosition.x = camera.x;
+    updateCameraFollow();
   }
 
   return {

@@ -1,7 +1,7 @@
 
 import { Container } from "pixi.js";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
-
+import { useCounterStore } from "@/store/counter";
 export function createSpineBoy() {
   const view = new Container();
   const dirView = new Container();
@@ -42,11 +42,14 @@ export function createSpineBoy() {
   }
 
   function playSpawn() {
+    const user = useCounterStore();
+    user.pixi.stop = true
     spawning = true;
     const entry = spine.state.setAnimation(0, anim.spawn.name, false);
     entry.listener = {
       complete() {
         spawning = false;
+        user.pixi.stop = false;
       },
     };
   }

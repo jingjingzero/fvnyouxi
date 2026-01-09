@@ -15,6 +15,10 @@ export const useCounterStore = defineStore("counter", {
       ceshi1: 0,
       ceshi2: 0,
       ceshi3: 0,
+      pixi:{
+        stop:false,
+      },
+      playerSprite:undefined,
       youxi01: 0,
       textYincang: false,//文字是否隐藏
       currentNodeKey: "",

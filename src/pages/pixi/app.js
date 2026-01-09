@@ -3,19 +3,21 @@ import { Application } from "pixi.js";
 export async function createApp(dom) {
   const app = new Application();
 
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
   await app.init({
     resizeTo: window,
-
-    // ====== 清晰度关键 ======
-    resolution: window.devicePixelRatio || 2,
+    resolution: dpr, // 或 dpr
     autoDensity: true,
-
-    // Android 上反而更清晰
     antialias: false,
-
-    // 背景色（可选）
-    background: "#1099bb",
+    powerPreference: "high-performance",
+    backgroundAlpha: 0,
   });
+
+  // ✅ PixiJS v8 正确写法
+  app.stage.roundPixels = true;
+
+  app.ticker.maxFPS = 60;
 
   dom.appendChild(app.canvas);
   return app;
