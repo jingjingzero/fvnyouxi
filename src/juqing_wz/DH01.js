@@ -2,6 +2,14 @@ export const dialogueTree = {
     start01: {
         content: [
             {
+                text: "……",
+                stopAllSounds:true
+            },
+            {
+                text: "...",
+                stopAllSounds:true
+            },
+            {
                 backgroundImage: "light",
                 HPxushi: [
                     "黑，再次睁开双眼，映入眼帘的是一望无际的黑暗。<br/>恐惧、不安，茫然，一系列的负面情绪钻入我的脑海。"

@@ -1,52 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ========= 权限 ========= -->
-    <!-- 网络（PixiJS / WebGL / 接口请求 必须） -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Android 13+ 读取图片（如有本地资源） -->
-    <uses-permission
-        android:name="android.permission.READ_MEDIA_IMAGES"
-        android:required="false" />
-
-    <!-- Android 12 及以下兼容 -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-
-    <!-- ========= 应用 ========= -->
     <application
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:supportsRtl="false"
-        android:hardwareAccelerated="true"
-        android:theme="@style/AppTheme.NoActionBar">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
 
-        <!-- ========= 主游戏 Activity ========= -->
         <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
-            android:exported="true"
-
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
-            android:screenOrientation="landscape"
+            android:exported="true"
+            android:screenOrientation="landscape">
 
-            android:hardwareAccelerated="true"
-
-            android:configChanges="
-                orientation|
-                keyboardHidden|
-                keyboard|
-                screenSize|
-                smallestScreenSize|
-                screenLayout|
-                uiMode|
-                navigation|
-                density">
-
-            <!-- 启动入口 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -54,7 +25,6 @@
 
         </activity>
 
-        <!-- ========= FileProvider（5+ / 下载 / 本地文件） ========= -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -62,9 +32,11 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                android:resource="@xml/file_paths"></meta-data>
         </provider>
-
     </application>
 
+    <!-- Permissions -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

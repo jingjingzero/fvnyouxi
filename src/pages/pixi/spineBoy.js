@@ -1,90 +1,114 @@
-
 import { Container } from "pixi.js";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
-import { useCounterStore } from "@/store/counter";
-export function createSpineBoy() {
+
+export function createSpineBoy(options = {}, data) {
+  const { onShoot } = options;
+
   const view = new Container();
   const dirView = new Container();
-
   const spine = Spine.from({
-    skeleton: "spineSkeleton",
-    atlas: "spineAtlas",
+    skeleton: `${data.juese}_skel`,
+    atlas: `${data.juese}_atlas`,
   });
 
-  spine.state.data.defaultMix = 0.2;
+  spine.state.data.defaultMix = 0.12;
 
   dirView.addChild(spine);
   view.addChild(dirView);
 
-  let spawning = true;
-  let jumping = false;
+  // ==============================
+  // 事件监听
+  // ==============================
+  spine.state.addListener({
+    event(entry, event) {
+      if (entry.trackIndex === 1 && event.data.name === "shoot") {
+        if (onShoot) {
+          onShoot({
+            x: view.x,
+            y: view.y,
+            direction: dirView.scale.x
+          });
+        }
+      }
+    }
+  });
 
-  const state = {
-    walk: false,
-    run: false,
-    hover: false,
-    jump: false,
-  };
+  // ==============================
+  // 动画控制
+  // ==============================
 
   const anim = {
-    idle: { name: "idle", loop: true },
-    walk: { name: "walk", loop: true },
-    run: { name: "run", loop: true },
-    jump: { name: "jump", loop: false },
-    hover: { name: "hoverboard", loop: true },
-    spawn: { name: "portal", loop: false },
+    idle: "idle",
+    run: "run",
+    shoot: "shoot",
+    jumpup: "jumpup",
+    jumpdown: "jumpdown",
   };
-  console.log(' spine.skeleton.data.animations.map(a => a.name)=', spine.skeleton.data.animations.map(a => a.name));
-  function play(a) {
-    const cur = spine.state.getCurrent(0);
-    if (cur && cur.animation.name === a.name) return;
-    spine.state.setAnimation(0, a.name, a.loop);
+
+  let currentBase = null;
+
+  function setBase(name, loop = true) {
+    if (!name) return;
+    if (currentBase === name) return;
+
+    currentBase = name;
+    spine.state.setAnimation(0, name, loop);
   }
 
-  function playSpawn() {
-    const user = useCounterStore();
-    user.pixi.stop = true
-    spawning = true;
-    const entry = spine.state.setAnimation(0, anim.spawn.name, false);
+  function playOverlay(name, loop = false) {
+    if (!name) return;
+
+    // 如果已有 overlay 在播，不重复
+    if (spine.state.getCurrent(1)) return;
+
+    const entry = spine.state.setAnimation(1, name, loop);
+
     entry.listener = {
       complete() {
-        spawning = false;
-        user.pixi.stop = false;
+        spine.state.clearTrack(1);
       },
     };
   }
 
-  function update() {
-    if (spawning) return;
-
-    if (jumping) {
-      const cur = spine.state.getCurrent(0);
-      if (!cur || cur.isComplete()) jumping = false;
-      else return;
-    }
-
-    if (state.jump) {
-      jumping = true;
-      play(anim.jump);
-      return;
-    }
-
-    if (state.hover) play(anim.hover);
-    else if (state.run) play(anim.run);
-    else if (state.walk) play(anim.walk);
-    else play(anim.idle);
-  }
+  // ==============================
+  // 对外 API
+  // ==============================
 
   return {
     view,
     spine,
-    state,
-    direction: 1,
-    playSpawn,
-    update,
+
+    // ⭐ 只提供“直接播放”接口
+    playBase(name, loop = true) {
+      setBase(name, loop);
+    },
+
+    playRun() {
+      setBase(anim.run, true);
+    },
+
+    playIdle() {
+      setBase(anim.idle, true);
+    },
+
+    playJumpUp() {
+      setBase(anim.jumpup, false);
+    },
+
+    playJumpDown() {
+      setBase(anim.jumpdown, false);
+    },
+
+    playShoot() {
+      playOverlay(anim.shoot, false);
+    },
+
     setDirection(d) {
       dirView.scale.x = d;
-      this.direction = d;
     },
+
+    update(delta) {
+      spine.update(delta);
+    }
   };
 }

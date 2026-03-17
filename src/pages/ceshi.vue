@@ -82,11 +82,11 @@
 
             <div class="flex-1 flex flex-col px-4 text-white overflow-y-auto box-border box-border">
               <!-- <div class="flex-1 text-17px leading-6 text-white font-bold iconfont2 overflow-y-auto">{{ xinxi.beijing[0] }}</div> -->
-              <el-collapse v-model="activeName" accordion>
+              <!-- <el-collapse v-model="activeName" accordion>
                 <el-collapse-item v-for="item of xinxi.beijing" :key="item.name" :title="item.title" :name="item.name">
                   <div class="iconfont2 text-15px indent-2em box-border px-4">{{ item.text }}</div>
                 </el-collapse-item>
-              </el-collapse>
+              </el-collapse> -->
             </div>
           </div>
           <!-- 设定 -->
@@ -94,7 +94,7 @@
             <img src="@/assets/teshu/feisheng.webp" class="absolute inset-0 object-cover w-full h-100vh pointer-events-none" />
             <div class="text-white flex h-40vh absolute z-1 w-full h-full flex-col">
               <div class="w-full text-center mt-4vh font-bold text-36px iconfont2">{{ sheding.title }}</div>
-              <div class="text-20px mx-3 py-3 box-border rounded-2 bg-black/30 text-left px-5 h-full overflow-y-auto mb-3vh indent-2em" v-html="sheding.content"></div>
+              <div class="text-20px mx-3 py-3 box-border rounded-2 bg-black/30 text-left px-5 h-80vh overflow-y-auto mb-3vh indent-2em" v-html="sheding.content"></div>
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ const xinxi = ref({
 const activeName = ref("1"); //折叠面板
 const xinxiArr = [
   {
-    img: "user", //照片
+    img: "erkuohu", //照片
     name: "220", //姓名
     type: "重要人物", //类型
     xingge: "胆小", //性格
@@ -266,7 +266,7 @@ const xinxiArr = [
   },
   //拉格尔
   {
-    img: "dog1", //照片
+    img: "lageer", //照片
     name: "拉格尔", //姓名
     type: "NPC", //类型
     xingge: "冷漠", //性格
@@ -361,6 +361,7 @@ const shedingArr = [
   {
     title: "世界观",
     content: `
+    <p>某天，一枚聚合能源体从天而降，如同陨石般砸向了这个星球，在进入大气层后不久便蒸发了，这便是一切异能的起源。</p>
   <p>这是一个异能至上的世界，但它并未因力量而失序。</p>
   <p>异能极为罕见，绝大多数人一生都只是普通人，社会的法律、秩序与运转结构仍以普通人为主体建立，异能者同样必须遵守规则，不能凌驾于制度之上。</p>
   <p>然而，异能的稀缺性使其天然带着光环，一旦有人觉醒，便会立刻从“人群”中被区分出来，受到羡慕、关注与记录。异能者因此被默认为“优等人”，这种认知并非写入法律，却早已渗透进社会共识之中。</p>
@@ -407,8 +408,9 @@ const shedingArr = [
     {
     title: "苍穹基地",
     content: `
-<p>是奥米集团最新秘密建立的一处核心设施，尚未完全投入正式运行。</p>
-
+<p>是奥米集团最新秘密建搭建的一处隐秘设施，尚未完全公开。</p>
+<p>该基地用于收容研究异能物品、人造异能者的培育以及一些不该出现在明面上的研究。</p>
+<p>地理位置被刻意选在偏远地带，远离人烟，并且无法从地图上得知位置。</p>
 <p>该基地目前仍处于封闭阶段，尚未接入集团主网系统。正因如此，其内部网络防火墙相对简陋，安全防护远低于集团其他成熟据点。</p>
 
 `,
@@ -424,7 +426,6 @@ const shedingArr = [
   },
 ];
 function goDetail(name, index) {
-  console.log("跳转", name);
   detail.value = true;
   if (index !== undefined) {
     sheding.value = shedingArr[index];
@@ -457,7 +458,7 @@ function fanhui(index) {
 }
 
 const arr1 = [
-  { name: "220", img: "user" },
+  { name: "220", img: "erkuohu" },
   { name: "219", img: "gou" },
   { name: "218", img: "huli1" },
   { name: "217", img: "shuishouren" },
@@ -466,7 +467,7 @@ const arr1 = [
 
 const arr2 = [
   { name: "琳恩", img: "zhujue" },
-  { name: "拉格尔", img: "dog1" },
+  { name: "拉格尔", img: "lageer" },
   { name: "西奥", img: "xiao" },
   { name: "马库斯", img: "makusi" },
   { name: "法伯尔", img: "faboer" },

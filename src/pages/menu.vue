@@ -1,59 +1,115 @@
 <template>
-  <div class="text-white flex w-full box-border px-6vw py-9vh box-border h-100vh  bg-[rgba(0,0,0,0.5)]">
-    <img src="@/assets/image/load.webp" class="w-100vw h-100vh object-cover absolute top-0 left-0 z-1" />
+  <div
+    class="text-white flex w-full box-border px-6vw py-9vh box-border h-100vh bg-[rgba(0,0,0,0.5)]"
+  >
+    <img
+      src="@/assets/image/load.webp"
+      class="w-100vw h-100vh object-cover absolute top-0 left-0 z-1"
+    />
     <div class="flex w-full h-full z-1">
       <div class="w-30% h-full">
         <span class="text-#79BBFF iconfont2 text-4vw">菜单栏</span>
         <div class="mt-3vh flex flex-col gap-y-1.2vh">
-          <div v-for="(item, index) in info" :key="index" @click="menuNum(index)">
-            <span class="iconfont2 text-2.5vw" :class="{ 'text-#A0CFFF': user.menuSelect === index }">{{ item }}</span>
+          <div
+            v-for="(item, index) in info"
+            :key="index"
+            @click="menuNum(index)"
+          >
+            <span
+              class="iconfont2 text-2.5vw"
+              :class="{ 'text-#A0CFFF': user.menuSelect === index }"
+              >{{ item }}</span
+            >
           </div>
-          <img class="w-4.5vw mt-3vh" src="@/assets/icon/back.png" @click="fanhui()" />
+          <img
+            class="w-4.5vw mt-3vh"
+            src="@/assets/icon/back.png"
+            @click="fanhui()"
+          />
         </div>
       </div>
 
       <!-- 右侧栏 -->
-      <div v-show="user.menuSelect === 0" ref="messageContainer" class="h-88vh ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white w-full">
+      <div
+        v-show="user.menuSelect === 0"
+        ref="messageContainer"
+        class="h-88vh ml-8vw pl-2vw py-1vh box-border bg-[rgba(0,0,0,0.4)] overflow-y-auto text-white w-full"
+      >
         <div v-for="(msg, index) in user.messages" :key="index" class="mb-5">
           <div class="flex flex-col text-1.8vw">
-            <span class="font-bold text-[clamp(17px,1.7vw,27px)]">{{ msg.name }}</span>
-            <span class="text-[clamp(14px,1.4vw,24px)]" v-html="msg.content"></span>
+            <span class="font-bold text-[clamp(17px,1.7vw,27px)]">{{
+              msg.name
+            }}</span>
+            <span
+              class="text-[clamp(14px,1.4vw,24px)]"
+              v-html="msg.content"
+            ></span>
           </div>
         </div>
       </div>
-      <div class="flex-1 " v-show="user.menuSelect === 3">
+      <div class="flex-1" v-show="user.menuSelect === 3">
         <div>
           <div>
-            <div class="flex justify-center items-center text-white">文字速度</div>
+            <div class="flex justify-center items-center text-white">
+              文字速度
+            </div>
             <div class="flex justify-between items-center gap-x-4vw">
               <span>慢</span>
-              <el-slider v-model="user.text_speed" :min="90" :max="99" @change="onTextSpeedChange" />
+              <el-slider
+                v-model="user.text_speed"
+                :min="90"
+                :max="99"
+                @change="onTextSpeedChange"
+              />
               <span>快</span>
             </div>
           </div>
           <div class="mt-5vh">
-            <div class="flex justify-center items-center text-white">总音量</div>
+            <div class="flex justify-center items-center text-white">
+              总音量
+            </div>
             <div class="flex justify-between items-center gap-x-4vw">
               <span>低</span>
-              <el-slider v-model="user.volume" :min="0" :max="0.7" :step="0.05" @change="onMusicChange" />
+              <el-slider
+                v-model="user.volume"
+                :min="0"
+                :max="0.7"
+                :step="0.05"
+                @change="onMusicChange"
+              />
               <span>高</span>
             </div>
           </div>
           <div class="mt-5vh">
-            <div class="flex justify-center items-center text-white">文字大小</div>
+            <div class="flex justify-center items-center text-white">
+              文字大小
+            </div>
             <div class="flex justify-between items-center gap-x-4vw">
               <span>低</span>
-              <el-slider v-model="user.textSize" :min="16" :max="30" :step="1" @change="onTextSizeChange" />
+              <el-slider
+                v-model="user.textSize"
+                :min="16"
+                :max="30"
+                :step="1"
+                @change="onTextSizeChange"
+              />
               <span>高</span>
             </div>
           </div>
           <div class="mt-10vh w-full justify-end flex">
-            <el-button type="primary" @click="clearMyData">清除所有缓存数据</el-button>
+            <el-button type="primary" @click="clearMyData"
+              >清除所有缓存数据</el-button
+            >
           </div>
         </div>
       </div>
-      <div class="flex-1 ml-4vw overflow-y-auto text-2.3vw flex-col flex gap-y-2vh pt-2vh pb-5vh" v-show="user.menuSelect === 5">
-        <div>如果你对我的游戏感兴趣，或者有任何剧情的的问题或者赞助的想法，欢迎随时联系我！我非常期待能与更多的游戏爱好者交流，并共同打造出更加精彩的游戏内容。</div>
+      <div
+        class="flex-1 ml-4vw overflow-y-auto text-2.3vw flex-col flex gap-y-2vh pt-2vh pb-5vh"
+        v-show="user.menuSelect === 5"
+      >
+        <div>
+          如果你对我的游戏感兴趣，或者有任何剧情的的问题或者赞助的想法，欢迎随时联系我！我非常期待能与更多的游戏爱好者交流，并共同打造出更加精彩的游戏内容。
+        </div>
         <div>QQ：1277104448</div>
       </div>
     </div>
@@ -65,7 +121,13 @@ import { reactive, ref, onMounted, nextTick, watch } from "vue";
 import emitter from "@/bus"; // 引入传值组件
 import { ElMessageBox } from "element-plus";
 import { useCounterStore } from "@/store/counter";
-import { setStorage, getStorage, readSettings, updateSetting } from "./storage.js";
+import router from "@/router"; //引入路由
+import {
+  setStorage,
+  getStorage,
+  readSettings,
+  updateSetting,
+} from "./storage.js";
 
 const user = useCounterStore();
 const info = reactive(["历史", "存档", "读档", "首选项", "主菜单", "关于"]);
@@ -73,6 +135,7 @@ let chushiIndex = 0;
 const zidongData = ref([]);
 // 点击左侧栏
 async function menuNum(index) {
+  console.log("index=", index);
   if (index === 4) {
     await ElMessageBox.confirm("确定要返回主界面吗?", "提示", {
       confirmButtonText: "确定",
@@ -82,9 +145,9 @@ async function menuNum(index) {
       .then(() => {
         // 点击确定后的逻辑
         menuFace();
+        router.push({ name: "index" });
         user.selectBoolean = false; //关闭搜索场景
         user.youxi = 0;
-
         user.stopAllSounds();
         user.playSound("jiemian", true);
       })
@@ -115,6 +178,7 @@ async function menuNum(index) {
     })
       .then(() => {
         JSONGet(2);
+        user.pixi.setting = 0;
       })
       .catch(() => {});
     user.menuSelect = chushiIndex;
@@ -125,14 +189,22 @@ async function menuNum(index) {
 }
 // 返回当前页面
 function fanhui() {
-            user.playSound("clickS", false,user.volume*0.5);
+  user.playSound("clickS", false, user.volume * 0.5);
+  if (user.pixi.setting > 0) {
+    user.pixi.setting = 0;
+    emitter.emit("vnZanting");
+    return;
+  }
   if (user.youxi <= 0) {
     menuFace();
     return;
   }
   user.menu = 0;
   user.text_boolean = true;
-  user.backgroundImage = new URL(`../assets/images/${user.bg_img}.webp`, import.meta.url).href;
+  user.backgroundImage = new URL(
+    `../assets/images/${user.bg_img}.webp`,
+    import.meta.url
+  ).href;
   setTimeout(() => {
     user.text_boolean = false;
   }, 200);
@@ -142,7 +214,6 @@ const dataJson = ref([]);
 // 获取存档数据
 onMounted(async () => {
   const settings = await readSettings();
-  console.log("settings=", settings);
 
   user.text_speed = settings.text_speed;
   user.volume = settings.volume;
@@ -174,6 +245,8 @@ function clearMyData() {
 }
 // 返回主菜单
 function menuFace() {
+  user.pixi.setting = 0;
+  user.pixi.isPaused = false;
   user.menu = 1;
   user.animations.splice(0, user.animations.length);
   user.text = "";

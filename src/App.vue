@@ -13,6 +13,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import LandscapeOnly from "./zujian/LandscapeOnly.vue";
+
 const videos = import.meta.glob("@/assets/lihui/*.webm", { eager: true });
 const videos2 = import.meta.glob("@/assets/donghua/*.webm", { eager: true });
 const icons = import.meta.glob("@/assets/icon/*.{png,webp}", { eager: true });

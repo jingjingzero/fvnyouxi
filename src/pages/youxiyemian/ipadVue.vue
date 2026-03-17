@@ -165,9 +165,9 @@
       <div class="flex flex-1 box-border px-2 gap-x-2">
         <el-date-picker-panel v-model="user.attributes.DateYear" class="pointer-events-none h-73vh" />
         <el-collapse v-model="activeName" accordion class="bg-white flex-1 mb-3vh rounded-1 px-2 overflow-y-auto h-73vh">
-          <el-collapse-item :title="'进行中的任务 （ ' + user.attributes.allTasks.finishedTasks.length + ' ）'" name="1">
+          <el-collapse-item :title="'进行中的任务 （ ' + user.attributes.allTasks?.finishedTasks.length + ' ）'" name="1">
             <div class="flex flex-col gap-y-2vh">
-              <div v-for="item of user.attributes.allTasks.finishedTasks" :key="item.name" class="flex flex-col border border-solid border-#EBEEF5 px-2vw pt-1.2vh pb-0.5vh">
+              <div v-for="item of user.attributes.allTasks?.finishedTasks" :key="item.name" class="flex flex-col border border-solid border-#EBEEF5 px-2vw pt-1.2vh pb-0.5vh">
                 <div class="text-gray-800 flex items-center gap-x-1">
                   <img v-if="item.src" :src="headImg(item.src)" class="w-16px h-16px object-contain" />
                   <el-icon v-else size="15px" color="#909399"><InfoFilled /></el-icon>
@@ -177,9 +177,9 @@
               </div>
             </div>
           </el-collapse-item>
-          <el-collapse-item :title="'已完成的任务 （ ' + user.attributes.allTasks.unfinishedTasks.length + ' ）'" name="2">
+          <el-collapse-item :title="'已完成的任务 （ ' + user.attributes.allTasks?.unfinishedTasks.length + ' ）'" name="2">
             <div class="flex flex-col gap-y-2vh">
-              <div v-for="item of user.attributes.allTasks.unfinishedTasks" :key="item.name" class="flex flex-col border border-solid border-#EBEEF5 px-2vw pt-1.2vh pb-0.5vh">
+              <div v-for="item of user.attributes.allTasks?.unfinishedTasks" :key="item.name" class="flex flex-col border border-solid border-#EBEEF5 px-2vw pt-1.2vh pb-0.5vh">
                 <div class="text-gray-800 flex items-center gap-x-1">
                   <el-icon color="#67C23A" size="15px"><SuccessFilled /></el-icon><span>{{ item.name }}</span>
                 </div>
@@ -187,7 +187,7 @@
               </div>
             </div>
           </el-collapse-item>
-          <el-collapse-item :title="'已获得的成就 （ ' + user.attributes.achv.length + ' ）'" name="3">
+          <el-collapse-item :title="'已获得的成就 （ ' + user.attributes?.achv?.length + ' ）'" name="3">
             <div class="grid grid-cols-[repeat(auto-fill,minmax(clamp(80px,10vw,120px),1fr))] gap-x-5vw gap-y-4vh">
               <div v-for="(item, index) in user.attributes.achv" :key="index" class="bg-white text-black h-[70px] w-full flex justify-center items-center rounded relative">
                 <el-popover class="box-item pointer-events-auto" :teleported="true" :width="300" trigger="click" placement="bottom-start" :append-to-body="false">
@@ -223,15 +223,15 @@
         <div class="bg-white flex-1 h-72vh box-border rounded-2 text-black text-22px font-bold py-5 px-4 flex flex-col gap-y-4">
           <div class="flex gap-x-3">
             <span class="iconfont2 line-height-30px">压力值</span>
-            <el-progress :percentage="user.attributes.jingshenData.Pressure" :color="progressColor" striped striped-flow :stroke-width="10" class="flex-1" />
+            <el-progress :percentage="user.attributes.jingshenData?.Pressure" :color="progressColor" striped striped-flow :stroke-width="10" class="flex-1" />
           </div>
           <div class="flex gap-x-3 items-center">
-            <span class="iconfont2 line-height-30px">初始精神力</span><span class="iconfont4 text-32px">{{ user.attributes.jingshenData.chushiPower }}</span> <span class="iconfont2 line-height-30px ml-5">当前精神力</span><span class="iconfont4 text-32px text-#409EFF">{{ user.attributes.jingshenData.SpiritPower }} </span>
+            <span class="iconfont2 line-height-30px">初始精神力</span><span class="iconfont4 text-32px">{{ user.attributes.jingshenData?.chushiPower }}</span> <span class="iconfont2 line-height-30px ml-5">当前精神力</span><span class="iconfont4 text-32px text-#409EFF">{{ user.attributes.jingshenData?.SpiritPower }} </span>
           </div>
           <div class="flex gap-x-1 items-center text-yellow-500">
             <el-icon><WarningFilled /></el-icon> <span class="iconfont2 line-height-30px">任务提升幅度:</span
             ><span class="iconfont4 text-32px font-bold"
-              ><span class="text-yellow-700 iconfont4">{{ powerIncreasePercent }}%</span> / {{ user.attributes.jingshenData.mubianPower }}%</span
+              ><span class="text-yellow-700 iconfont4">{{ powerIncreasePercent }}%</span> / {{ user.attributes.jingshenData?.mubianPower }}%</span
             >
           </div>
           <div class="flex gap-x-3 items-center">
@@ -346,6 +346,7 @@ const dialogTableVisible1 = ref(false);
 const dialogTableVisible2 = ref(false);
 const news = ref(null);
 onMounted(() => {
+  console.log('user.attributes=',user.attributes);
   tactArr.value = user.attributes.contacts[0].messages;
   window.handleLinkTouch = handleLinkTouch;
 });
@@ -370,6 +371,8 @@ const progressColor = (percentage) => {
 //计算提升幅度
 const powerIncreasePercent = computed(() => {
   const data = user.attributes.jingshenData;
+  console.log('data=',data);
+  if (data===undefined) return
   const { chushiPower, SpiritPower } = data;
 
   if (!chushiPower) return 0;

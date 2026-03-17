@@ -2,14 +2,12 @@ import { Application } from "pixi.js";
 
 export async function createApp(dom) {
   const app = new Application();
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
   await app.init({
-    resizeTo: window,
-    resolution: dpr, // 或 dpr
+    width:  window.innerWidth,
+    height: window.innerHeight,
+    resolution: 2,
     autoDensity: true,
-    antialias: false,
+    antialias: true,
     powerPreference: "high-performance",
     backgroundAlpha: 0,
   });

@@ -1,0 +1,33 @@
+mao.webp
+	size: 198, 141
+	filter: Linear, Linear
+	scale: 0.4
+body
+	bounds: 158, 21, 33, 17
+	rotate: 90
+erduo0
+	bounds: 158, 56, 26, 27
+	offsets: 4, 3, 33, 30
+erduo1
+	bounds: 174, 4, 14, 15
+	offsets: 2, 2, 19, 18
+head
+	bounds: 2, 16, 154, 123
+	offsets: 0, 9, 203, 170
+rongmao
+	bounds: 64, 2, 8, 12
+weiba
+	bounds: 158, 85, 54, 38
+	offsets: 5, 0, 59, 38
+	rotate: 90
+xiangquan
+	bounds: 19, 6, 18, 8
+youshou
+	bounds: 52, 4, 10, 10
+youtui
+	bounds: 39, 3, 11, 11
+zuoshou
+	bounds: 2, 2, 12, 15
+	rotate: 90
+zuotui
+	bounds: 158, 3, 14, 16

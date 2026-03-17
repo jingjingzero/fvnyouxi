@@ -1,6 +1,7 @@
 :root {
   --base-font-size: 3vw; /* 基于视口高度的 16:9 比例 */
   font-display: block;
+  color: #333;
 }
 
 /* 横竖屏 */
@@ -14,6 +15,7 @@
 }
 body {
   font-size: var(--base-font-size);
+  
 }
 .iconfont2 {
   font-family: "钉钉进步体 Regular2" !important;

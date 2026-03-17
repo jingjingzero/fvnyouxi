@@ -9,16 +9,55 @@ import { setStorage, getStorage } from "@/pages/storage.js";
 import dayjs from "dayjs";
 import { ElMessText } from "@/pages/zujian/utils.js";
 import emitter from "@/bus"; // 引入传值组件
+
 export const useCounterStore = defineStore("counter", {
   state: () => {
     return {
       ceshi1: 0,
       ceshi2: 0,
       ceshi3: 0,
-      pixi:{
-        stop:false,
+      pixi: {
+        stop: false,
+        isPaused: false, //游戏暂停
+        spineBoy: null,//主角
+        characters: [],//人物动画
+        setting: 0,
+        player: {
+          shenfen: `身份：奥米集团 <b class="text-#F56C6C">LV.4</b> 员工`,
+          attack: 16,//攻击力
+          currentHp: 100,
+          maxHp: 100,//最大生命
+          speed: 1,//速度
+          exp: 0,//经验值
+          maxExp: 200,
+          Level: 20,//等级
+          skill: [
+            {
+              name: "射击",
+              desc: "向前发射子弹,造成10+100%攻击力伤害。",
+              shanghai: 10,
+              mul: 1
+            },
+            {
+              //触发六次
+              name: "技能",
+              desc: "无人机持续发射激光，在1秒内对沿途的目标共造成30+180%攻击力伤害",
+              shanghai: 5,
+              durationTime:1000,
+              mul: 0.3
+            },
+            {
+              name: "被动",
+              desc: `无人机每<b class="text-#EEBE77">3</b>秒会自动攻击你周边的敌人，造成5+60%攻击力伤害。`,
+              shanghai: 5,
+              durationTime:200,
+              mul: 0.6
+            },
+          ]
+        },
+        duihua:true
       },
-      playerSprite:undefined,
+      playerSprite: undefined,
       youxi01: 0,
       textYincang: false,//文字是否隐藏
       currentNodeKey: "",
@@ -44,7 +83,21 @@ export const useCounterStore = defineStore("counter", {
       selectIndexNum: false,//选项是否要删除
       selectedOptionAble: false,//选项可触碰
       messages: [],//历史记录 
-      inventory: [],  // 物品列表
+      inventory: [{
+        name: "美味的猫肉",
+        num: 1,
+        img: "cat",
+        miaoshu: "猫肉，美味好吃。",
+        sell: 4,
+        status: "food",
+        need: {
+          name: "兽肉",
+          num: 1,
+          odds: 40,
+          failTs: 5,
+          int: 10,//智慧加成
+        }
+      },],  // 物品列表
       wupingShow: 1,//是否显示物品图标 ， 0是不显示，1是只显示图片，2是显示物品栏，3是战斗状态
       saveData: "",//存档数据
       playingSounds: [],//音乐数组
@@ -210,7 +263,6 @@ export const useCounterStore = defineStore("counter", {
           this.SoundArr = this.SoundArr.filter(s => s !== name);
         }
       });
-
       sound.play();
     },
     // 停止所有音乐
@@ -230,6 +282,7 @@ export const useCounterStore = defineStore("counter", {
     },
     // 重置所有属性
     resetUser() {
+      console.log('231');
       this.youxi = 0;
       this.youxi01 = 0;
       this.currentNodeKey = "start01"

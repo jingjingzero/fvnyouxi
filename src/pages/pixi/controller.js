@@ -17,7 +17,7 @@ export function createController({ joystickZone }) {
   // =========================
   function handleKey(e, pressed) {
     if (user.pixi.stop) {
-      pressed=false
+      pressed = false
     }
     switch (e.code) {
       case "ArrowLeft":
@@ -42,11 +42,12 @@ export function createController({ joystickZone }) {
   // =========================
   // 摇杆控制
   // =========================
+  const vh = window.innerHeight / 100;
   const joystick = nipplejs.create({
-    zone: joystickZone, // 必须是 DOM 节点
+    zone: joystickZone,
     mode: "static",
     position: { left: "50%", bottom: "50%" },
-    size: 100,
+    size: vh * 15, // ⭐ vh → px
     color: "gray",
   })[0];
 

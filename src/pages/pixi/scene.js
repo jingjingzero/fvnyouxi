@@ -1,195 +1,182 @@
-import { Container, TilingSprite, Texture, Sprite, Graphics } from 'pixi.js';
+import { Container, TilingSprite, Texture, Sprite, Graphics } from 'pixi.js'
+import Matter from 'matter-js'
+import { useCounterStore } from '@/store/counter'
 
-const DESIGN_HEIGHT = 720;
+const user = useCounterStore()
 
-/**
- * 生成物品（像素对齐版）
- */
-function spawnItem(parent, textureAlias, xPercent, floorY, designH, worldWidth) {
-  const item = new Sprite(Texture.from(textureAlias));
-  item.anchor.set(0.5, 1);
-  item.roundPixels = true;
+const DESIGN_HEIGHT = 847
+const FLOOR_RATIO = 0.15
+const PLAYER_HEIGHT_VH = 0.26
+const PLAYER_ASPECT = 0.4
 
-  const designSize = designH * 0.3;
-  const scale = designSize / item.texture.height;
-  item.scale.set(scale);
+/* ================= CREATE SCENE ================= */
 
-  item.x = Math.round(xPercent * worldWidth);
-  item.y = Math.round(floorY);
-
-  parent.addChild(item);
-  // 计算矩形
-  const rect = {
-    x: Math.round(item.x - item.width / 2),
-    y: Math.round(item.y - item.height),
-    width: Math.round(item.width),
-    height: Math.round(item.height),
-  };
-
-  // 创建可视化矩形（透明度0.2）
-  const debugRect = new Graphics();
-  debugRect.beginFill(0xff0000, 0.2); // 红色半透明
-  debugRect.drawRect(rect.x, rect.y, rect.width, rect.height);
-  debugRect.endFill();
-  parent.addChild(debugRect);
-  // 返回物品及其矩形边界
-  return {
-    sprite: item,
-    rect
-  };
-}
-
-/**
- * 判断矩形碰撞（AABB）
- */
-function isColliding(a, b) {
-  return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
-  );
-}
-
-/**
- * 创建场景（不糊 / 不抖 / 手机友好）
- */
 export function createScene(screenW, screenH) {
-  const view = new Container();
-  const scale = screenH / DESIGN_HEIGHT;
-  view.scale.set(scale);
 
-  const designW = screenW / scale;
-  const designH = DESIGN_HEIGHT;
+  /* ========== PIXI ROOT ========== */
+  const view = new Container()
+  const scale = screenH / DESIGN_HEIGHT
+  view.scale.set(scale)
 
-  // 背景
-  const bg = new Graphics();
-  bg.beginFill(0xf5f5f5);
-  bg.drawRect(0, 0, designW * 2, designH);
-  bg.endFill();
-  bg.cacheAsBitmap = true;
-  view.addChild(bg);
+  const designW = screenW / scale
+  const designH = DESIGN_HEIGHT
+  const FLOOR_HEIGHT = designH * FLOOR_RATIO
 
-  const wallTexture = Texture.from('wall');
-  wallTexture.baseTexture.mipmap = true;
+  /* ========== BACKGROUND ========== */
+  const bg = new Graphics()
+  bg.beginFill(0xf5f5f5)
+  bg.drawRect(0, 0, designW * 2, designH - FLOOR_HEIGHT)
+  bg.endFill()
+  view.addChild(bg)
 
-  const wall = new TilingSprite({
-    texture: wallTexture,
-    width: designW * 2,
-    height: designH,
-  });
-  wall.roundPixels = true;
-  view.addChild(wall);
+  const floor = new Graphics()
+  floor.beginFill(0x000000)
+  floor.drawRect(0, designH - FLOOR_HEIGHT, designW * 2, FLOOR_HEIGHT)
+  floor.endFill()
+  view.addChild(floor)
 
-  // 世界容器
-  const CAMERA_LEFT = 100;
-  const CAMERA_RIGHT = 100;
-  const floorHeight = 0;
-  const worldWidth = designW * 3;
-  const worldHeight = designH;
+  /* ========== WORLD CONTAINER ========== */
+  const worldWidth = designW * 3
+  const worldHeight = designH
 
-  const world = new Container();
-  world.roundPixels = true;
-  view.addChild(world);
+  const world = new Container()
+  view.addChild(world)
 
-  // 相机容器
-  const camera = new Container();
-  world.addChild(camera);
+  const camera = new Container()
+  world.addChild(camera)
 
-  // 玩家
-  const player = new Sprite(Texture.WHITE);
-  player.anchor.set(0.5, 1);
-  player.roundPixels = true;
-  player.x = Math.round((designW - CAMERA_LEFT - CAMERA_RIGHT) / 2 + CAMERA_LEFT);
-  player.y = Math.round(worldHeight - floorHeight);
-  camera.addChild(player);
+  /* ================= MATTER ================= */
+  const engine = Matter.Engine.create()
+  const physicsWorld = engine.world
+  physicsWorld.gravity.y = 1.2
 
-  // 玩家矩形（用于碰撞检测）
+  const runner = Matter.Runner.create()
+  Matter.Runner.run(runner, engine)
+
+  /* ========== STATIC BODIES ========== */
+  const groundY = worldHeight - FLOOR_HEIGHT
+
+  const ground = Matter.Bodies.rectangle(
+    worldWidth / 2,
+    groundY + FLOOR_HEIGHT / 2,
+    worldWidth,
+    FLOOR_HEIGHT,
+    { isStatic: true }
+  )
+
+  const leftWall = Matter.Bodies.rectangle(
+    -50,
+    worldHeight / 2,
+    100,
+    worldHeight,
+    { isStatic: true }
+  )
+
+  const rightWall = Matter.Bodies.rectangle(
+    worldWidth + 50,
+    worldHeight / 2,
+    100,
+    worldHeight,
+    { isStatic: true }
+  )
+
+  Matter.World.add(physicsWorld, [ground, leftWall, rightWall])
+
+  /* ========== PLAYER ========== */
+  const player = new Sprite(Texture.WHITE)
+  player.anchor.set(0.5, 1)
+  player.height = designH * PLAYER_HEIGHT_VH
+  player.width = player.height * PLAYER_ASPECT
+  camera.addChild(player)
+
+  const playerBody = Matter.Bodies.rectangle(
+    designW / 2,
+    groundY - player.height / 2,
+    player.width,
+    player.height,
+    {
+      inertia: Infinity,      // 不旋转
+      friction: 0,
+      restitution: 0,
+    }
+  )
+
+  Matter.World.add(physicsWorld, playerBody)
+
+  /* ===== 保留原 playerRect（用于旧逻辑兼容）===== */
   const playerRect = {
-    x: Math.round(player.x - player.width / 2),
-    y: Math.round(player.y - player.height),
-    width: Math.round(player.width),
-    height: Math.round(player.height),
-  };
+    x: 0, y: 0,
+    width: player.width,
+    height: player.height
+  }
 
-  // 物品
-  const items = [];
-  const obstacles = []; // 存储每个物品的矩形
-  const itemPositions = [0.1, 0.25, 0.5, 0.8];
-  itemPositions.forEach(xPercent => {
-    const itemObj = spawnItem(camera, 'tp1', xPercent, player.y, designH, worldWidth);
-    items.push(itemObj.sprite);
-    obstacles.push(itemObj.rect); // 保存边界
-  });
-
-  // 相机参数
-  const screenCenterX = designW / 2;
-  const minCameraX = designW - worldWidth;
-  const maxCameraX = 0;
+  /* ================= CAMERA ================= */
+  const screenCenterX = designW / 2
+  const minCameraX = designW - worldWidth
+  const maxCameraX = 0
 
   function updateCameraFollow() {
-    let targetX = screenCenterX - player.x;
-    targetX = Math.min(maxCameraX, targetX);
-    targetX = Math.max(minCameraX, targetX);
-    camera.x = Math.round(targetX);
-    wall.tilePosition.x = camera.x;
+    let targetX = screenCenterX - player.x
+    targetX = Math.min(maxCameraX, targetX)
+    targetX = Math.max(minCameraX, targetX)
+    camera.x = Math.round(targetX)
   }
 
-  /**
-   * 玩家移动 + 障碍物碰撞
-   * dx: 水平移动量
-   */
-  function movePlayer(dx) {
-    if (dx === 0) return;
+  /* ================= PLAYER MOVE ================= */
 
-    // 计算玩家下一个位置矩形
-    const nextRect = {
-      x: playerRect.x + dx,
-      y: playerRect.y,
-      width: playerRect.width,
-      height: playerRect.height,
-    };
-   console.log('nextRect=',nextRect);
-    // 检查与每个障碍物碰撞
-    for (let obs of obstacles) {
-      if (isColliding(nextRect, obs)) {
-        if (dx > 0) {
-          // 右侧碰撞 → 玩家左边对齐障碍物左边
-          nextRect.x = obs.x - playerRect.width;
-        } else {
-          // 左侧碰撞 → 玩家右边对齐障碍物右边
-          nextRect.x = obs.x + obs.width;
-        }
-        // 遇到障碍停止移动
-        dx = nextRect.x - playerRect.x;
-      }
+  function movePlayerX(dx) {
+    Matter.Body.setVelocity(playerBody, {
+      x: dx,
+      y: playerBody.velocity.y
+    })
+  }
+
+  function movePlayerY() {
+    // Matter 自动重力，这里保留接口但不处理
+    return {
+      onGround: Math.abs(playerBody.velocity.y) < 0.01,
+      vy: playerBody.velocity.y
     }
-
-    // 移动玩家
-    player.x += dx;
-    playerRect.x += dx;
-
-    // 玩家世界边界
-    player.x = Math.round(Math.max(CAMERA_LEFT, Math.min(worldWidth - CAMERA_RIGHT, player.x)));
-    playerRect.x = Math.round(player.x - playerRect.width / 2);
-
-    updateCameraFollow();
   }
 
+  /* ================= TICK ================= */
+  function syncPlayer() {
+    player.x = playerBody.position.x
+    player.y = playerBody.position.y + player.height / 2
 
+    playerRect.x = player.x - playerRect.width / 2
+    playerRect.y = player.y - playerRect.height
 
+    updateCameraFollow()
+  }
 
+  Matter.Events.on(engine, 'afterUpdate', syncPlayer)
+
+  /* ================= RETURN ================= */
   return {
     view,
     scale,
     player,
     camera,
-    movePlayer,
-    items,
-    obstacles,
     worldWidth,
-    wall,
-    floorHeight,
-    playerRect, // 方便外部垂直碰撞用
-  };
+    floorHeight: FLOOR_HEIGHT,
+    floor,
+    playerRect,
+
+    movePlayerX,
+    movePlayerY,
+
+    // 保留接口（你后面可逐步迁移）
+    fireBullet() {},
+    updateBullets() {},
+    scDrone() {},
+    destroyDrone() {},
+    updateDrone() {},
+    updateNPCFacingPlayer() {},
+    updateDroneAttack() {},
+    findNearestNPC() {},
+    initBulletPool() {},
+    updateCharacters() {},
+    npcs: []
+  }
 }
