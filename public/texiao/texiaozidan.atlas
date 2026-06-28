@@ -1,0 +1,11 @@
+texiaozidan.png
+size:320,284
+filter:Linear,Linear
+pma:true
+子弹
+bounds:284,130,152,34
+offsets:1,1,154,36
+rotate:90
+烟雾
+bounds:2,2,280,280
+offsets:1,24,304,332

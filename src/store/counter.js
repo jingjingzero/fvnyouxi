@@ -17,45 +17,245 @@ export const useCounterStore = defineStore("counter", {
       ceshi2: 0,
       ceshi3: 0,
       pixi: {
+        app: null,//主世界画布
         stop: false,
+        mapLoading: false,//地图加载
+        mapLoadingProgress: 0,//地图加载进度
         isPaused: false, //游戏暂停
         spineBoy: null,//主角
+        fight: false,//是否进入战斗
+        gameUi: false,//是否隐藏ui
         characters: [],//人物动画
         setting: 0,
+        npcDataList: [],//所有地图NPC数据
+        mapDataList: [],//地图数据
+        activePlayer: null,
+        playerInstance: null,//主角实例
+        npcInstance: null,
+        npcSelectList: [
+          { value: "jinglingQ", tips: "精灵" },
+          { value: "two219", tips: "白猫" },
+          { value: "huli", tips: "狐狸" },
+          { value: "jinmao", tips: "金毛" },
+          { value: "yu", tips: "鱼" },
+          { value: "linen", tips: "主角" }
+        ],//可以选择的人物
         player: {
-          shenfen: `身份：奥米集团 <b class="text-#F56C6C">LV.4</b> 员工`,
-          attack: 16,//攻击力
-          currentHp: 100,
-          maxHp: 100,//最大生命
-          speed: 1,//速度
+          playerHand: ['射击', '无人机', '影分身', '洞察', '激光', '聚灵'],
+          CARD_DATA: {
+            射击: {
+              skin: 'Shoot',
+              color: '#ff4757',
+              num: 7,
+              maxCooldown: 0,
+              cost: 0,
+              limitPerTurn: 1,
+              evoOptions: ['弹夹升级', '概率暴击', '快速换弹', '破甲'],
+              defaultEvos: ['弹夹升级', '快速换弹', '概率暴击'],//已进化
+              evoDesc: {
+                "弹夹升级": "额外射击二次",
+                "概率暴击": "有50%概率暴击，造成140%伤害",
+                "快速换弹": "可消耗1点灵力额外使用1次",
+                "破甲": "无视敌方 30% 护甲"
+              },
+              hitCount: 6,//打击次数
+              fixedDmg: 8,//固定伤害
+              atkRatio: 0.1,//攻击力收益
+              animDelay: 6 * 150,//动画时长
+              // ✅ 卡牌描述
+              desc: "无消耗,每回合限用一次,朝敌人射击6次,每次造成 8 + 10% 攻击力物理伤害。"
+            },
+
+            激光: {
+              skin: 'Laser',
+              color: '#ffeb3b',
+              maxCooldown: 1,
+              cost: 3,
+              num: 1,
+              evoOptions: ['击杀返还', '概率暴击', '超频释放', '破甲'],
+              defaultEvos: ['击杀返还', '超频释放'],
+              evoDesc: {
+                "击杀返还": "造成击杀则返还2点灵力",
+                "概率暴击": "有50%概率暴击，造成140%伤害",
+                "超频释放": "所需灵力提升1点，造成伤害提升40%",
+                "破甲": "无视敌方 30% 护甲"
+              },
+              fixedDmg: 110,
+              atkRatio: 1.2,
+              animDelay: 500,
+              desc: "对所有敌人造成110+120%攻击力物理伤害。"
+            },
+
+            瘴气: {
+              skin: 'Miasma',
+              color: '#2fca64',
+              dmgType: "poison", // 毒伤
+              maxCooldown: 2,
+              cost: 2,
+              num: 1,
+              evoOptions: ['毒素紊乱', '熟能生巧', '死亡返还', '虚弱'],
+              defaultEvos: ['毒素紊乱', '熟能生巧', '死亡返还', '虚弱'],
+              evoDesc: {
+                "毒素紊乱": "目标身上每携带1种毒素状态，瘴毒伤害提高12%",
+                "熟能生巧": "战斗中累计使用3 次后，减少1点灵力消耗",
+                "死亡返还": "当有敌人阵亡时，冷却缩短1回合",
+                "虚弱": "携带【瘴毒】的敌人护甲降低 15%，所受毒素伤害提高12%"
+              },
+              fixedDmg: 25,
+              atkRatio: 0.25,
+              animDelay: 500,
+              desc: "对全部敌人施加【瘴毒】，持续 3 回合；敌人每次行动时受到「25+25% 攻击力」毒素伤害。重复施加瘴气，刷新中毒持续时长，并使【瘴毒】伤害增幅 50%。"
+            },
+
+            无人机: {
+              skin: 'Drone',
+              color: '#a78bfa',
+              maxCooldown: 3,
+              cost: 3,
+              num: 1,
+              evoOptions: ['超强续航', '自动部署', '系统升级'],
+              defaultEvos: ['机群效应'],
+              evoDesc: {
+                "超强续航": "无人机攻击次数+2",
+                "自动部署": "战斗开局自动召唤 1 台无人机",
+                "系统升级": "无人机速度提升40%，造成伤害提升20%",
+                "机群效应": "当召唤无人机时，在场的无人机行动条推进 50%"
+              },
+              fixedDmg: 60,
+              atkRatio: 0.6,
+              animDelay: 500,
+              desc: "召唤一个无人机协助自己作战，无人机初始拥有60速度，在攻击3次后退场。无人机每次攻击造成60+60%攻击力伤害。"
+            },
+
+            影分身: {
+              skin: 'ShadowClone',
+              color: '#7c3aed',
+              maxCooldown: 1,
+              cost: 3,
+              num: 1,
+              evoOptions: ['生命提升', '自动召唤', '强力分裂', '协同作战'],
+              defaultEvos: ['协同作战'],
+              evoDesc: {
+                "生命提升": "影分身生命值提升至40%最大生命值",
+                "自动召唤": "战斗开局自动召唤影分身",
+                "强力分裂": "影分身的属性提升至自身的70%",
+                "协同作战": "影分身行动时，你的行动条推进30%"
+              },
+              desc: "召唤一个拥有你25%最大生命值的影分身，拥有你60%的速度，他会替你承担50%伤害，死亡后退场。当他行动时，会使用射击。"
+            },
+
+            聚灵: {
+              skin: 'SpiritGather',
+              color: '#10b981',
+              maxCooldown: 2,
+              animDelay: 300,
+              initialCooldown: 2,
+              cost: 0,
+              num: 1,
+              evoOptions: ['快速使用', '效果强化', '汲灵秘术', '灵力分享'],
+              defaultEvos: ['快速使用', '汲灵秘术', '效果强化'],
+              evoDesc: {
+                "快速使用": "战斗开始时不再拥有冷却",
+                "效果强化": "额外恢复1点灵力",
+                "汲灵秘术": "使用后全属性提升10%持续1回合",
+                "灵力分享": "使用后会使你的其他友方单位行动条推进25%"
+              },
+              desc: "恢复2点灵力"
+            },
+
+            反弹: {
+              skin: 'Reflect',
+              color: '#f59e0b',
+              maxCooldown: 2,
+              cost: 2,
+              num: 0,
+              evoOptions: ['效果强化', '全副武装', '状态延长', '自动释放'],
+              defaultEvos: [],
+              evoDesc: {
+                "效果强化": "反弹伤害修正为【70%折前伤害+180%护甲】",
+                "全副武装": "反弹状态下额外提升20%护甲",
+                "状态延长": "反弹状态额外持续1回合",
+                "自动释放": "战斗开始时自动获得此状态，并且战斗开始时护甲提升10%"
+              },
+              desc: "获得2回合的【反弹】状态，期间护甲提升30%，当你受到攻击时，对攻击者造成【50%折前伤害+140%护甲】伤害。"
+            },
+
+            武器强化: {
+              skin: 'WeaponBoost',
+              color: '#fbbf24',
+              maxCooldown: 2,
+              cost: 2,
+              num: 1,
+              evoOptions: ['首发增幅', '负荷提升', '穿甲', '重置'],
+              defaultEvos: [],
+              evoDesc: {
+                "首发增幅": "第一次使用时额外增强100%效果",
+                "负荷提升": "可强化次数提升2，当强化三次后，冷却时间缩短1回合",
+                "穿甲": "每层效果额外使你的物理伤害无视5%护甲",
+                "重置": "每次强化后可额外免费使用一次射击"
+              },
+              desc: "使你的物理伤害提升20%直到战斗结束，最多可强化三次。"
+            },
+
+            洞察: {
+              skin: 'Insight',
+              color: '#ffffff',
+              maxCooldown: 2,//2
+              cost: 2,//2
+              num: 1,
+              animDelay: 500,
+              initialCooldown: 1,//1
+              evoOptions: ['效果增强', '乘胜追击', '不安', '看透'],
+              defaultEvos: ['效果增强', '看透', '不安', '乘胜追击'],
+              evoDesc: {
+                "效果增强": "受到伤害修正为（15+9*破解层数）%",
+                "乘胜追击": "当拥有弱点的敌人死亡，你的速度提升20%持续2回合",
+                "不安": "当敌人获得弱点时，行动条减少40%",
+                "看透": "拥有弱点的敌人护甲会降低20%"
+              },
+              desc: "使所有敌人获得一层弱点状态，敌人拥有弱点时，受到伤害提升（10+6*破解层数）%"
+            },
+
+            毒雾: {
+              skin: 'PoisonMist',
+              color: '#2fca64',
+              maxCooldown: 1,
+              cost: 5,
+              num: 1,
+              initialCooldown: 4,
+              evoOptions: ['效果增强', '快速启动', '窒息', '扩散'],
+              defaultEvos: ['效果增强', '快速启动', '窒息', '扩散'],
+              evoDesc: {
+                "效果增强": "敌人行动时受到中毒伤害提升至55+55%",
+                "快速启动": "初始冷却-2",
+                "窒息": "毒雾存在时，敌人的速度降低18%",
+                "扩散": "毒雾存在时，敌人行动时会受到20+15%攻击力的毒素伤害"
+              },
+              desc: "令周围充满毒雾，令所有敌人进入中毒效果、护甲降低 20%、所受毒素伤害提高 30%；敌人每回合开始受到 40+40% 攻击力的毒素伤害。"
+            }
+          },
+          juese: {
+            name: '主角',
+            hp: 5000,
+            maxHp: 5000,
+            mp: 2,
+            maxMp: 6,
+            baseArmor: 30,
+            baseAttack: 100,
+            baseSpeed: 136,
+            baseLuck: 50,
+            armor: 30,
+            attack: 100,
+            speed: 136,
+            luck: 50,
+            camp: 'player'
+          },
+          shenfen: `身份：奥米集团 <b class="text-#F56C6C">LV.1</b> 探索者`,
           exp: 0,//经验值
           maxExp: 200,
           Level: 20,//等级
-          skill: [
-            {
-              name: "射击",
-              desc: "向前发射子弹,造成10+100%攻击力伤害。",
-              shanghai: 10,
-              mul: 1
-            },
-            {
-              //触发六次
-              name: "技能",
-              desc: "无人机持续发射激光，在1秒内对沿途的目标共造成30+180%攻击力伤害",
-              shanghai: 5,
-              durationTime:1000,
-              mul: 0.3
-            },
-            {
-              name: "被动",
-              desc: `无人机每<b class="text-#EEBE77">3</b>秒会自动攻击你周边的敌人，造成5+60%攻击力伤害。`,
-              shanghai: 5,
-              durationTime:200,
-              mul: 0.6
-            },
-          ]
         },
-        duihua:true
+        duihua: true
       },
       playerSprite: undefined,
       youxi01: 0,
@@ -83,21 +283,16 @@ export const useCounterStore = defineStore("counter", {
       selectIndexNum: false,//选项是否要删除
       selectedOptionAble: false,//选项可触碰
       messages: [],//历史记录 
-      inventory: [{
-        name: "美味的猫肉",
-        num: 1,
-        img: "cat",
-        miaoshu: "猫肉，美味好吃。",
-        sell: 4,
-        status: "food",
-        need: {
-          name: "兽肉",
-          num: 1,
-          odds: 40,
-          failTs: 5,
-          int: 10,//智慧加成
-        }
+      inventory: [ {
+        name: "灵力晶核",
+        num: 20,
+            img: "jinghe",
+        miaoshu: "蕴含强大灵力的晶核，可用于抽取卡牌。",
+        sell: 10,
+        status: "material",
+        color: "#8B5CF6"
       },],  // 物品列表
+      gachaHistory: [], // 抽卡历史记录
       wupingShow: 1,//是否显示物品图标 ， 0是不显示，1是只显示图片，2是显示物品栏，3是战斗状态
       saveData: "",//存档数据
       playingSounds: [],//音乐数组
@@ -158,6 +353,184 @@ export const useCounterStore = defineStore("counter", {
       } else {
         this.inventory.push({ ...newItem })
       }
+    },
+    // 添加卡牌到物品栏
+    addCardToInventory(cardName, count = 1) {
+      const cardData = this.pixi.player.CARD_DATA[cardName];
+      if (!cardData) return;
+
+      const existing = this.inventory.find(item => item.name === cardName && item.isCard);
+      if (existing) {
+        existing.num += count;
+      } else {
+        this.inventory.push({
+          name: cardName,
+          num: count,
+          img: cardData.skin || cardName,
+          miaoshu: cardData.desc || '',
+          isCard: true,
+          color: cardData.color,
+          cost: cardData.cost,
+          maxCooldown: cardData.maxCooldown,
+        });
+      }
+
+      // 同步更新 CARD_DATA 中的 num
+      if (!cardData.num) {
+        cardData.num = 0;
+      }
+      cardData.num += count;
+    },
+    // 消耗重复卡牌进化
+    evolveCardWithItem(cardName, evoName) {
+      const cardItem = this.inventory.find(item => item.name === cardName && item.isCard);
+      const cardData = this.pixi.player.CARD_DATA[cardName];
+
+      if (!cardItem || !cardData) return false;
+      if (cardItem.num < 2) {
+        ElMessText("需要至少2张相同卡牌才能进化", "warning");
+        return false;
+      }
+
+      // 检查是否已经进化过
+      if (!cardData.defaultEvos) {
+        cardData.defaultEvos = [];
+      }
+      if (cardData.defaultEvos.includes(evoName)) {
+        ElMessText("该词条已进化", "warning");
+        return false;
+      }
+
+      // 检查是否是可进化的词条
+      if (!cardData.evoOptions || !cardData.evoOptions.includes(evoName)) {
+        ElMessText("无法进化该词条", "warning");
+        return false;
+      }
+
+      // 消耗1张卡牌
+      cardItem.num -= 1;
+      if (cardItem.num <= 0) {
+        const index = this.inventory.indexOf(cardItem);
+        this.inventory.splice(index, 1);
+      }
+
+      // 添加进化
+      cardData.defaultEvos.push(evoName);
+      ElMessText(`进化成功：${evoName}`, "success");
+      return true;
+    },
+    // 消耗指定数量卡牌进化（用于卡牌图鉴）
+    evolveCardWithCount(cardName, evoName, count) {
+      const cardItem = this.inventory.find(item => item.name === cardName && item.isCard);
+      const cardData = this.pixi.player.CARD_DATA[cardName];
+
+      if (!cardItem || !cardData) return false;
+
+      // 至少保留1张基础卡牌
+      if (cardItem.num - 1 < count) {
+        ElMessText(`需要至少 ${count + 1} 张卡牌才能进化`, "warning");
+        return false;
+      }
+
+      // 检查是否已经进化过
+      if (!cardData.defaultEvos) {
+        cardData.defaultEvos = [];
+      }
+      if (cardData.defaultEvos.includes(evoName)) {
+        ElMessText("该词条已进化", "warning");
+        return false;
+      }
+
+      // 检查是否是可进化的词条
+      if (!cardData.evoOptions || !cardData.evoOptions.includes(evoName)) {
+        ElMessText("无法进化该词条", "warning");
+        return false;
+      }
+
+      // 最多进化4次
+      if (cardData.defaultEvos.length >= 4) {
+        ElMessText("已达到最大进化次数", "warning");
+        return false;
+      }
+
+      // 消耗指定数量卡牌
+      cardItem.num -= count;
+      if (cardItem.num <= 0) {
+        const index = this.inventory.indexOf(cardItem);
+        this.inventory.splice(index, 1);
+      }
+
+      // 同步更新 CARD_DATA 中的 num
+      if (cardData.num) {
+        cardData.num -= count;
+      }
+
+      // 添加进化
+      cardData.defaultEvos.push(evoName);
+      ElMessText(`进化成功：${evoName}`, "success");
+      return true;
+    },
+    // 抽卡方法
+    gachaCard(count = 1) {
+      // 检查灵力晶核数量
+      const crystalItem = this.inventory.find(item => item.name === "灵力晶核");
+      const cost = count; // 十连抽优惠
+      
+      if (!crystalItem || crystalItem.num < cost) {
+        ElMessText("灵力晶核不足！", "warning");
+        return null;
+      }
+
+      // 消耗灵力晶核
+      crystalItem.num -= cost;
+      if (crystalItem.num <= 0) {
+        const index = this.inventory.indexOf(crystalItem);
+        this.inventory.splice(index, 1);
+      }
+
+      // 获取所有卡牌（排除初始必带的射击）
+      const allCards = Object.entries(this.pixi.player.CARD_DATA)
+        .filter(([name]) => name !== "射击")
+        .map(([name, data]) => ({
+          name,
+          color: data.color || "#ffffff"
+        }));
+
+      const results = [];
+
+      for (let i = 0; i < count; i++) {
+        // 所有卡牌概率相同，随机抽取
+        const selectedCard = allCards[Math.floor(Math.random() * allCards.length)];
+
+        // 添加到物品栏
+        this.addCardToInventory(selectedCard.name, 1);
+
+        results.push({
+          name: selectedCard.name,
+          color: selectedCard.color
+        });
+      }
+
+      // 添加到抽卡历史记录
+      const historyRecord = {
+        time: new Date().toLocaleString('zh-CN'),
+        count: count,
+        cost: cost,
+        cards: results.map(r => r.name)
+      };
+      this.gachaHistory.unshift(historyRecord);
+      
+      // 只保留最近100条记录
+      if (this.gachaHistory.length > 100) {
+        this.gachaHistory = this.gachaHistory.slice(0, 100);
+      }
+
+      return results;
+    },
+    // 获取灵力晶核数量
+    getCrystalCount() {
+      const crystalItem = this.inventory.find(item => item.name === "灵力晶核");
+      return crystalItem ? crystalItem.num : 0;
     },
     //新的一天
     newDay() {
@@ -282,7 +655,6 @@ export const useCounterStore = defineStore("counter", {
     },
     // 重置所有属性
     resetUser() {
-      console.log('231');
       this.youxi = 0;
       this.youxi01 = 0;
       this.currentNodeKey = "start01"

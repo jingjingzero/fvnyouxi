@@ -1,155 +1,69 @@
-<!--
- * @作者: 冯星悦
- * @Date: 2025-04-15 15:55:21
- * @LastEditTime: 2025-07-23 09:24:36
--->
 <template>
-  <!-- animate__animated animate__wobble -->
-  <div class="flex w-full h-100vh">
-    <div class="z-1 flex" v-if="startSelect.index === 0">
-      <div
-        class="flex flex-col text-white iconfont2 mt-18vh pt-2vh px-3vw rounded-5 gap-y-3 font-bold"
-      >
-        <span v-for="(item, index) of info" :key="index">
-          <span
-            class="bg-#409EFF/50 px-2vw py-1vh rounded-2"
-            @click="enter(index)"
-            >{{ item }}</span
-          >
-        </span>
+  <div>
+    <transition name="fade">
+      <div v-show="progress !== 100" class="absolute inset-0 z-999">
+        <div class="absolute flex justify-center items-center w-100vw h-100vh">
+          <el-progress type="dashboard" :percentage="progress">
+            <template #default="{ percentage }">
+              <span class="percentage-value">
+                {{ percentage }}%
+              </span>
+
+              <span class="percentage-label">
+                加载资源中
+              </span>
+            </template>
+          </el-progress>
+        </div>
       </div>
-      <!-- <div class="w-50% h-full text-white font-bold iconfont2 text-4vw flex justify-end">
-        <div class="mt-10vh gradient-text">名为自由的彼岸</div>
-      </div> -->
-      <video
-        poster="@/assets/lihuiImg/zhujue1.webp"
-        :src="jueseDonghua"
-        autoplay
-        muted
-        loop
-        playsinline
-        webkit-playsinline
-        preload="auto"
-        class="absolute pointer-events-none z-10 h-120vh mt-24vh -right-15 select-none"
-      />
-    </div>
-    <div
-      v-else
-      class="w-full h-full relative flex items-center justify-center z-1"
-    >
-      <!-- 背景视频 -->
-      <video
-        poster="@/assets/lihuiImg/heiping.webp"
-        src="@/assets/donghua/waterBg.webm"
-        autoplay
-        muted
-        loop
-        playsinline
-        webkit-playsinline
-        preload="auto"
-        class="absolute w-full h-full object-cover pointer-events-none"
-      />
-
-      <template v-if="startSelect.index === 1">
-        <div
-          class="absolute top-1/5 w-full text-center text-white text-36px font-bold iconfont2 opacity-0 animate-fadeIn"
-        >
-          如果让你选择，你希望主角的性别是？
+    </transition>
+    <transition name="fade-game">
+      <div v-show="progress === 100" class="flex w-full h-100vh justify-end">
+        <div class="fixed inset-0 overflow-hidden -z-1">
         </div>
-        <div
-          class="flex space-x-30vw z-10 mt-5vh opacity-0 animate-floatUp"
-          :class="{ 'pointer-events-none': !startSelect.animationFinished }"
-        >
-          <button
-            @touchstart="selectGender('male', 0)"
-            class="px-8 py-5 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-400 transition iconfont2 text-26px"
-          >
-            男性
-          </button>
-          <button
-            @touchstart="selectGender('female', 0)"
-            class="px-8 py-5 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-400 transition iconfont2 text-26px"
-          >
-            女性
-          </button>
+        <!-- 背景spine图 -->
+        <div class="absolute page">
+          <div ref="pixiRef" class="pixi-wrap" :style="{
+            opacity: pixiReady ? 1 : 0
+          }">
+          </div>
         </div>
-      </template>
-      <template v-else>
-        <div
-          class="absolute top-1/5 w-full text-center text-white text-36px font-bold iconfont2 opacity-0 animate-fadeIn"
-        >
-          你觉得你是一个什么样的人？
+        <div class="z-99 flex mr-3vw" v-if="startSelect.index === 0">
+          <div class="flex flex-col items-end text-white iconfont2 mt-15vh pt-2vh px-3vw rounded-5 gap-y-5vh font-bold">
+            <span v-for="(item, index) of info" :key="index">
+              <span class="bg-#409EFF/50 px-2vw py-2vh rounded-2" @click="enter(index)">
+                {{ item }}
+              </span>
+            </span>
+          </div>
         </div>
-        <div
-          class="flex space-x-30vw z-10 mt-5vh opacity-0 animate-floatUp"
-          :class="{ 'pointer-events-none': !startSelect.animationFinished }"
-        >
-          <button
-            @touchstart="selectGender('pureKind', 1)"
-            class="px-8 py-5 font-bold rounded-lg text-26px iconfont2 transition"
-            :style="{
-              background: 'linear-gradient(135deg, #FFFAE5, #FFD8A8)',
-              color: '#000',
-            }"
-          >
-            善良
-          </button>
-
-          <!-- 冷漠理智按钮 -->
-          <button
-            @touchstart="selectGender('coldRational', 1)"
-            class="px-8 py-5 font-bold rounded-lg text-26px iconfont2 transition"
-            :style="{
-              background: 'linear-gradient(135deg, #B0C4DE, #778899)',
-              color: '#fff',
-            }"
-          >
-            理智
-          </button>
-        </div>
-      </template>
-    </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { Application } from "pixi.js";
+import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import { useCounterStore } from "@/store/counter"; //pinia库
-import { ElMessText } from "@/pages/zujian/utils.js";
+import { loadAssets } from "./loadAssets";
 import router from "@/router"; //引入路由
+import { ElMessText } from "@/pages/zujian/utils.js";
+import { SkeletonBounds } from "@esotericsoftware/spine-core";
+const user = useCounterStore();
 const startSelect = reactive({
   index: 0,
   animationFinished: false,
 });
-const shiyanti = ref([
-  {
-    src: "tuzi",
-    name: 220,
-  },
-  {
-    src: "gou",
-    name: 219,
-  },
-  {
-    src: "huli1",
-    name: 218,
-  },
-  {
-    src: "shuishouren",
-    name: 217,
-  },
+
+const info = reactive([
+  "开始游戏",
+  "读取游戏",
+  "画廊",
+  "设置",
+  "档案",
 ]);
-const headImg = (src) => {
-  return new URL(`../assets/fullBody/zhujue/${src}.webp`, import.meta.url).href;
-};
-
-const jueseDonghua = ref();
-
-const value = ref("实验体");
-const options = ["实验体", "研究员"];
-const user = useCounterStore();
-const info = reactive(["开始游戏", "读取游戏", "画廊", "设置", "笔记"]);
-let enterLock = false;
 
 async function enter(index) {
   if (enterLock) return; // 正在等待，直接返回
@@ -162,8 +76,8 @@ async function enter(index) {
     if (index === 0) {
       if (user.SoundArr.length === 0) return;
       user.resetUser();
-            router.push({ name: "matter" });
-            return
+      router.push({ name: "matter" });
+      return
       user.zhujue01.name = "琳恩";
       user.zhujue01.sex = 0;
       user.stopAllSounds();
@@ -181,7 +95,7 @@ async function enter(index) {
       user.menu = 2;
       user.menuSelect = 3;
     } else if (index === 4) {
-      
+
       router.push({ name: "ceshi" });
     }
   } finally {
@@ -191,83 +105,340 @@ async function enter(index) {
     }, 250);
   }
 }
+let enterLock = false;
+function VW(value) {
+  return window.innerWidth * (value / 100);
+}
 
-const selectGender = (gender, index) => {
-  if (!startSelect.animationFinished) return;
-  user.playSound("clickS", false, user.volume * 0.5);
-  if (index === 0) {
-    console.log("选择的性别:", gender);
-    if (gender === "female") {
-      user.zhujue01.name = "琳恩";
-      user.zhujue01.sex = 0;
-    } else {
-      ElMessText("未开放");
-      return;
-      user.zhujue01.name = "林恩";
-      user.zhujue01.sex = 1;
+function VH(value) {
+  return window.innerHeight * (value / 100);
+}
+
+const pixiRef = ref(null);
+
+let app = null;
+const progress = ref(0)
+const pixiReady = ref(false)
+function createSpine({
+  skeleton,
+  atlas,
+  width = 20,
+  x = 50,
+  y = 100,
+  animation,
+  loop = true,
+  onClick,
+}) {
+  const spine = new Spine({
+    skeleton,
+    atlas,
+  });
+
+  app.stage.addChild(spine);
+
+  const bounds = new SkeletonBounds();
+
+  let latestHit = null;
+
+  // =========================
+  // 每帧同步（关键稳定点）
+  // =========================
+  const tickerFn = () => {
+    bounds.update(spine.skeleton, true);
+  };
+
+  app.ticker.add(tickerFn);
+
+  app.ticker.addOnce(() => {
+    spine.autoUpdate = true;
+
+    spine.scale.set(VW(width) / 100);
+    spine.x = VW(x);
+    spine.y = VH(y);
+
+    const anim =
+      animation ||
+      spine.skeleton.data.animations?.[0]?.name;
+
+    if (anim) {
+      spine.state.setAnimation(0, anim, loop);
     }
-    startSelect.index++;
-    startSelect.animationFinished = false;
-    setTimeout(() => {
-      startSelect.animationFinished = true;
-    }, 1600);
-  } else {
-    startSelect.animationFinished = false;
-    if (gender === "pureKind") {
-      user.zhujue01.personality = 0;
-    } else {
-      ElMessText("未开放");
-      return;
-      user.zhujue01.personality = 1;
+
+    spine.eventMode = "static";
+
+    spine.on("pointertap", (event) => {
+      const local = spine.toLocal(event.global);
+
+      const hit = bounds.containsPoint(local.x, local.y);
+
+      latestHit = hit;
+
+      if (!hit) {
+        onClick?.({
+          spine,
+          slot: null,
+          event,
+        });
+        return;
+      }
+
+      const slotName = hit.name || null;
+
+      onClick?.({
+        spine,
+        slot: slotName,
+        attachment: hit,
+        event,
+      });
+    });
+  });
+
+  return {
+    spine,
+    destroy() {
+      try {
+        app?.ticker?.remove(tickerFn);
+
+        app?.stage?.removeChild(spine);
+
+        spine?.destroy?.({
+          children: true
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
-    user.stopAllSounds();
-    user.resetUser();
-  }
-};
-onMounted(() => {
-  if (user.youxi <= 0) {
-    user.backgroundImage = new URL(
-      "@/assets/images/jiemian0.webp",
-      import.meta.url
-    ).href;
-    user.bg_img = "jiemian0";
-  }
-  jueseDonghua.value = new URL(
-    "@/assets/donghua/zhujue1.webm",
-    import.meta.url
-  ).href;
+  };
+}
+const spineList = [];
+onMounted(async () => {
+  // 加载资源
+  await loadAssets((value) => {
+    progress.value = value !== 100 ? value : 99
+  })
+  // 创建Pixi
+  app = new Application();
+
+  await app.init({
+
+    resizeTo: window,
+
+    resolution: Math.min(
+      window.devicePixelRatio,
+      2
+    ),
+
+    autoDensity: true,
+
+    backgroundAlpha: 0,
+
+    antialias: true,
+  });
+
+  // 挂载canvas
+  pixiRef.value.appendChild(
+    app.canvas
+  );
+
+  // =========================
+  // 背景
+  // =========================
+  spineList.push(
+    createSpine({
+      skeleton: "bg_skel",
+      atlas: "bg_atlas",
+      width: 5,
+      x: 45,
+      y: 101,
+    })
+  );
+
+  spineList.push(
+    createSpine({
+      skeleton: "bg3_skel",
+      atlas: "bg3_atlas",
+      width: 1.8,
+      x: 68,
+      y: 40,
+    })
+  );
+
+  spineList.push(
+    createSpine({
+      skeleton: "bg2_skel",
+      atlas: "bg2_atlas",
+      width: 5,
+      x: 50,
+      y: 101,
+
+      onClick: ({ slot, spine }) => {
+        console.log("点击 slot =", slot);
+      },
+    })
+  );
+  // =========================
+  // 第二个角色
+  // =========================
+  spineList.push(
+    createSpine({
+      skeleton: "bg1_skel",
+      atlas: "bg1_atlas",
+      width: 5,
+      x: 45,
+      y: 101,
+    })
+  );
+  await new Promise((resolve) => {
+    setTimeout(resolve, 250)
+  })
+  pixiReady.value = true
+
+  await nextTick()
+
+  progress.value = 100
 });
+
+onBeforeUnmount(() => {
+
+  spineList.forEach(item => {
+    item?.destroy?.();
+  });
+
+  spineList.length = 0;
+
+  if (app) {
+
+    app.ticker.stop();
+
+    app.destroy();
+
+    app = null;
+  }
+});
+
+//spine边界框点击判断
+
 </script>
 
 <style scoped>
-/* 渐显文字 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* loading */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .5s ease;
 }
-.animate-fadeIn {
-  animation: fadeIn 1.5s forwards;
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
-@keyframes floatUp {
+
+/* 游戏 */
+.fade-game-enter-active,
+.fade-game-leave-active {
+  transition:
+    opacity 1s ease,
+    transform 1s ease;
+}
+
+.fade-game-enter-from,
+.fade-game-leave-to {
+  opacity: 0;
+
+  transform:
+    scale(1.02);
+}
+
+.percentage-value {
+  display: block;
+  margin-top: 10px;
+  font-size: 28px;
+}
+
+.percentage-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.page {
+  position: absolute;
+
+  width: 100vw;
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+/* 动态背景 */
+.page::before {
+
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  /* 故意放大 */
+  width: 120%;
+  height: 120%;
+
+  background-image: url("@/assets/image/beijing.webp");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* 初始居中 */
+  transform:
+    translate(-50%, -50%);
+
+  /* 镜头缓慢移动 */
+  animation:
+    cameraMove 20s linear infinite alternate;
+
+  will-change: transform;
+}
+
+/* Pixi层 */
+.pixi-wrap {
+  position: relative;
+  z-index: 2;
+}
+
+/* 缓慢镜头移动 */
+@keyframes cameraMove {
+
   0% {
-    opacity: 0;
-    transform: translateY(30px);
+    transform:
+      translate(-50%, -50%) translate(-2%, -2%) scale(1);
   }
+
+  25% {
+    transform:
+      translate(-50%, -50%) translate(2%, -1%) scale(1.02);
+  }
+
+  50% {
+    transform:
+      translate(-50%, -50%) translate(1%, 2%) scale(1.03);
+  }
+
+  75% {
+    transform:
+      translate(-50%, -50%) translate(-2%, 1%) scale(1.01);
+  }
+
   100% {
-    opacity: 1;
-    transform: translateY(0);
+    transform:
+      translate(-50%, -50%) translate(2%, 2%) scale(1.05);
   }
 }
-.animate-floatUp {
-  animation: floatUp 2s forwards;
-}
-.gradient-text {
-  background: linear-gradient(to right, #f56c6c, #409eff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+
+/* 高清canvas */
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 </style>

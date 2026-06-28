@@ -33,9 +33,6 @@ const routes = [
       {
     path: '/ceshi3', component: () => import('@/pages/ceshi3.vue'),
   },
-  {
-    path: '/shuxing_DB', name: "shuxing_DB", component: () => import('@/pages/xiaozujian/shuxing_DB.vue'),
-  },
 ]
 
 const router = createRouter({

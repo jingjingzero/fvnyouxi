@@ -1,176 +1,63 @@
-<template>
-  <!-- 对话 -->
-  <!-- <div v-show="user.pixi.duihua" class="absolute z-999">
-    <duihua />
-  </div> -->
-  <div class="absolute z-999 text-black">
-    x:{{ user.ceshi1.toFixed(0) }} y:{{ user.ceshi2.toFixed(0) }}
-  </div>
-  <div v-show="user.pixi.setting === 2" class="absolute z-100 w-100vw h-100vh">
-    <Menu />
-  </div>
-  <div
-    v-show="user.pixi.setting === 1"
-    class="absolute left-0 w-full h-full z-100 bg-[rgba(0,0,0,0.6)]"
-    @click="guanbi()"
-  >
-    <!-- <Ipad /> -->
-  </div>
-  <div ref="gameContainer" class="w-screen h-screen overflow-hidden relative">
-    <!-- 摇杆挂载在这里 -->
-    <div
-      v-show="user.pixi.setting === 0"
-      ref="joystickContainer"
-      class="absolute left-9vw bottom-15vh w-[25vh] h-[25vh]"
-    ></div>
-    <!-- 右侧跳跃按钮 -->
-    <div
-      class="absolute right-7vh bottom-12vh w-[12vh] h-[12vh] rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none active:scale-90"
-      @touchend="handlePlayerInput(0)"
-    >
-      跳
-    </div>
-    <!-- 菜单 -->
-    <div
-      class="absolute right-7vh top-5vh w-[13vh] h-[6vh] rounded-3 bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none"
-      @click="ceshi5"
-    >
-      <el-popover
-        v-if="user.pixi.setting === 0"
-        placement="left-start"
-        :visible="user.pixi.isPaused"
-        :width="200"
-        trigger="click"
-        popper-class="mr-1.5vh w-15vw! min-w-15vw!"
-      >
-        <template #reference>
-          <span class="text-3vh iconfont2">菜单</span>
-        </template>
+  <template>
+    <div v-loading="isPageLoading" element-loading-text="游戏加载中..." element-loading-background="#000"
+      class="w-screen h-screen overflow-hidden">
+      <!-- 对话 -->
+      <!-- <div v-show="user.pixi.duihua" class="absolute z-999">
+      <duihua />
+    </div> -->
+      <div v-if="user.pixi.setting === 1" class="absolute left-0 w-full h-full z-5 ">
+        <infoMap />
+        <!-- <Ipad /> -->
+      </div>
+      <kapai v-if="user.pixi.fight" class="absolute!" @fight-end="enablePlayerControl" />
+      <div ref="gameContainer" class="w-screen h-screen overflow-hidden relative">
+        <!-- 菜单 -->
         <div
-          class="text-1.4vw flex flex-col items-center iconfont2 text-#333 gap-y-1.3vh py-0.5vh"
-        >
-          <div
-            @touchend.prevent="tanchuang(0)"
-            class="w-full h-full text-center"
-          >
-            人物信息
-          </div>
-          <el-divider style="margin: 0" />
-          <!-- <div
-            @touchend.prevent="tanchuang(1)"
-            class="w-full h-full text-center"
-          >
-            手机
-          </div> -->
-          <el-divider style="margin: 0" />
-          <div
-            @touchend.prevent="tanchuang(2)"
-            class="w-full h-full text-center"
-          >
-            设置
-          </div>
+          class="absolute right-7vh top-5vh w-[13vh] h-[6vh] rounded-3 bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none"
+          v-show="!user.pixi.fight && !isPageLoading" @click="ceshi5">
+          <el-popover v-if="user.pixi.setting === 0" placement="left-start" :visible="user.pixi.isPaused" :width="200"
+            trigger="click" popper-class="mr-1.5vh w-15vw! min-w-15vw!">
+            <template #reference>
+              <span class="text-3vh iconfont2">菜单</span>
+            </template>
+            <div class="text-1.4vw flex flex-col items-center iconfont2 text-#333 gap-y-1.3vh py-0.5vh">
+              <div @click="tanchuang(0)" class="w-full h-full text-center">
+                人物信息
+              </div>
+              <el-divider style="margin: 0" />
+              <div @click="tanchuang(1)" class="w-full h-full text-center">
+                管理员权限
+              </div>
+              <div @click="tanchuang(4)" class="w-full h-full text-center">
+                任务
+              </div>
+              <el-divider style="margin: 0" />
+              <div @click="tanchuang(2)" class="w-full h-full text-center">
+                进入战斗
+              </div>
+              <el-divider style="margin: 0" />
+              <div @click="tanchuang(3)" class="w-full h-full text-center">
+                返回主界面
+              </div>
+            </div>
+          </el-popover>
         </div>
-      </el-popover>
-    </div>
-    <!-- 冲刺按钮 -->
-    <div
-      class="absolute right-24vh bottom-12vh w-[12vh] h-[12vh] rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none active:scale-90"
-      :class="{ 'pointer-events-none': anniu.isDashCoolingDown }"
-      @touchend="handlePlayerInput(1)"
-    >
-      <canvas
-        ref="canvas1"
-        class="absolute w-full h-full rounded-full z-1"
-      ></canvas>
-      <div
-        class="w-full h-full rounded-full flex items-center justify-center text-white text-4vh select-none active:scale-95 pointer-events-auto"
-      >
-        <span
-          v-show="anniu.isDashCoolingDown"
-          class="absolute text-white text-4vh font-bold z-2"
-        >
-          {{ anniu.dashCdText }}
-        </span>
-        <span v-show="!anniu.isDashCoolingDown">冲刺</span>
+
+
+        <el-dialog v-model="dialogTableVisible" width="75vw" :show-close="false" @close="ceshi5" top="4vh">
+          <xinxi class="overflow-hidden" />
+        </el-dialog>
+        <el-dialog v-model="dialogTableVisible1" width="75vw" :show-close="false" @close="ceshi5" top="4vh">
+          <task class="overflow-hidden" />
+        </el-dialog>
       </div>
     </div>
-    <!-- 射击按钮 -->
-    <div
-      class="absolute right-7vh bottom-29vh w-[12vh] h-[12vh] rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none active:scale-90"
-      :class="{ 'pointer-events-none': anniu.isCoolingDown }"
-      @touchend="handlePlayerInput(2)"
-    >
-      <canvas
-        ref="canvas2"
-        class="absolute w-full h-full rounded-full z-1"
-      ></canvas>
-      <div
-        class="w-full h-full rounded-full flex items-center justify-center text-white text-4vh select-none active:scale-95 pointer-events-auto"
-      >
-        <span
-          v-show="anniu.isCoolingDown"
-          class="absolute text-white text-4vh font-bold z-2"
-        >
-          {{ anniu.cdText }}
-        </span>
-        <span v-show="!anniu.isCoolingDown"> 射击</span>
-      </div>
-    </div>
-    <!-- 技能按钮 -->
-    <div
-      class="absolute right-24vh bottom-29vh w-[12vh] h-[12vh] rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none active:scale-90"
-      :class="{ 'pointer-events-none': anniu.skillDown }"
-      @click="handlePlayerInput(3)"
-    >
-      <canvas
-        ref="canvas3"
-        class="absolute w-full h-full rounded-full z-1"
-      ></canvas>
-      <div
-        class="w-full h-full rounded-full flex items-center justify-center text-white text-4vh select-none active:scale-95 pointer-events-auto"
-      >
-        <span
-          v-show="anniu.skillDown"
-          class="absolute text-white text-4vh font-bold z-2"
-        >
-          {{ anniu.cdSkill }}
-        </span>
-        <span v-show="!anniu.skillDown"> 技能</span>
-      </div>
-    </div>
-    <Transition
-      class="fixed left-1/2 bottom-37% -translate-x-1/2 z-9999"
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 translate-y-3"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-300 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-3"
-    >
-      <div
-        v-if="anniu.showTip"
-        class="pointer-events-none text-#E6A23C font-bold iconfont2 bg-white/50 rounded-2 px-0.7vw py-0.5vw text-1.7vw"
-      >
-        {{ anniu.showText }}
-      </div>
-    </Transition>
-    <el-dialog
-      v-model="dialogTableVisible"
-      width="75vw"
-      :show-close="false"
-      @close="ceshi5"
-      top="4vh"
-    >
-      <xinxi class="overflow-hidden" />
-    </el-dialog>
-  </div>
-</template>
+  </template>
 
 <script setup>
 import duihua from "./duihua.vue";
-import { ref, onMounted, onBeforeUnmount, reactive } from "vue";
+import { ref, onMounted, onBeforeUnmount, markRaw } from "vue";
 import {
-  Application,
   Container,
   Graphics,
   Texture,
@@ -178,2374 +65,1544 @@ import {
   ColorMatrixFilter,
   Sprite,
   RenderTexture,
+  BlurFilter,
   Text,
   Assets,
+  RenderGroup,
+  log2
 } from "pixi.js";
-import {
-  ZoomBlurFilter,
-  MotionBlurFilter,
-  KawaseBlurFilter,
-} from "pixi-filters";
 import { gsap } from "gsap";
-import emitter from "@/bus"; // 引入传值组件
+import emitter from "@/bus";
 import Matter from "matter-js";
-import { createApp } from "./app";
-import { createController } from "./controller";
+import { createApp } from "./core/app.js";
 import { createSpineBoy } from "./spineBoy";
-import { loadAssets } from "./assets";
+import { createViewport } from "./camera/viewport.js";
+import { createEngine } from "./core/engine.js";
+import {
+  createRectObject,
+  createCircleObject,
+  createTriangleObject
+} from "./objects/index.js";
 import { useCounterStore } from "@/store/counter";
 import xinxi from "./player/xinxi.vue";
-import Menu from "@/pages/menu.vue";
-import Ipad from "@/pages/youxiyemian/ipadVue.vue";
-import { Viewport } from "pixi-viewport";
-import { getMapData, animationConfigs } from "./player/map";
-import { createBulletAnimation } from "@/pages/useSpritePixi";
-import { Laser } from "./player/Laser";
+import task from "./player/task.vue";
+import { getMapData, getAllMapIds } from "./player/map";
+
+import { loadAssets, loadMapBundle, unloadMapBundle, isBundleLoaded } from "../../components/loadAssets";
+import infoMap from "./info/index.vue";
+import router from "@/router";
+import { BgWall, createWallObject, createPool, createSpeechBubble, loadMapData } from './matter1/bg.js';
+import { createPlayerPhysicsBody, applyDamageFilter, updatePlayerAnimation, updatePlayerDirection, createHpBar } from './matter1/playerCreate.js';
+import { wenhaoHudong, floatingMarks } from './matter1/daoju.js';
+import { savePlayerPosition, teleportBack, removeNPCsByMapId, playerUpdate, updateNPCPool, hideAllEnemyHpBar, fightMode, showAllEnemyHpBar, npcs, npcPool, syncAllNPC, cameraOffsetX, goToMap, npcManager } from './matter1/npcManager.js';
+import { setupCollisionStart, setupCollisionEnd, allElevators } from './matter1/collisionEvents.js';
+import { shakeViewport } from "./matter1/myFilter.js";
+import { initGameUI, updateGameUI, getJoystick } from "./matter1/gameUI.js";
+import {
+  createOldFilmFilter, destroyDayNightFilter, setDayNightSpeed, hideDayNightFilter, showDayNightFilter, isNight, isDay, getNightFactor, isDayNightActive, getDayTime, setDayTime, getDayNightSpeed, updateDayNightCalc, createDayNightFilter, getCurrentBoundary,
+  getReflectionFilter, createReflectionFilter, removeReflectionFilter, setReflectionBoundary, isReflectionActive, createGodrayLight, removeGodrayLight, isGodrayActive, getGodrayFilter, getOldFilmFilter, removeOldFilmFilter
+} from "./matter1/filters.js";
+import kapai from "./fight/index.vue"
+import { fightQidong } from "./matter1/fightKaiqi.js"
+import { DAMAGE_COLOR_MAP, BUFF_COLOR_MAP } from './matter1/buff.js'
+import createEnemiesData from './matter1/enemiesData.js';
+// 全局记录已生成的地图ID，避免重复生成
+const generatedMapIds = new Set();
+// 全局记录已加载的地图数据
+const generatedMapData = new Map();
+// 多线程物理Worker
+const physicsWorker = new Worker(new URL('./physics.worker.js', import.meta.url), { type: 'module' });
+// 刚体ID映射：id -> 主线程Matter.Body实例，用于同步坐标
+// 玩家输入缓存，每帧发给worker
+const playerInput = ref({
+  left: false,
+  right: false,
+  jump: false
+});
+// ✅ 新增：玩家控制总开关（true=可移动跳跃，false=完全禁用）
+let canPlayerControl = true;
+const fps = ref(0); // 帧率
+let frameCount = 0;
+let lastTime = performance.now();
 const gameContainer = ref(null);
-const joystickContainer = ref(null);
+const isPageLoading = ref(true); // 全局加载状态
 const user = useCounterStore();
-/* ================= Pixi ================= */
+
 let app;
 let worldContainer;
-let reflectionContainer; //倒影
-
-/* ================= Matter ================= */
 let engine;
-let world;
 let runner;
-
-/* ================= 玩家 ================= */
 let playerPool;
 let activePlayer;
-let playerInfo;
-//技能
-const canvas1 = ref(null);
-const canvas2 = ref(null);
-const canvas3 = ref(null);
-const dialogTableVisible = ref(null);
-const anniu = reactive({
-  showTip: false,
-  showText: "", //提示文字
-  //冲刺
-  isDashCoolingDown: false,
-  dashCdText: 0,
-  cdDuration1: 2,
-  ctx1: null,
-  //子弹
-  isCoolingDown: false,
-  cdText: 0,
-  cdDuration2: 1, //技能冷却
-  ctx2: null,
-  //技能
-  skillDown: false,
-  cdSkill: 0,
-  cdDuration3: 2, //技能冷却
-  ctx3: null,
-});
-/* ================= Spine ================= */
-// 每个玩家对象自己管理 Spine 和 Debug 红框
-// activePlayer = { body, spine, debugView }
+let world;
 
-/* ================= 同步（非玩家） */
+const dialogTableVisible = ref(null);
+const dialogTableVisible1 = ref(null);
 const rectPool = createPool(createRectObject);
 const circlePool = createPool(createCircleObject);
 const trianglePool = createPool(createTriangleObject);
 
-/* ================= 世界参数 ================= */
-const DEVICE_WIDTH = window.innerWidth;
-const DEVICE_HEIGHT = window.innerHeight;
-const FLOOR_HEIGHT = DESIGN_HEIGHT * 0.12;
-const DESIGN_HEIGHT = 720;
-// 当前设备横屏宽高比
-const DEVICE_ASPECT = DEVICE_WIDTH / DEVICE_HEIGHT;
-const DESIGN_WIDTH = Math.round(DESIGN_HEIGHT * DEVICE_ASPECT);
 let WORLD_WIDTH;
 let WORLD_HEIGHT;
-/* ================= vh 系统 ================= */
-const VIEW_HEIGHT = () => gameContainer.value.clientHeight;
-const VH = () => VIEW_HEIGHT() / 100;
-const VIEW_WIDTH = () => gameContainer.value.clientWidth; // 改成 clientWidth
-const VW = () => VIEW_WIDTH() / 100; // 调用 VIEW_WIDTH()
-/* ================= 控制 ================= */
-let controller;
-let isOnGround = false;
-//菜单
-function tanchuang(i) {
-  user.pixi.setting = i;
-  if (i === 0) {
-    dialogTableVisible.value = true;
-  }
-}
-function guanbi() {
-  user.pixi.setting = 0;
-  emitter.emit("vnZanting");
-}
 
-function messageText(text) {
-  //提示文字
-  if (anniu.showTip) {
-    return;
-  }
-  anniu.showTip = true;
-  anniu.showText = text;
-  setTimeout(() => {
-    anniu.showTip = false;
-    anniu.showText = "";
-  }, 700);
-}
-let dropActive = false;
-function handlePlayerInput(i) {
-  if (i === 0) {
-    //跳
-    if (controller.keys.space.pressed) return;
-    controller.keys.space.pressed = true;
-    setTimeout(() => {
-      controller.keys.space.pressed = false;
-    }, 0);
-    console.log("跳=");
-  } else if (i === 1) {
-    //冲刺
-    if (!anniu.isDashCoolingDown) {
-      dash(activePlayer);
-    }
-  } else if (i === 2) {
-    //射击
-    if (anniu.isCoolingDown) return;
-    anniu.isCoolingDown = true;
-    elapsed = 0;
-
-    fireAtNearestEnemy();
-
-    stopCaozuo = true;
-    setTimeout(() => {
-      stopCaozuo = false;
-    }, 50);
-    activePlayer.spine.playShoot();
-    animate1();
-  } else if (i === 3) {
-    if (anniu.skillDown) return;
-    console.log("npcs=", npcs);
-    const target = getNearestEnemy(
-      activePlayer.spine.view.x,
-      activePlayer.spine.view.y,
-      npcs
-    );
-    if (target === null) {
-      messageText("无目标");
-      return;
-    }
-    const skillShanghai = skillSearch("技能");
-    // ===== 激光起点（无人机）=====
-    const durationTime = skillShanghai.skill.durationTime; //激光持续时间
-    // 设置本次激光伤害
-    laser.damage = skillShanghai.shanghai;
-    const sprite = playAnimation(
-      "激光",
-      {
-        x: drone.x,
-        y: drone.y + 2.5 * VH(),
-      },
-      true
-    );
-    console.log("sprite=", drone.x);
-    sprite.height = 12 * VH();
-
-    laser.startContinuous(
-      //1秒触发6次
-      () => ({ x: drone.view.position.x, y: drone.view.position.y + 1 * VH() }),
-      () => {
-        const dx = target.body.position.x - drone.view.position.x;
-        const dy = target.body.position.y - drone.view.position.y;
-        const len = Math.hypot(dx, dy) || 1;
-
-        return {
-          x: drone.view.position.x + (dx / len) * DEVICE_WIDTH * 2,
-          y: drone.view.position.y + (dy / len) * DEVICE_WIDTH * 2,
-        };
-      },
-      { duration: durationTime },
-      sprite
-    );
-    anniu.skillDown = true;
-    elapsed2 = 0;
-    dropActive = true;
-    attackDelayExtra = true;
-    setTimeout(() => {
-      dropActive = false; //无人机可动
-      setTimeout(() => {
-        attackDelayExtra = false;
-      }, 250);
-    }, durationTime);
-    console.log("技能=", drone);
-    animate3();
-  }
-}
-//技能搜索
-function skillSearch(name) {
-  const skillIndex = playerInfo.skill.findIndex((i) => i.name === name);
-  const skill = playerInfo.skill[skillIndex];
-  const shanghai = skill.mul * playerInfo.attack + skill.shanghai;
-  return { skill, shanghai };
-}
-// ==================== 对象池工具函数 ====================
-function createPool(createFunc, max = Infinity) {
-  const pool = [];
-  const active = [];
-
-  return {
-    acquire(...args) {
-      let obj;
-
-      if (pool.length) {
-        obj = pool.pop();
-        obj.active = true;
-
-        if (obj.body && !world.bodies.includes(obj.body)) {
-          Matter.World.add(world, obj.body);
-        }
-
-        if (obj.ticker) {
-          app.ticker.add(obj.ticker);
-        }
-
-        obj.reset(...args);
-      } else {
-        obj = createFunc(...args);
-      }
-
-      active.push(obj);
-      return obj;
-    },
-    release(obj) {
-      obj.active = false;
-
-      if (obj.ticker) {
-        app.ticker.remove(obj.ticker);
-        obj.ticker = null;
-      }
-
-      if (obj.body) {
-        Matter.World.remove(world, obj.body);
-      }
-
-      if (obj.view?.parent) {
-        obj.view.parent.removeChild(obj.view);
-      }
-
-      const idx = active.indexOf(obj);
-      if (idx !== -1) active.splice(idx, 1);
-
-      pool.push(obj);
-    },
-
-    releaseAll() {
-      while (active.length > 0) this.release(active[0]);
-    },
-
-    get active() {
-      return active;
-    },
-  };
-}
-
-let spine;
+let VH = window.innerHeight / 100;
+let VW = window.innerWidth / 100;
 
 const COLLISION_GROUPS = {
-  FRIEND: 0x0001, // 友军（玩家 / 我方单位）
-  ENEMY: 0x0002, // 敌人
-  OBSTACLE: 0x0004, // 地形 / 墙 / 地板
-  BULLET: 0x0008, // 子弹
-  SENSOR: 0x0010, // 传感器（脚底 / 触发区）
+  FRIEND: 0x0001,
+  ENEMY: 0x0002,
+  OBSTACLE: 0x0004,
+  BULLET: 0x0008,
+  SENSOR: 0x0010,
 };
 
-// ==================== 玩家对象池 ====================
-function createSpeechBubble() {
-  const c = new Container();
-
-  const bg = new Graphics();
-  const text = new Text("", {
-    fontSize: 2 * VH(), // ⭐ 字体大小（推荐 1.6 ~ 2.2）
-    fill: 0xffffff, // 字体颜色
-    wordWrap: true, // 是否自动换行
-    wordWrapWidth: 22 * VH(), // ⭐ 一行最大宽度
-    lineHeight: 2.2 * VH(), // ⭐ 行高（不写会显得挤）
-    align: "left", // 文本对齐
-  });
-
-  const padding = 1 * VH();
-  const arrowH = 1 * VH();
-
-  function redraw() {
-    bg.clear();
-
-    const w = text.width + padding * 2;
-    const h = text.height + padding * 2;
-
-    // ⭐ 气泡主体（底部中心为 0,0）
-    bg.beginFill(0x000000, 0.75);
-    bg.drawRoundedRect(-w / 2, -h - arrowH, w, h, 8);
-
-    // ⭐ 小箭头
-    bg.moveTo(-5, -arrowH);
-    bg.lineTo(0, 0);
-    bg.lineTo(5, -arrowH);
-    bg.endFill();
-
-    // 文本位置
-    text.position.set(-w / 2 + padding, -h - arrowH + padding);
+function tanchuang(i) {
+  if (i === 3) {
+    user.pixi.fight = false
+    user.pixi.isPaused = false;
+    router.push({ name: "index" });
+    return;
   }
-
-  c.setText = (str) => {
-    text.text = str;
-    redraw();
-  };
-
-  c.show = () => {
-    gsap.killTweensOf(c);
-    c.visible = true;
-    gsap.fromTo(
-      c,
-      { alpha: 0, scale: 0.96 },
-      {
-        alpha: 1,
-        scale: 1,
-        duration: 0.2,
-        ease: "power2.out",
-      }
-    );
-  };
-
-  c.hide = () => {
-    gsap.killTweensOf(c);
-    gsap.to(c, {
-      alpha: 0,
-      duration: 0.15,
-      ease: "power2.in",
-      onComplete: () => {
-        c.visible = false;
-      },
-    });
-  };
-
-  c.addChild(bg, text);
-  c.visible = false;
-  c.alpha = 0;
-
-  return c;
+  user.pixi.setting = i;
+  if (i === 2) {
+    user.pixi.setting = 0
+    emitter.emit("vnZanting");
+    guodu()
+  } else if (i === 0) dialogTableVisible.value = true;
+  else if (i === 4) dialogTableVisible1.value = true;
 }
-
+const vh = (percent) => {
+  const viewportHeight = window.innerHeight; // 或者用你的Pixi应用高度：app.renderer.height
+  const px = viewportHeight * percent / 100;
+  // 限制最小/最大字号，避免极端分辨率下异常
+  return Math.max(12, Math.min(px, 32));
+};
 function createPlayerObject(x, y, options) {
-  const playerH = options.height * VH() || 20 * VH();
-  const playerW = options.width * VH() || 8 * VH();
-  const radius = playerW / 2; // 胶囊圆半径
-  // Matter 胶囊体：上圆 + 下圆 + 中矩形
+  const DEFAULT_HEIGHT = 19 * VH;
+  const WIDTH_SCALE = 0.4;
+  const PLAYER_SCALE_FACTOR = 1.5;
+
+  const playerH = options.height * VH || DEFAULT_HEIGHT;
+  const playerW = playerH * WIDTH_SCALE;
+  const radius = playerW / 2;
   const rectHeight = playerH - 2 * radius;
-  const mainBody = Matter.Bodies.rectangle(0, 0, playerW, rectHeight, {
-    friction: 0,
-    frictionStatic: 0,
-    frictionAir: 0.02,
-    restitution: 0,
-    label: "playerMain",
-  });
-  const topCircle = Matter.Bodies.circle(0, -rectHeight / 2, radius, {
-    isSensor: false,
-    label: "playerTop",
-  });
-  const bottomCircle = Matter.Bodies.circle(0, rectHeight / 2, radius, {
-    isSensor: false,
-    label: "playerBottom",
-  });
-  // 脚传感器
-  const footSensor = Matter.Bodies.rectangle(
-    0,
-    rectHeight / 2 + radius,
-    playerW * 0.2,
-    1,
-    {
-      isSensor: true,
-      label: "playerFoot",
-      collisionFilter: {
-        category: COLLISION_GROUPS.SENSOR,
-        mask: COLLISION_GROUPS.OBSTACLE,
-      },
-    }
-  );
-  //playerPool
+
   const isFriend = options.player === 1 || options.player === 3;
+  const collisionCategory = isFriend ? COLLISION_GROUPS.FRIEND : COLLISION_GROUPS.ENEMY;
 
-  const body = Matter.Body.create({
-    parts: [mainBody, topCircle, bottomCircle, footSensor],
-    friction: 0,
-    frictionAir: 0.02,
-    collisionFilter: {
-      // ceshi
-      category: isFriend ? COLLISION_GROUPS.FRIEND : COLLISION_GROUPS.ENEMY,
-      // ❌ 初始不和子弹碰
-      mask: COLLISION_GROUPS.OBSTACLE,
-    },
-  });
-  Matter.Body.setInertia(body, Infinity); // 锁旋转
-  Matter.Body.setPosition(body, { x, y });
-  Matter.World.add(world, body);
-  //红色矩形
-  // const playerRect = new Graphics();
-  // playerRect.beginFill(0xff0000); // 红色
-  // playerRect.drawRect(-playerW / 2, -playerH / 2, playerW, playerH);
-  // playerRect.endFill();
-  // playerRect.x = x;
-  // playerRect.y = y;
-  // worldContainer.addChild(playerRect);
-  const spine = createSpineBoy(
-    {
-      onShoot() {
-        console.log("触发射击");
-        const skill = skillSearch("射击");
-        fireBullet({
-          sourceX:
-            activePlayer.spine.view.x + activePlayer.spine.direction * 30, // 偏移到玩家前方
-          sourceY: activePlayer.spine.view.y - activePlayer.playerH * 0.5, // 偏移到玩家上方
-          direction: activePlayer.spine.direction,
-          speed: activePlayer.zdSpeed,
-          undefined,
-          undefined,
-
-          aoeRadius: 0,
-          shanghai: skill.shanghai,
-        });
-      },
-    },
-    options
+  const { mainBody, footSensor, body } = createPlayerPhysicsBody(
+    playerW, rectHeight, radius, isFriend, collisionCategory, Matter, COLLISION_GROUPS
   );
+
+  Matter.Body.setInertia(body, Infinity);
+  // Matter.Body.setPosition(body, { x, y });
+  Matter.World.add(world, body);
+
+
+  const spine = createSpineBoy({}, options);
+  // ✅ 新增：开启批处理，同Atlas纹理的多个Spine会自动合并成1次DrawCall
+  spine.view.batchable = true;
+  // ✅ 可选：如果Spine有半透明像素，开启alpha裁切，避免WebGPU下渲染错误
+  spine.view.alphaCutoff = 0.1;
   const bounds = spine.spine.getBounds();
-  const scale = playerH / bounds.height;
+  const scale = (playerH / bounds.height) * PLAYER_SCALE_FACTOR;
   spine.view.scale.set(scale);
-  spine.view.y = y - playerH / 2 + 20 * VH();
-  spine.view.x = x;
+  spine.view.position.set(x, y - playerH / 2 + 20 * VH);
   spine.direction = 1;
   spine.setDirection(1);
+  const zIndex = options.zIndex ?? 0;
+  spine.view.zIndex = zIndex;
+
+  // ==============================================
+  // 🔥 每个角色自动添加 贴地阴影（永远在脚下）
+  // ==============================================
+  const shadow = new Graphics()
+    .ellipse(
+      0,
+      0,
+      playerW * 0.75,
+      playerW * 0.2
+    )
+    .fill({
+      color: 0x000000,
+      alpha: 0.7,
+    });
+  shadow.filters = [
+    new BlurFilter({
+      strength: 5,
+      quality: 2,
+    }),
+  ];
+
+  shadow.pivot.set(0, 0);
+  // 影子层级低于人物
+  shadow.zIndex = -1;
+
+  worldContainer.addChild(shadow);
   worldContainer.addChild(spine.view);
-  // ===== 对话气泡 =====
-  const speechBubble = createSpeechBubble();
+  // 初始化地面固定Y
+  let groundFixedY;
+  // 影子动画插值变量
+  let shadowScale = 1;
+  let shadowAlpha = 0.35;
+  // ==============================================
+
+  const speechBubble = createSpeechBubble(VH, Container, Graphics, Text, gsap);
   speechBubble.visible = false;
   worldContainer.addChild(speechBubble);
-  // ===== 血条（用 rectPool） =====
-  const hpBar = rectPool.acquire(
-    body.position.x, // x
-    body.position.y - 11 * VH(), // y 在玩家头上
-    playerW, // 宽度
-    1.1 * VH(), // 高度
-    {
-      color: options.player === 1 ? 0x13ce66 : 0xff4949, // 红色
-      texture: false,
-      create: true,
-    }
-  );
+  let hpBar
 
-  hpBar.view.visible = false;
-  if (options.player !== 3) {
-    worldContainer.addChild(hpBar.view); // 血条随角色移动
+  if (options.player === 2) {
+    hpBar = createHpBar(options, body, rectPool, VH, VW, world, worldContainer, Container, Text);
+    worldContainer.addChild(hpBar.view);
   }
-  //速度
   const speed = playerH * 0.025;
   const zdSpeed = playerH * 0.18;
+  // 全局创建唯一的受伤滤镜，所有角色共享
+  const globalDamageFilter = new ColorMatrixFilter()
+  // 预设闪白参数，不用每次创建
+  globalDamageFilter.brightness(1.8)
+  globalDamageFilter.contrast(1.2)
   const player = {
-    speechBubble, //气泡
-    showBubble: false,
-    bubbleText: "",
-    data: options,
-    char: spine,
-    view: spine.view,
-    body,
-    speed, //走动速度
-    zdSpeed, //子弹速度
-    isDashing: false,
-    playerH,
-    playerW,
-    mainBody,
-    hpBar,
-    footSensor,
-    spine,
-    ticker: null,
-    active: true,
-    scale,
-    takeDamage(damage = 20) {
-      //受到伤害
-      this.data.currentHp -= damage;
-      const filter = new ColorMatrixFilter();
-      this.view.filters = [filter];
-      //当前伤害百分比生命值
-      const intensity1 = Math.min((damage / this.data.maxHp) * 1.4, 1);
-      // 伤害越高，红色越深（0~1）
-      const intensity = Math.min(0.2 + intensity1, 1); // 假设最大伤害 50
-      // 手动插值红色
-      const r = 1; // 红色全量
-      const g = 1 - intensity; // 绿色减少
-      const b = 1 - intensity; // 蓝色减少
-      filter.matrix = [
-        r,
-        0,
-        0,
-        0,
-        0,
-        0,
-        g,
-        0,
-        0,
-        0,
-        0,
-        0,
-        b,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-      ];
-      setTimeout(() => {
-        this.view.filters = [];
-      }, 100);
-      // ===== 更新血条宽度 =====
-      const hpRatio = Math.max(this.data.currentHp / this.data.maxHp, 0);
-      this.hpBar.view.width = this.playerW * hpRatio;
-      if (this.data.currentHp <= 0) {
-        this.deactivate();
-      }
-    },
-    update(vx, isOnGround, absVX, vy) {
-      Matter.Body.setVelocity(this.body, { x: vx, y: vy });
-      if (!isOnGround) {
-        if (vy < -1) this.spine.playJumpUp();
-        else if (vy > 1) this.spine.playJumpDown();
-      } else {
-        if (absVX > this.speed * 0.8) this.spine.playRun();
-        else if (absVX > 0.2) this.spine.playRun();
-        else this.spine.playIdle();
-      }
-      if (vx > 0) {
-        this.spine.direction = 1;
-        this.spine.setDirection(1);
-      } else if (vx < 0) {
-        this.spine.direction = -1;
-        this.spine.setDirection(-1);
-      }
-    },
-    NpcPosition(vx, absVX, vy) {
-      if (!this.active) return;
-      // ===== 气泡位置 =====
-      if (this.showBubble && this.speechBubble.visible) {
-        this.speechBubble.position.set(
-          this.body.position.x,
-          this.body.position.y -
-            this.playerH + // 人物高度
-            7 * VH() // 头顶留一点空隙
-        );
+    speechBubble, showBubble: false, bubbleText: "",
+    groundContacts: 0, isOnGround: false,
+    data: options, char: spine, view: spine.view, body,
+    speed, zdSpeed, isDashing: false, playerH, playerW,
+    mainBody, hpBar, footSensor, spine,
+    ticker: null, active: true, scale,
+    damageFilter: new ColorMatrixFilter(), damageTimer: null,
+    shadow,
+    groundFixedY,
+    shadowScale,
+    shadowAlpha,
+    shadowData: null,
+
+    takeDamage(damage = 1, options = {}, playerAttack = 1) {
+      if (!this.active) return
+      const { type = 'normal', isCritical = false } = options;
+
+      this.data.data.hp -= damage
+
+      // 原有闪白滤镜逻辑不变
+      if (this.damageTimer) clearTimeout(this.damageTimer)
+      this.view.filters = [...(this.view.filters || []), globalDamageFilter]
+      this.damageTimer = setTimeout(() => {
+        this.view.filters = this.view.filters?.filter(f => f !== globalDamageFilter) || []
+        this.damageTimer = null
+      }, 100)
+      applyDamageFilter(this.view, this.damageFilter, damage, this.data.data.maxHp);
+
+      if (this.hpBar) {
+        const hpRatio = Math.max(this.data.data.hp / this.data.data.maxHp, 0);
+        this.hpBar.fill.scale.x = hpRatio;
+        const curHp = Math.max(Math.ceil(this.data.data.hp), 0);
+        this.hpBar.hpText.text = `${curHp}`;
+
+        const { barStartX, barFullWidth } = this.hpBar;
+        const currentMidX = barStartX + (barFullWidth * hpRatio) / 2;
+        this.hpBar.hpText.x = currentMidX;
       }
 
-      Matter.Body.setVelocity(this.body, { x: vx, y: vy });
-      if (!isOnGround) {
-        if (vy < -1) this.spine.playJumpUp();
-        else if (vy > 1) this.spine.playJumpDown();
-      } else {
-        if (absVX > this.speed * 0.8) this.spine.playRun();
-        else if (absVX > 0.2) this.spine.playRun();
-        else this.spine.playIdle();
+      this._spawnDamageText(damage, type, isCritical, playerAttack);
+
+      if (this.data.data.hp <= 0) this.deactivate();
+    },
+    _spawnDamageText(value, type = 'normal', isCritical = false, playerAttack = 0) {
+      const activeType = DAMAGE_COLOR_MAP[type] ? type : 'normal';
+      const textColor = DAMAGE_COLOR_MAP[activeType][isCritical ? 'critical' : 'normal'];
+
+      let scaleRatio = 1;
+      if (playerAttack > 0) {
+        const damageRatio = value / playerAttack;
+        scaleRatio = 0.8 + Math.min(damageRatio * 0.4, 0.7);
       }
-      if (vx > 0) this.spine.setDirection(1);
-      else if (vx < 0) this.spine.setDirection(-1);
-      // Spine 精灵位置
-      this.spine.view.x = this.body.position.x;
-      this.spine.view.y = this.body.position.y + this.data.TopH * VH();
-      // 血条位置
-      if (options.player !== 3) {
-        this.hpBar.view.x = this.body.position.x;
-        this.hpBar.view.y = this.body.position.y - (this.data.TopH + 1) * VH();
+      if (isCritical) scaleRatio *= 1.2;
+
+      const baseFontSize = vh(1.6);
+      const finalFontSize = Math.max(12, Math.min(28, Math.round(baseFontSize * scaleRatio)));
+      const damageText = new Text({
+        // ✅ 唯一修改：自动区分正负号，恢复显示+，伤害显示-
+        text: `${['heal', 'mp'].includes(type) ? '+' : '-'}${Math.max(value, 0)}`,
+        style: {
+          fill: textColor,
+          fontSize: finalFontSize,
+          fontWeight: isCritical ? '900' : 'bold',
+          stroke: {
+            color: '#000000',
+            width: Math.max(2, Math.floor(finalFontSize / 7)),
+          },
+          fontFamily: 'Arial Black',
+          resolution: window.devicePixelRatio || 2,
+        }
+      });
+
+      // 后面的位置、动画、层级逻辑 完全复用，一点不用改
+      damageText.anchor.set(0.5);
+      damageText.x = this.view.x + (Math.random() - 0.5) * (finalFontSize * 1.2);
+      damageText.y = this.view.y - this.view.height / 2 - vh(0.5);
+      damageText.alpha = 1;
+      damageText.scale.set(1);
+      damageText.zIndex = 999;
+      damageText.blendMode = 'normal';
+
+      const parent = this.view.parent;
+      parent?.addChild(damageText);
+      parent.sortChildren();
+
+      gsap.timeline()
+        .to(damageText, {
+          scale: isCritical ? 1.2 : 1.1,
+          duration: 0.15,
+          ease: 'power3.out'
+        })
+        .to(damageText, {
+          y: damageText.y - vh(3.5),
+          duration: 0.5,
+          ease: 'power1.out',
+        }, '<')
+        .to(damageText, {
+          alpha: 0,
+          duration: 0.2,
+          ease: 'power1.out',
+        }, '>')
+        .call(() => damageText.destroy({ children: true }), null, '>');
+    },
+    takeHeal(value, type = 'heal', isCritical = false) {
+      if (!this.active) return;
+
+      // 1. 实际加数值
+      if (type === 'heal') {
+        // 回血，不超过最大血量
+        this.data.data.hp = Math.min(this.data.data.maxHp, this.data.data.hp + value);
+      } else if (type === 'mp') {
+        // 回灵力，不超过最大灵力
+        this.data.data.mp = Math.min(this.data.data.maxMp, this.data.data.mp + value);
       }
-      // Spine 内部动画更新
-      this.spine.update();
+      // 3. ✅ 直接复用飘字逻辑，不用写重复代码
+      this._spawnDamageText(value, type, isCritical);
+    },
+    showBuffText(buffName) {
+      if (!this.active) return;
+
+      const color = BUFF_COLOR_MAP[buffName]?.color || BUFF_COLOR_MAP['减益'].color;
+      const finalFontSize = Math.max(12, Math.min(28, Math.round(vh(1.6))));
+      const buffText = new Text({
+        text: buffName,
+        style: {
+          fill: color,
+          fontSize: finalFontSize,
+          fontWeight: 'bold',
+          stroke: '#000000',
+          strokeThickness: Math.max(2, Math.floor(finalFontSize / 7)),
+          fontFamily: 'Arial Black',
+          resolution: window.devicePixelRatio || 2,
+        }
+      });
+
+      buffText.anchor.set(0.5);
+      // ✅ 方案1：直接大范围随机，保证两个buff不会在同一个位置
+      buffText.x = this.view.x + (Math.random() - 0.5) * 40;  // ±40 大范围随机
+      buffText.y = (this.view.y + 2 * VH) - this.view.height / 2 - vh(0.5) + (Math.random() - 0.5) * 40;
+      buffText.alpha = 1;
+      buffText.scale.set(1);
+      buffText.zIndex = 120;
+      buffText.blendMode = 'normal';
+
+      const parent = this.view.parent;
+      parent?.addChild(buffText);
+      parent.sortChildren();
+
+      gsap.timeline()
+        .to(buffText, { scale: 1.1, duration: 0.15, ease: 'power3.out' })
+        .to(buffText, { y: buffText.y - vh(3.5), duration: 0.5, ease: 'power1.out' }, '<')
+        .to(buffText, { alpha: 0, duration: 0.2, ease: 'power1.out' }, '>')
+        .call(() => buffText.destroy({ children: true }));
+    },
+    updateMotion(vx, isOnGround, absVX, vy) {
+      if (!this.active) return;
+
+      this.isOnGround = isOnGround;
+      updatePlayerAnimation(this.spine, isOnGround, absVX, vx, vy, this.speed);
+      updatePlayerDirection(this.spine, vx);
+      if (this.shadowData) {
+        this.shadow.x = this.shadowData.x;
+        this.shadow.y = this.shadowData.y;
+        this.shadow.scale.set(this.shadowData.scale);
+        this.shadow.alpha = this.shadowData.alpha;
+      }
     },
     npcAIUpdate(playerTarget) {
-      if (!this.active) return;
-      if (!playerTarget || !playerTarget.body) return;
-
-      const npcX = this.body.position.x;
-      const playerX = playerTarget.body.position.x;
-      const dx = playerX - npcX;
-      const distance = Math.abs(dx);
-      const vy = this.body.velocity.y;
-
-      let vx = 0;
-
-      switch (this.aiMode) {
-        // ===================== 跟随玩家 =====================
-        case "follow":
-          if (this.data.type === "melee") {
-            const attackRange = this.data.attackRange;
-            if (distance > attackRange) vx = dx > 0 ? this.speed : -this.speed;
-            else vx = 0;
-          } else if (this.data.type === "ranged") {
-            const minDist = this.data.minDist;
-            const maxDist = this.data.maxDist;
-            if (distance < minDist)
-              vx = dx > 0 ? -this.speed : this.speed; // 太近 → 后退
-            else if (distance > maxDist)
-              vx = dx > 0 ? this.speed : -this.speed; // 太远 → 靠近
-            else vx = 0; // 安全区 → 停止
-          }
-          break;
-
-        // ===================== 远离玩家 =====================
-        case "flee":
-          if (this.data.type === "melee") {
-            const attackRange = this.data.attackRange;
-            if (distance < attackRange)
-              vx = dx > 0 ? -this.speed : this.speed; // 太近 → 后退
-            else vx = 0;
-          } else if (this.data.type === "ranged") {
-            const minDist = this.data.minDist;
-            const maxDist = this.data.maxDist;
-            if (distance < minDist)
-              vx = dx > 0 ? -this.speed : this.speed; // 太近 → 后退
-            else if (distance > maxDist) vx = 0; // 太远 → 停止
-            else vx = dx > 0 ? -this.speed : this.speed; // 安全区 → 继续拉开
-          }
-          break;
-
-        // ===================== 巡逻 =====================
-        case "patrol":
-          if (!this._patrolDir) this._patrolDir = 1;
-          if (!this._patrolCenter) this._patrolCenter = npcX;
-          const range = this.data.patrolRange || 100;
-
-          if (npcX > this._patrolCenter + range) this._patrolDir = -1;
-          if (npcX < this._patrolCenter - range) this._patrolDir = 1;
-
-          vx = this._patrolDir * this.speed;
-          break;
-
-        default:
-          vx = 0;
-          break;
-      }
-
-      // 更新位置与动画
-      this.NpcPosition(vx, Math.abs(vx), vy);
+      if (!this.active || !playerTarget?.body) return;
+      this.updateMotion(0, this.isOnGround, 0, this.body.velocity.y);
     },
-    playerUpdate() {
-      if (!this.active) return;
-      // ===== 气泡位置 =====
-      if (this.showBubble && this.speechBubble.visible) {
-        this.speechBubble.position.set(
-          this.body.position.x,
-          this.body.position.y -
-            this.playerH + // 人物高度
-            7 * VH() // 头顶留一点空隙
-        );
-      }
-      user.ceshi1 = this.body.position.x;
-      user.ceshi2 = this.body.position.y;
-      // Spine 精灵位置
-      this.spine.view.x = this.body.position.x;
-      this.spine.view.y = this.body.position.y + 10 * VH();
-      // 血条位置 idle
-      if (options.player !== 3) {
-        this.hpBar.view.x = this.body.position.x;
-        this.hpBar.view.y = this.body.position.y - 11 * VH();
-      }
-      // Spine 内部动画更新
-      this.spine.update();
+    npcFight(index, totalCount, player = activePlayer) {
+      const NPC_SPACING = 5 * VW;
+      const RIGHT_FIXED = 57 * VW;  // 最右侧固定位置
+
+      // ✅ 最右侧固定，整体向左对齐
+      // 最后一个(index = totalCount-1) → 正好在 RIGHT_FIXED（最右）
+      // 第一个(index = 0) → 在 RIGHT_FIXED - (totalCount-1)×间距（最左）
+      const xOffset = RIGHT_FIXED - (totalCount - index - 1) * NPC_SPACING;
+
+      // 1. 设置渲染位置
+      this.view.x = player.view.x + xOffset;
+      this.view.y = player.view.y;
+      // 2. 同步物理body位置
+      Matter.Body.setPosition(this.body, {
+        x: player.body.position.x + xOffset,
+        y: this.view.y
+      });
+
+      // 3. NPC面向主角（朝左）
+      this.spine.setDirection(-1);
+      this.spine.direction = -1;
+
+      // 4. 同步影子位置
+      this.shadow.x = this.body.position.x;
+      this.shadow.y = this.groundFixedY;
+      return {
+        x: this.view.x,
+        y: this.view.y
+      };
     },
     reset() {
-      //机器人才会执行
-      this.speed = this.data.speed * VW();
+      this.speed = this.data.speed * VW;
       this.aiMode = this.data.aiMode;
       this.view.visible = true;
+      this.view.renderable = true;
+      this.shadow.visible = true;
+      this.shadow.renderable = true;
       this.active = true;
-      this.hpBar.view.visible = true;
-      this.data.currentHp = this.data.maxHp;
-      this.body.collisionFilter.mask =
-        COLLISION_GROUPS.OBSTACLE | COLLISION_GROUPS.BULLET;
-      this.spine.playIdle();
-      if (options.player === 2) {
-        this.ticker = () => {
-          this.npcAIUpdate(activePlayer);
-        };
-        app.ticker.add(this.ticker);
+      if (this.hpBar) {
+        this.hpBar.view.visible = false;
+        this.hpBar.view.renderable = true;
+        this.hpBar.hpText.text = `${this.data.data.hp}`;
+        this.hpBar.hpText.x = this.hpBar.barStartX + this.hpBar.barFullWidth / 2;
       }
+      this.body.collisionFilter.mask = COLLISION_GROUPS.OBSTACLE | COLLISION_GROUPS.BULLET;
+      this.spine.playIdle();
+      // 重置影子参数
+      this.shadowScale = 1;
+      this.shadowAlpha = 0.35;
+      this.shadow.alpha = this.shadowAlpha;
+      this.groundFixedY = this.body.position.y + this.playerH * 0.32;
     },
+
     deactivate() {
-      this.view.visible = false;
       this.active = false;
-      // this.char.playBase({ name: "death", loop: false });
-      // Matter.Body.set(this.body, {
-      //   collisionFilter: {
-      //     ...this.body.collisionFilter,
-      //     mask: this.body.collisionFilter.mask & ~COLLISION_GROUPS.BULLET,
-      //   },
-      // });
+      this.view.visible = false;
+      this.view.renderable = false;
+      this.shadow.visible = false;
+      this.shadow.renderable = false;
+      this.speechBubble.visible = false;
+      if (this.hpBar) {
+        this.hpBar.view.visible = false;
+        this.hpBar.view.renderable = false;
+      }
       this.body.collisionFilter.mask = COLLISION_GROUPS.OBSTACLE;
-      // 延迟移除 ticker
-      setTimeout(() => {
-        if (this.ticker) {
-          app.ticker.remove(this.ticker);
-          this.ticker = null;
-          this.tickerActions = []; // 清空内部动作数组
-        }
-      }, 1500);
+      if (this.damageTimer) clearTimeout(this.damageTimer);
+      this.shadowAlpha = 0;
+      this.shadow.alpha = this.shadowAlpha;
     },
-    //对话气泡
+
     showSpeech(text) {
       this.bubbleText = text;
       this.speechBubble.setText(text);
       this.showBubble = true;
       this.speechBubble.show();
     },
+
     hideSpeech() {
       this.showBubble = false;
       this.speechBubble.hide();
-    },
+    }
   };
-  if (options.player === 1) {
-    player.ticker = () => {
-      player.playerUpdate();
-    };
-    player.hpBar.view.visible = true;
-    app.ticker.add(player.ticker);
-  }
-  // ✅ 只加这一行，不影响返回结构
-  body.gameObject = player;
 
+  body.gameObject = player;
   return player;
 }
-
-let wall;
-let BgWidthPx = 0;
-let WallTextures = [];
 let WallScale;
-const DESIGN_BG_HEIGHT = 1080;
-let wallContainer;
-function BgWall() {
-  // 1️⃣ 等比缩放
-  WallScale = DEVICE_HEIGHT / DESIGN_BG_HEIGHT;
+let bgContainer;
 
-  // 2️⃣ 读取切好的多张图
-  WallTextures = [
-    Texture.from("wall_01"),
-    Texture.from("wall_02"),
-    Texture.from("wall_03"),
-    // 继续加
-  ];
-
-  // 3️⃣ 计算拼接后的总宽度
-  BgWidthPx = 0;
-  WallTextures.forEach((tex) => {
-    BgWidthPx += tex.width * WallScale;
-  });
-}
-function createWallObject() {
-  wallContainer = new Container();
-  let offsetX = 0;
-  WallTextures.forEach((texture) => {
-    const heightPx = texture.height * WallScale;
-    const sprite = new Sprite(texture);
-    sprite.scale.set(WallScale);
-    sprite.x = offsetX;
-    sprite.y = DEVICE_HEIGHT - heightPx;
-    sprite.roundPixels = true;
-    wallContainer.addChild(sprite);
-    offsetX += texture.width * WallScale;
-  });
-
-  bgContainer.addChild(wallContainer);
-}
-
-// ==================== 矩形/圆形/三角形对象，特殊对象 ====================
-
-function createRectObject(
-  x,
-  y,
-  w,
-  h,
-  {
-    color = 0x000000,
-    texture = null,
-    zIndex = 0,
-    withBody = false,
-    isSensor = false,
-    movable = false,
-    label = null,
-    create = false,
-    name = false,
-  } = {}
-) {
-  /* ---------- view（底部中心）
-  //rectPool.acquire createRectFromData---------- */
-  if (name) {
-    console.log("name=", name);
-  }
-  let view;
-  if (texture) {
-    view = new Sprite(Texture.from(texture));
-    view.width = w;
-    view.height = h;
-    view.anchor.set(0.5, 1); // ⭐ 底部中心
-  } else if (create) {
-    view = new Graphics();
-    view.beginFill(color);
-    view.drawRect(0, 0, w, h);
-    view.endFill();
-    view.pivot.set(w / 2, h); // ⭐ 底部中心
-  }
-  if (create | texture) {
-    view.position.set(x, y);
-    view.zIndex = zIndex;
-    worldContainer.addChild(view);
-  }
-  /* ---------- body（真实中心点） ---------- */
-  let body = null;
-  if (withBody) {
-    body = Matter.Bodies.rectangle(
-      x,
-      y - h / 2, // ⭐ 关键：底部 y → 物理中心 y
-      w,
-      h,
-      {
-        isStatic: !movable,
-        isSensor,
-        inertia: Infinity,
-        friction: movable ? 1 : 0,
-        frictionStatic: movable ? 2 : 0,
-        frictionAir: movable ? 0.05 : 0,
-        density: movable ? 0.002 : undefined,
-        collisionFilter: {
-          category: COLLISION_GROUPS.OBSTACLE,
-          mask:
-            COLLISION_GROUPS.FRIEND |
-            COLLISION_GROUPS.ENEMY |
-            COLLISION_GROUPS.OBSTACLE |
-            COLLISION_GROUPS.BULLET,
-        },
-        label,
-      }
-    );
-    body._triggered = false;
-    body.view = view;
-    Matter.World.add(world, body);
-  }
-
-  /* ---------- GameObject ---------- */
-  const obj = {
-    view,
-    body,
-    active: true,
-    ticker: null,
-
-    reset(nx, ny) {
-      view.position.set(nx, ny);
-      if (body) {
-        Matter.Body.setPosition(body, {
-          x: nx,
-          y: ny - h / 2, // ⭐ 同样是底部 → 中心
-        });
-        Matter.Body.setVelocity(body, { x: 0, y: 0 });
-        Matter.Body.setAngle(body, 0);
-      }
-    },
-
-    destroy() {
-      if (this.ticker) {
-        app.ticker.remove(this.ticker);
-        this.ticker = null;
-      }
-      if (this.body) {
-        Matter.World.remove(world, this.body);
-        this.body = null;
-      }
-      if (this.view?.parent) {
-        this.view.parent.removeChild(this.view);
-      }
-    },
-  };
-
-  /* ---------- ticker（同步） ---------- */
-  if (movable) {
-    obj.ticker = () => {
-      view.x = body.position.x;
-      view.y = body.position.y + h / 2; // ⭐ 中心 → 底部
-    };
-    app.ticker.add(obj.ticker);
-  }
-  return obj;
-}
-
-function createCircleObject(
-  x,
-  y,
-  r,
-  {
-    color = 0x000000,
-    zIndex = 0,
-    withBody = true,
-    isSensor = false,
-    movable = false,
-    label = null,
-  } = {}
-) {
-  /* ---------- view（底部中心） ---------- */
-  const view = new Graphics();
-  view.beginFill(color);
-  view.drawCircle(0, 0, r);
-  view.endFill();
-
-  view.pivot.set(0, r); // ⭐ 底部中心
-  view.position.set(x, y);
-  view.zIndex = zIndex;
-  worldContainer.addChild(view);
-
-  /* ---------- body（真实中心） ---------- */
-  let body = null;
-  if (withBody) {
-    body = Matter.Bodies.circle(
-      x,
-      y - r, // ⭐ 底部 → 圆心
-      r,
-      {
-        isStatic: !movable,
-        isSensor,
-        friction: movable ? 0.1 : 0,
-        frictionStatic: movable ? 0.2 : 0,
-        frictionAir: movable ? 0.02 : 0,
-        density: movable ? 0.002 : undefined,
-        collisionFilter: {
-          category: COLLISION_GROUPS.OBSTACLE,
-          mask:
-            COLLISION_GROUPS.FRIEND |
-            COLLISION_GROUPS.ENEMY |
-            COLLISION_GROUPS.OBSTACLE |
-            COLLISION_GROUPS.BULLET,
-        },
-        label,
-      }
-    );
-    Matter.World.add(world, body);
-  }
-
-  /* ---------- GameObject ---------- */
-  const obj = {
-    view,
-    body,
-    active: true,
-    ticker: null,
-
-    reset(nx, ny) {
-      view.position.set(nx, ny);
-      if (body) {
-        Matter.Body.setPosition(body, { x: nx, y: ny - r });
-        Matter.Body.setVelocity(body, { x: 0, y: 0 });
-      }
-    },
-
-    destroy() {
-      if (this.ticker) {
-        app.ticker.remove(this.ticker);
-        this.ticker = null;
-      }
-      if (this.body) {
-        Matter.World.remove(world, this.body);
-        this.body = null;
-      }
-      this.view?.parent?.removeChild(this.view);
-    },
-  };
-
-  /* ---------- ticker ---------- */
-  if (movable && body) {
-    obj.ticker = bindViewToBodyBottom(view, body, r);
-    app.ticker.add(obj.ticker);
-  }
-
-  return obj;
-}
-
-function createTriangleObject(
-  x,
-  y,
-  w,
-  h,
-  {
-    color = 0x000000,
-    zIndex = 0,
-    withBody = true,
-    isSensor = false,
-    movable = false,
-    label = null,
-  } = {}
-) {
-  const verts = [
-    { x: -w / 2, y: h / 2 },
-    { x: w / 2, y: h / 2 },
-    { x: 0, y: -h / 2 },
-  ];
-
-  /* ---------- view（底部中心） ---------- */
-  const view = new Graphics();
-  view.beginFill(color);
-  view.moveTo(verts[0].x, verts[0].y);
-  view.lineTo(verts[1].x, verts[1].y);
-  view.lineTo(verts[2].x, verts[2].y);
-  view.closePath();
-  view.endFill();
-
-  view.pivot.set(0, h / 2); // ⭐ 底部中心
-  view.position.set(x, y);
-  view.zIndex = zIndex;
-  worldContainer.addChild(view);
-
-  /* ---------- body ---------- */
-  let body = null;
-  if (withBody) {
-    body = Matter.Bodies.fromVertices(
-      x,
-      y - h / 2, // ⭐ 底部 → 中心
-      verts,
-      {
-        isStatic: !movable,
-        isSensor,
-        collisionFilter: {
-          category: COLLISION_GROUPS.OBSTACLE,
-          mask:
-            COLLISION_GROUPS.FRIEND |
-            COLLISION_GROUPS.ENEMY |
-            COLLISION_GROUPS.OBSTACLE |
-            COLLISION_GROUPS.BULLET,
-        },
-        label,
-      },
-      true
-    );
-    Matter.World.add(world, body);
-  }
-
-  /* ---------- GameObject ---------- */
-  const obj = {
-    view,
-    body,
-    active: true,
-    ticker: null,
-
-    reset(nx, ny) {
-      view.position.set(nx, ny);
-      if (body) {
-        Matter.Body.setPosition(body, { x: nx, y: ny - h / 2 });
-        Matter.Body.setVelocity(body, { x: 0, y: 0 });
-      }
-    },
-
-    destroy() {
-      if (this.ticker) {
-        app.ticker.remove(this.ticker);
-        this.ticker = null;
-      }
-      if (this.body) {
-        Matter.World.remove(world, this.body);
-        this.body = null;
-      }
-      this.view?.parent?.removeChild(this.view);
-    },
-  };
-
-  /* ---------- ticker ---------- */
-  if (movable && body) {
-    obj.ticker = bindViewToBodyBottom(view, body, h / 2);
-    app.ticker.add(obj.ticker);
-  }
-
-  return obj;
-}
-const floatingMarks = []; //问号
-function createTeshu(
-  x,
-  y,
-  w,
-  h,
-  {
-    texture = null,
-    name = false,
-    show = true,
-    isInteractive = false,
-    interactRange = 0,
-  } = {}
-) {
-  if (!show) return;
-
-  const options = { juese: texture };
-  const spine = createSpineBoy({}, options);
-
-  spine.view.scale.set(WallScale);
-  spine.view.position.set(x, y);
-  worldContainer.addChild(spine.view);
-
-  spine.isInteractive = isInteractive;
-
-  if (isInteractive) {
-    const texture1 = Assets.get("question");
-    const mark = new Sprite(texture1);
-
-    mark.anchor.set(0.5, 1); // 顶部中心
-    mark.scale.set(0.6);
-    mark.zIndex = 2;
-
-    spine.view.addChild(mark);
-    spine.questionMark = mark;
-
-    const bounds = spine.view.getLocalBounds();
-    mark.x = bounds.x + bounds.width / 2;
-    mark.y = bounds.y - 25;
-
-    // ===== 统一参数 =====
-    initFloatingMark(mark, interactRange);
-
-    // ===== 点击 =====
-    mark.on("pointertap", () => {
-      if (!mark.visible) return;
-      spine.playBase("donghua1", false);
-      removeFloatingMark(mark);
-    });
-
-    floatingMarks.push(mark);
-  }
-
-  return spine;
-}
-
-function wenhaoHudong(x, y, w, h, { show = true, interactRange = 200 } = {}) {
-  if (!show) return null;
-
-  const texture1 = Assets.get("question");
-  if (!texture1) return null;
-
-  const mark = new Sprite(texture1);
-
-  mark.anchor.set(0.5, 1);
-  mark.scale.set(WallScale * 0.6);
-  mark.zIndex = 2;
-
-  mark.position.set(x, y);
-  worldContainer.addChild(mark);
-
-  initFloatingMark(mark, interactRange);
-
-  mark.on("pointertap", () => {
-    if (!mark.visible) return;
-    console.log("你好");
-    removeFloatingMark(mark, true);
-    setTimeout(() => {
-      mark.visible = true;
-      mark.locked = false;
-    }, 1500);
-  });
-
-  floatingMarks.push(mark);
-
-  return mark;
-}
-function initFloatingMark(mark, interactRange) {
-  mark.baseY = mark.y;
-  mark.maxBaseY = mark.baseY + 8;
-  mark.minBaseY = mark.baseY - 8;
-  mark.speed = 0.4;
-  mark.direction = 1;
-  mark.interactRange = interactRange || 100;
-
-  mark.visible = false;
-  mark.eventMode = "static";
-  mark.cursor = "pointer";
-}
-function removeFloatingMark(mark, yincang = false) {
-  if (yincang) {
-    mark.visible = false;
-    mark.locked = true; // ⭐ 关键
-  } else {
-    const index = floatingMarks.indexOf(mark);
-    if (index !== -1) {
-      floatingMarks.splice(index, 1);
-    }
-
-    if (mark.parent) {
-      mark.parent.removeChild(mark);
-    }
-
-    mark.destroy();
-  }
-}
-
-let bgContainer; // 背景层，渲染在最底层
-
-// ==================== 碰撞 ====================
-function onCollision(bodyA, bodyB) {
-  if (bodyA === activePlayer.footSensor || bodyB === activePlayer.footSensor)
-    isOnGround = true;
-}
-function createCooldown(duration = 1000) {
-  let locked = false;
-  let timer = null;
-
-  return function () {
-    if (locked) return false;
-
-    locked = true;
-
-    timer && clearTimeout(timer);
-    timer = setTimeout(() => {
-      locked = false;
-      timer = null;
-    }, duration);
-
-    return true;
-  };
-}
-const tipEnterCooldown = createCooldown(1000);
-const elevatorEnterCooldown = createCooldown(1000);
-const leaveCooldown = createCooldown(1000);
-// 传感器触发
-function onTrigger(label, player, boolean, body) {
-  if (!label.playersOnElevator) label.playersOnElevator = new Set(); // ⭐ 记录站在电梯上的玩家
-  if (label.startY === undefined) label.startY = 87 * VH(); // ⭐ 电梯初始高度
-  const speed = 0.4 * VH();
-  if (boolean) {
-    // 玩家进入电梯
-    if (!elevatorEnterCooldown()) return;
-    if (label.name === "电梯") {
-      console.log("我坐上电梯了", body);
-
-      // 添加玩家到集合
-      label.playersOnElevator.add(player);
-
-      // ⭐ 修正玩家位置，确保站在电梯顶部
-      if (player.active) {
-        Matter.Body.setPosition(player.body, {
-          x: player.body.position.x,
-          y: body.position.y - player.playerH / 2, // 玩家底部对齐电梯顶部
-        });
-      }
-      // 如果 ticker 已存在，不重复添加
-      if (!label.ticker) {
-        label.ticker = () => {
-          // 到顶部停下条件
-          const topY = 50;
-          if (body.position.y <= topY) {
-            // 如果没人站上去，开始回落
-            if (label.playersOnElevator.size === 0) {
-              app.ticker.remove(label.ticker);
-              label.ticker = null;
-              // 自动回落
-              label.ticker = () => {
-                if (body.position.y >= label.startY) {
-                  app.ticker.remove(label.ticker);
-                  label.ticker = null;
-                  return;
-                }
-                Matter.Body.translate(body, { x: 0, y: speed });
-                body.view.x = body.position.x;
-                body.view.y = body.position.y + 5 * VH();
-              };
-              app.ticker.add(label.ticker);
-            }
-            return;
-          }
-
-          // 每帧上升
-          Matter.Body.translate(body, { x: 0, y: -speed });
-          body.view.x = body.position.x;
-          body.view.y = body.position.y + 5 * VH();
-
-          // 推动玩家
-          label.playersOnElevator.forEach((p) => {
-            if (p.active) {
-              Matter.Body.translate(p.body, { x: 0, y: -speed });
-            }
-          });
-        };
-
-        app.ticker.add(label.ticker);
-      }
-    }
-  } else {
-    // 玩家离开电梯
-    if (label.name === "电梯") {
-      console.log("我离开电梯了", body);
-      label.playersOnElevator.delete(player);
-
-      // 如果电梯在顶端且没人了，开始回落
-      if (
-        body.position.y <= 50 &&
-        label.playersOnElevator.size === 0 &&
-        !label.ticker
-      ) {
-        label.ticker = () => {
-          if (body.position.y >= label.startY) {
-            app.ticker.remove(label.ticker);
-            label.ticker = null;
-            return;
-          }
-          Matter.Body.translate(body, { x: 0, y: speed });
-          body.view.x = body.position.x;
-          body.view.y = body.position.y + 5 * VH();
-        };
-        app.ticker.add(label.ticker);
-      }
-    } else if (label.name === "tips") {
-      if (!leaveCooldown()) return;
-      activePlayer.hideSpeech();
-    }
-  }
-}
-
-function onCollisionEnd(e) {}
-
-let elapsed = 0;
-let elapsed1 = 0;
-let elapsed2 = 0;
-//倒计时扇形
-function drawCooldown(ratio, lengque, ctx) {
-  const c = lengque;
-  const radius = c.width / 2;
-  const ctxIndex = ctx;
-  ctxIndex.clearRect(0, 0, c.width, c.height);
-  if (ratio >= 1) return;
-  // 绘制半透明扇形覆盖
-  ctxIndex.beginPath();
-  ctxIndex.moveTo(radius, radius);
-  ctxIndex.arc(
-    radius,
-    radius,
-    radius,
-    -Math.PI / 2,
-    -Math.PI / 2 + ratio * 2 * Math.PI,
-    false
-  );
-  ctxIndex.closePath();
-  ctxIndex.fillStyle = "rgba(0,0,0,0.5)";
-  ctxIndex.fill();
-}
-function animate1() {
-  elapsed += 1 / 60;
-  const ratio = Math.min(elapsed / anniu.cdDuration2, 1);
-  drawCooldown(ratio, canvas2.value, anniu.ctx2);
-  // 更新数字倒计时
-  anniu.cdText = Math.ceil(anniu.cdDuration2 * (1 - ratio));
-  if (ratio < 1) {
-    requestAnimationFrame(animate1);
-  } else {
-    // CD结束
-    anniu.cdText = 0;
-    anniu.ctx1.clearRect(0, 0, canvas2.value.width, canvas2.value.height);
-    anniu.isCoolingDown = false;
-  }
-}
-function animate2() {
-  elapsed1 += 1 / 60;
-  const ratio = Math.min(elapsed1 / anniu.cdDuration1, 1);
-
-  drawCooldown(ratio, canvas1.value, anniu.ctx1);
-
-  // 更新数字倒计时
-  anniu.dashCdText = Math.ceil(anniu.cdDuration1 * (1 - ratio));
-
-  if (ratio < 1) {
-    requestAnimationFrame(animate2);
-  } else {
-    // CD结束
-    anniu.dashCdText = 0;
-    anniu.ctx2.clearRect(0, 0, canvas1.value.width, canvas1.value.height);
-    anniu.isDashCoolingDown = false;
-  }
-}
-function animate3() {
-  elapsed2 += 1 / 60;
-  const ratio = Math.min(elapsed2 / anniu.cdDuration3, 1);
-  drawCooldown(ratio, canvas3.value, anniu.ctx3);
-  // 更新数字倒计时
-  anniu.cdSkill = Math.ceil(anniu.cdDuration3 * (1 - ratio));
-  if (ratio < 1) {
-    requestAnimationFrame(animate3);
-  } else {
-    // CD结束
-    anniu.cdSkill = 0;
-    anniu.ctx2.clearRect(0, 0, canvas3.value.width, canvas3.value.height);
-    anniu.skillDown = false;
-  }
-}
-/* ==================== 子弹池（Matter版） ==================== */
-const MAX_BULLETS = 10;
-const bulletPool = [];
-
-function initBulletPool(MAX_BULLETS = 20) {
-  for (let i = 0; i < MAX_BULLETS; i++) {
-    // 红色矩形
-    // const sprite = new Graphics();
-    // sprite.beginFill(0xff0000);
-    // sprite.drawRect(-width / 2, -height / 2, width, height);
-    // sprite.endFill();
-    // sprite.visible = false;
-    // 子弹贴图
-    const width = 10 * VH();
-    const height = 5 * VH();
-    const sprite = playAnimation("子弹", {
-      width: width,
-      height: height,
-    });
-    // Matter 子弹刚体
-    const body = Matter.Bodies.rectangle(-1000, -1000, width, height, {
-      isSensor: true,
-      inertia: Infinity,
-      label: "bullet",
-      collisionFilter: {
-        category: COLLISION_GROUPS.BULLET,
-        mask:
-          COLLISION_GROUPS.FRIEND |
-          COLLISION_GROUPS.ENEMY |
-          COLLISION_GROUPS.OBSTACLE,
-        group: -2,
-      },
-      friction: 0,
-      frictionAir: 0,
-      restitution: 0,
-    });
-
-    Matter.World.add(world, body);
-
-    // 推入池
-    bulletPool.push({
-      sprite,
-      body,
-      active: false,
-      lifeTime: 0,
-      zhongliTime: 0,
-      autoAim: false,
-      maxLife: 500, // ms
-      aoeRadius: 0, // ✅ 默认没有范围伤害
-      shanghai: 1, //伤害
-      fixedVy: -0.23, //下坠
-      direction: 0, //子弹方向
-      deactivate() {
-        activeBullets.delete(this);
-        this.active = false;
-        this.sprite.visible = false;
-        this.lifeTime = 0;
-        Matter.Body.setVelocity(this.body, { x: 0, y: 0 });
-        Matter.Body.setPosition(this.body, { x: -9999, y: -9999 });
-      },
-
-      shoot(x, y, vx, vy, autoAim = false, aoeRadius, shanghai) {
-        activeBullets.add(this);
-        this.shanghai = shanghai;
-        this.aoeRadius = aoeRadius;
-        this.active = true;
-        this.sprite.visible = true;
-        this.lifeTime = 0;
-        this.autoAim = autoAim;
-        this.zhongliTime = 0;
-        Matter.Body.setPosition(this.body, { x, y });
-        Matter.Body.setVelocity(this.body, { x: vx, y: vy });
-        // 设置旋转角度指向运动方向
-        this.sprite.rotation = Math.atan2(vy, vx);
-      },
-
-      update(deltaMs = 16) {
-        if (!this.active) return;
-        this.lifeTime += deltaMs;
-        if (!this.autoAim) {
-          this.zhongliTime += deltaMs;
-          Matter.Body.setVelocity(this.body, {
-            x: this.body.velocity.x,
-            y: this.body.velocity.y + this.fixedVy,
-          });
-        } else {
-        }
-        // 更新显示
-        this.sprite.x = this.body.position.x;
-        this.sprite.y = this.body.position.y;
-        // 超时销毁
-        if (this.lifeTime >= this.maxLife) this.deactivate();
-      },
-    });
-  }
-}
-function fireBullet({
-  sourceX,
-  sourceY,
-  direction = 1,
-  speed = 40,
-  autoAim = false,
-  target = false,
-  aoeRadius = false,
-  shanghai = 20,
-}) {
-  const bullet = bulletPool.find((b) => !b.active);
-  if (!bullet) return;
-
-  if (autoAim) {
-    const dx = target.view.x - sourceX;
-    const dy = target.view.y - sourceY - target.playerH;
-
-    const angle = Math.atan2(dy, dx);
-    const vx = Math.cos(angle) * speed;
-    const vy = Math.sin(angle) * speed;
-
-    bullet.shoot(sourceX, sourceY, vx, vy, autoAim, aoeRadius, shanghai);
-
-    bullet.sprite.rotation = angle;
-  } else {
-    // ⭐ 获取最近敌人
-    let nearest = null;
-    if (target) {
-      nearest = getNearestEnemy(sourceX, sourceY, npcs);
-    }
-
-    if (nearest) {
-      const dx = nearest.view.x - sourceX;
-      const dy = nearest.view.y - nearest.playerH * 0.5 - sourceY;
-
-      const angle = Math.atan2(dy, dx);
-
-      const vx = Math.cos(angle) * speed;
-      const vy = Math.sin(angle) * speed;
-
-      bullet.shoot(sourceX, sourceY, vx, vy, false, aoeRadius, shanghai);
-
-      bullet.sprite.rotation = angle;
-    } else {
-      // 原来的水平射击
-      bullet.shoot(
-        sourceX,
-        sourceY,
-        direction * speed,
-        0,
-        false,
-        aoeRadius,
-        shanghai
-      );
-
-      bullet.sprite.rotation = direction > 0 ? 0 : Math.PI;
-    }
-  }
-}
-
-function canvasH(c, index) {
-  c.width = c.clientWidth;
-  c.height = c.clientHeight;
-  if (index === 1) {
-    anniu.ctx1 = c.getContext("2d");
-  } else if (index === 2) {
-    anniu.ctx2 = c.getContext("2d");
-  } else if (index === 3) {
-    anniu.ctx3 = c.getContext("2d");
-  }
-}
-let stopCaozuo = false;
 const wuti = new Map();
-let drone; //无人机
-let droneTicker = null; //无人机位置
 let viewport;
-function resizeGame(app) {
-  app.renderer.resize(DEVICE_WIDTH, DEVICE_HEIGHT);
+let cameraTarget;
 
-  // 告诉 viewport：屏幕尺寸变了
-  viewport.resize(DEVICE_WIDTH, DEVICE_HEIGHT);
-}
 
-function handleBulletCollision(bodyA, bodyB) {
-  //子弹检测
-  const { BULLET, ENEMY, OBSTACLE } = COLLISION_GROUPS;
-
-  const getFilter = (body) =>
-    body.parent ? body.parent.collisionFilter : body.collisionFilter;
-
-  const filterA = getFilter(bodyA);
-  const filterB = getFilter(bodyB);
-
-  let bulletBody = null;
-  let otherBody = null;
-
-  if (filterA.category & BULLET) {
-    bulletBody = bodyA;
-    otherBody = bodyB;
-  } else if (filterB.category & BULLET) {
-    bulletBody = bodyB;
-    otherBody = bodyA;
-  }
-
-  // ⭐ 不是子弹碰撞，直接放行
-  if (!bulletBody) return false;
-
-  // ===== 拿 bullet 实例 =====
-  let bullet = bulletBody.bulletRef;
-  if (!bullet) {
-    bullet = bulletPool.find((b) => b.body === bulletBody);
-    bulletBody.bulletRef = bullet;
-  }
-
-  // 子弹已失效，碰撞吃掉即可
-  if (!bullet || !bullet.active) return true;
-
-  const otherFilter = getFilter(otherBody);
-  const isRight = bulletBody.velocity.x > 0;
-  // 随机偏移量
-  // 最小偏移量和最大偏移量
-  const minOffset = 2 * VW(); // 最小偏移 2% 屏幕宽
-  const maxOffset = 3 * VW(); // 最大偏移 5% 屏幕宽
-
-  // 随机偏移 = 最小偏移 + 随机部分
-  const randomOffset = minOffset + Math.random() * (maxOffset - minOffset);
-
-  // 根据方向决定正负
-  const offsetX = isRight ? randomOffset : -randomOffset;
-  // ===== 计算碰撞点 =====
-  const hitX = bulletBody.position.x + offsetX;
-  const hitY = bulletBody.position.y * 1.01;
-  // ===== 范围伤害 =====
-  if (
-    bullet.aoeRadius &&
-    (otherFilter.category & ENEMY || otherFilter.category & OBSTACLE)
-  ) {
-    applyAOEDamage(bullet, hitX, hitY);
-    playAnimation("爆炸", {
-      x: hitX,
-      y: hitY,
-    });
-    bullet.deactivate();
-    return true;
-  }
-
-  // ===== 单体命中 =====
-  if (otherFilter.category & ENEMY) {
-    otherBody.parent.gameObject.takeDamage(bullet.shanghai);
-    playAnimation("爆炸", {
-      x: hitX,
-      y: hitY,
-    });
-    bullet.deactivate();
-    return true;
-  }
-
-  if (otherFilter.category & OBSTACLE) {
-    playAnimation("爆炸", {
-      x: hitX,
-      y: hitY,
-    });
-    bullet.deactivate();
-    return true;
-  }
-
-  return true;
-}
-
-function playAnimation(name, option = {}, jiguang = false) {
-  //动画
-  const config = animationConfigs[name];
-  if (!config) {
-    console.warn(`动画配置未找到: ${name}`);
-    return null;
-  }
-  const texture = Assets.get(config.textureKey);
-
-  const width = (option.widthVH ?? config.widthVH) * VH();
-  const height = (option.heightVH ?? config.heightVH) * VH();
-  const sprite = createBulletAnimation({
-    spriteSheet: texture,
-    frameW: config.frameW,
-    frameH: config.frameH,
-    gapX: config.gapX,
-    gapY: config.gapY,
-    nCols: config.nCols,
-    nRows: config.nRows,
-    frameTime: config.frameTime,
-    frameTimes: config.frameTimes,
-    loop: config.loop,
-    loopStartIndex: config.loopStartIndex,
-    offsetX: config.offsetX ?? 0,
-    offsetY: config.offsetY ?? 0,
-  });
-
-  sprite.width = width;
-  sprite.height = height;
-  sprite.anchor.set(0.5, 0.5);
-  if (jiguang) {
-    return sprite;
-  }
-  // 坐标
-  sprite.x = option.x ?? 0;
-  sprite.y = option.y ?? 0;
-
-  // 可见性
-  sprite.visible = option.visible ?? config.visible ?? true;
-  // 非循环动画自动销毁
-  if (!config.loop) {
-    sprite.onComplete = () => {
-      sprite.removeFromParent();
-      sprite.destroy({ texture: false }); // 保留纹理
-    };
-  }
-
-  worldContainer.addChild(sprite);
-  return sprite;
-}
-
-function applyAOEDamage(bullet, cx, cy) {
-  //AOE伤害
-  npcs.forEach((enemy) => {
-    if (!enemy.active) return;
-
-    const dx = enemy.view.x - cx;
-    const dy = enemy.view.y - cy;
-
-    if (Math.hypot(dx, dy) <= bullet.aoeRadius) {
-      enemy.takeDamage(bullet.shanghai);
-    }
-  });
-}
-let teshuSpine = [];
-//读取矩形创建
-function createRectFromData(rectData, index, name) {
+function createRectFromData(rectData, index, name, mapId) {
   let rect;
   if (name === "矩形") {
     rect = rectPool.acquire(rectData.x, rectData.y, rectData.w, rectData.h, {
-      color: rectData.color,
-      zIndex: rectData.zIndex,
-      withBody: rectData.withBody,
-      isSensor: rectData.isSensor,
-      movable: rectData.movable,
-      label: rectData.label,
-      create: rectData.create,
-    });
+      color: rectData.color, zIndex: rectData.zIndex, withBody: rectData.withBody,
+      isSensor: rectData.isSensor, movable: rectData.movable, label: rectData.label, create: rectData.create, enableAABB: rectData.enableAABB,
+    }, world, worldContainer, COLLISION_GROUPS);
   } else if (name === "三角形") {
-    rect = trianglePool.acquire(
-      rectData.x,
-      rectData.y,
-      rectData.w,
-      rectData.h,
-      {
-        color: rectData.color,
-        zIndex: rectData.zIndex,
-        withBody: rectData.withBody,
-        isSensor: rectData.isSensor,
-        movable: rectData.movable,
-        label: rectData.label,
-        create: rectData.create,
-      }
-    );
+    rect = trianglePool.acquire(rectData.x, rectData.y, rectData.w, rectData.h, {
+      color: rectData.color, zIndex: rectData.zIndex, withBody: rectData.withBody,
+      isSensor: rectData.isSensor, movable: rectData.movable, label: rectData.label, create: rectData.create,
+    }, world, worldContainer, COLLISION_GROUPS);
   } else if (name === "圆形") {
     rect = circlePool.acquire(rectData.x, rectData.y, rectData.r, {
-      color: rectData.color,
-      zIndex: rectData.zIndex,
-      withBody: rectData.withBody,
-      isSensor: rectData.isSensor,
-      movable: rectData.movable,
-      label: rectData.label,
-      create: rectData.create,
-    });
-  } else if (name === "互动道具") {
-    rect = createTeshu(rectData.x, rectData.y, rectData.w, rectData.h, {
-      texture: rectData.texture,
-      name: rectData.texture,
-      show: rectData.show,
-      isInteractive: rectData.isInteractive,
-      interactRange: rectData.interactRange,
-    });
-    teshuSpine.push(rect);
-    //删除做法
-    return;
+      color: rectData.color, zIndex: rectData.zIndex, withBody: rectData.withBody,
+      isSensor: rectData.isSensor, movable: rectData.movable, label: rectData.label, create: rectData.create,
+    }, world, worldContainer, COLLISION_GROUPS);
   } else if (name === "问号互动") {
     rect = wenhaoHudong(rectData.x, rectData.y, rectData.w, rectData.h, {
-      texture: rectData.texture,
-      show: rectData.show,
-      isInteractive: rectData.isInteractive,
-      interactRange: rectData.interactRange,
-    });
-    teshuSpine.push(rect);
-    //删除做法
+      textureName: rectData.texture, show: rectData.show, isInteractive: rectData.isInteractive,
+      wuxian: rectData.wuxian, isFloatEnable: rectData.isFloatEnable
+    }, WallScale, hudMarkContainer, Assets, Sprite);
+
     return;
   }
-
   rect.name = name + index;
-  if (!wuti.has(index)) {
-    wuti.set(index, []);
-  }
-  wuti.get(index).push(rect);
+  if (!wuti.has(mapId)) wuti.set(mapId, []);
+  wuti.get(mapId).push(rect);
 }
 
-let currentTarget = null;
-let floatTime = 0;
-
-const PARALLAX = 0.2; // 远景（越小越远）
+const PARALLAX = 0.2;
 function onViewportMoved() {
-  // 远景视差
   bgContainer.x = viewport.left * (1 - PARALLAX);
 }
-let laser;
-// ==================== 主循环 ====================
-let mapData;
+
+let currentGroundY;
+let joystick; // 定义 1 次
+let defaultMap
+let hudMarkContainer
 onMounted(async () => {
-  playerInfo = user.pixi.player;
-  console.log("playerInfo=", playerInfo);
-  await loadAssets();
-  BgWall();
-  WORLD_WIDTH = BgWidthPx;
-  WORLD_HEIGHT = 100 * VH();
-  mapData = getMapData("one01", {
-    WORLD_WIDTH,
-    VH,
-    VW,
-  });
+  user.pixi.activePlayer = null
+  user.pixi.fight = false
+  user.pixi.isPaused = false
+  floatingMarks.length = 0;
+  npcPool.length = 0;
+  npcs.length = 0;
 
+  // 1. 先加载初始地图资源
+  await loadMapInfo('one01')
+
+  // 2. 创建 Pixi 应用
   app = await createApp(gameContainer.value);
-  viewport = new Viewport({
-    screenWidth: DESIGN_WIDTH,
-    screenHeight: DESIGN_HEIGHT,
-    worldWidth: WORLD_WIDTH,
-    worldHeight: WORLD_HEIGHT,
-    events: app.renderer.events,
-    ticker: app.ticker, // ✅ 推荐加
-    stopPropagation: true, // ✅ 推荐d
-    disableOnContextMenu: true, // ✅ 推荐
-    roundPixels: true, // ✅ 推荐
-  });
-  viewport.setZoom(1.3);
-  resizeGame(app);
-  vnZanting();
-  //技能CD
-  canvasH(canvas1.value, 1);
-  canvasH(canvas2.value, 2);
-  canvasH(canvas3.value, 3);
-  gameContainer.value.appendChild(app.view);
+  gameContainer.value.appendChild(app.canvas);
   bgContainer = new Container();
-  // bgContainer.scale.set(zoom);
-  app.stage.addChild(bgContainer);
-
   worldContainer = new Container();
+  cameraTarget = new Container();
+  hudMarkContainer = new Container();
+  hudMarkContainer.zIndex = 9999;
 
-  app.stage.addChild(worldContainer);
+  // 3. 配置RenderGroup分层合批
+  bgContainer.group = new RenderGroup({
+    priority: 0,
+    isStatic: true,
+    sortableChildren: false,
+  })
+  worldContainer.group = new RenderGroup({
+    priority: 1,
+    isStatic: false,
+    sortableChildren: true,
+  })
+  hudMarkContainer.group = new RenderGroup({
+    priority: 2,
+    isStatic: true,
+    sortableChildren: false,
+  })
+
+  // 4. 加载所有地图数据和背景
+  const allMapIds = getAllMapIds();
+  user.pixi.npcDataList = [];
+  user.pixi.mapDataList = [];
+  for (const mapId of allMapIds) {
+    const tempMap = getMapData(mapId, { WORLD_WIDTH: 0, VH, VW });
+    const bgData = BgWall(Assets, tempMap.backgroundImages);
+    const myOwnWidth = bgData.BgWidthPx;
+    const mapData = getMapData(mapId, { WORLD_WIDTH: myOwnWidth, VH, VW });
+    WallScale = bgData.WallScale;
+    const wallPiece = createWallObject(bgData.WallScale, bgData.WallTextures, Sprite, Container);
+    wallPiece.x = mapData.offsetX;
+    bgContainer.addChild(wallPiece);
+    mapData.realWidth = myOwnWidth;
+    user.pixi.mapDataList.push(mapData);
+  }
+
+  defaultMap = user.pixi.mapDataList.find(m => m.id === "one01");
+  WORLD_WIDTH = defaultMap.realWidth;
+  WORLD_HEIGHT = 100 * VH;
+
+  // 5. 创建视口和物理引擎
+  viewport = createViewport(app, WORLD_WIDTH, WORLD_HEIGHT);
+  viewport.setZoom(1.4);
+  engine = createEngine();
+  world = engine.world;
+  engine.gravity.y = 0.8;
 
   app.stage.addChild(viewport);
-
-  engine = Matter.Engine.create();
-  world = engine.world;
-  world.gravity.y = 0.8;
-  runner = Matter.Runner.create();
-  Matter.Runner.run(runner, engine);
-
   viewport.addChild(bgContainer);
   viewport.addChild(worldContainer);
+  viewport.addChild(hudMarkContainer);
 
-  createWallObject();
-  mapData.rectPoolArr?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "矩形");
+  // 6. 初始化UI、摇杆、键盘
+  initGameUI(app, () => {
+    if (!canPlayerControl) return;
+    if (activePlayer?.isOnGround && !playerInput.value.jump) {
+      playerInput.value.jump = true;
+    }
+  }, Sprite, user);
+  joystick = getJoystick();
+
+  window.addEventListener('keydown', (e) => {
+    if (!joystick || !canPlayerControl) return;
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') joystick.keyLeft = true;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') joystick.keyRight = true;
+    if ((e.code === 'Space' || e.code === 'KeyW') && activePlayer?.isOnGround && !playerInput.value.jump) {
+      playerInput.value.jump = true;
+    }
   });
-  mapData.trianglePoolArr?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "三角形");
+  window.addEventListener('keyup', (e) => {
+    if (!joystick) return;
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') joystick.keyLeft = false;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') joystick.keyRight = false;
   });
-  mapData.circlePoolArr?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "圆形");
-  });
-  mapData.TriggerAreaArr?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "矩形");
-  });
-  console.log(" mapData.teshuData=", mapData.teshuData);
-  mapData.teshuData?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "互动道具");
-  });
-  mapData.wenhaoHudong?.forEach((rectData, index) => {
-    createRectFromData(rectData, index, "问号互动");
-  });
-  npcDataList = mapData.npcDataList ? mapData.npcDataList : [];
+
+  // 7. 加载NPC数据
+  const finalNpcs = loadMapData(user.pixi.mapDataList, createRectFromData);
+  user.pixi.npcDataList = finalNpcs;
+
+  // 8. 创建玩家
   playerPool = createPool(createPlayerObject);
-  activePlayer = playerPool.acquire(WORLD_WIDTH * 0.9, 80 * VH(), {
-    player: 1, //1=主角   2=敌人  3=站立NPC
-    maxHp: 100,
-    currentHp: 100,
-    juese: "linen",
+  activePlayer = playerPool.acquire(defaultMap.playerSpawnX, defaultMap.playerSpawnY, {
+    player: 1, juese: "linen",
+    height: 22, TopH: 6.5, xuetiaoPosition: 25, zIndex: 2, TopMap: defaultMap.TopMap,
+    data: {
+      hp: 1500,
+      maxHp: 1500,
+    }
   });
   activePlayer.label = true;
-  viewport.follow(activePlayer.mainBody.position, {
-    speed: 20, // ❗非常小
-  });
-  viewport.clamp({
-    left: 0,
-    right: WORLD_WIDTH,
-    top: -Infinity, // 无限制  -Infinity
-    bottom: 100 * VH(),
-  });
-  //createCircleObject  createTriangleObject
-  //无人机生成
-  createDrone();
-  controller = createController({ joystickZone: joystickContainer.value });
+  user.pixi.playerInstance = markRaw(activePlayer);
+  viewport.follow(cameraTarget, { speed: 5000 });
 
-  Matter.Events.on(engine, "collisionStart", (event) => {
-    for (const { bodyA, bodyB } of event.pairs) {
-      // ⭐ 子弹优先处理
-      if (handleBulletCollision(bodyA, bodyB)) continue;
-      // ⭐ 其他逻辑（跳跃 / 传感器 / 拾取）
-      onCollision(bodyA, bodyB);
-      if (bodyA.label?.type && bodyB.label === "playerFoot") {
-        onTrigger(bodyA.label, bodyB, true, bodyA);
+  // 9. 设置碰撞
+  setupCollisionStart(engine, Matter, VH, physicsWorker);
+  setupCollisionEnd(engine, Matter, physicsWorker);
+
+  // 10. 注册NPC更新事件并渲染NPC
+  npcConfigUpdated();
+  await TpMap("one01");
+  console.log('user.pixi.npcDataList=',user.pixi.npcDataList);
+  
+  emitter.emit('npcConfigUpdated', user.pixi.npcDataList);
+
+  vnZanting();
+
+  // 11. 初始化物理Worker
+  physicsWorker.postMessage({ type: 'init' });
+  physicsWorker.onmessage = (e) => {
+    if (e.data.type === 'vxSync' && activePlayer?.body) {
+      if (!canPlayerControl) return;
+      Matter.Body.setVelocity(activePlayer.body, {
+        x: e.data.vx,
+        y: activePlayer.body.velocity.y
+      });
+      if (e.data.jump && activePlayer.isOnGround) {
+        const jumpPower = -Math.sqrt(2 * engine.gravity.y * activePlayer.playerH * 0.26);
+        Matter.Body.setVelocity(activePlayer.body, {
+          x: activePlayer.body.velocity.x,
+          y: jumpPower
+        });
+        playerInput.value.jump = false;
       }
-    }
-  });
-  Matter.Events.on(engine, "collisionEnd", (event) => {
-    for (const { bodyA, bodyB } of event.pairs) {
-      if (bodyB.label === "playerFoot") {
-        isOnGround = false;
-      }
-      if (bodyA.label?.type && bodyB.label === "playerFoot") {
-        onTrigger(bodyA.label, bodyB, false, bodyA);
-      }
-    }
-  });
-  // viewport.on("moved", onViewportMoved);
-  //NPC池子
-  initBulletPool();
-  initNPCPool();
-  activateNPC("idle");
-  activateNPC("idle");
-  // const oldFilmSeed = createTimer(200, updateOldFilmSeed); 复古滤镜
-  laser = new Laser({
-    app, // ✅ 一定要传
-    engine,
-    container: worldContainer,
-    groups: COLLISION_GROUPS,
-    damage: 20,
-  });
-  app.ticker.add((ticker) => {
-    // oldFilmSeed(deltaMs);
-    gameLoop();
-    updateWenhao();
-    // 更新子弹
-    for (let b of activeBullets) b.update();
-  });
-});
-function updateWenhao() {
-  //问号更新
-  const playerX = activePlayer.view.worldTransform.tx;
-  const playerY = activePlayer.view.worldTransform.ty;
-  for (let i = floatingMarks.length - 1; i >= 0; i--) {
-    const mark = floatingMarks[i];
-
-    // ⭐ 2. 快速跳过无效对象
-    if (!mark || !mark.parent || mark.locked) continue;
-
-    // ⭐ 3. 直接读取矩阵世界坐标（比 getGlobalPosition 快很多）
-    const markX = mark.worldTransform.tx;
-    const markY = mark.worldTransform.ty;
-
-    const zoom = viewport.scale.x; // ⭐ 新增
-    const range = (mark.interactRange || 100) * zoom; // ⭐ 修改
-
-    // ⭐ 4. 第一层快速剔除（X轴判断）
-    const dx = markX - playerX;
-    if (Math.abs(dx) > range) {
-      if (mark.visible) mark.visible = false;
-      continue;
-    }
-
-    // ⭐ 5. 使用平方距离（避免 sqrt）
-    const dy = markY - playerY;
-    const distSq = dx * dx + dy * dy;
-    const rangeSq = range * range;
-
-    if (distSq <= rangeSq) {
-      // ===== 在范围内 =====
-      if (!mark.visible) {
-        mark.visible = true;
-      }
-
-      // ⭐ 6. 只在可见时做浮动计算
-      mark.y += mark.speed * mark.direction;
-
-      if (mark.y >= mark.maxBaseY) {
-        mark.y = mark.maxBaseY;
-        mark.direction = -1;
-      } else if (mark.y <= mark.minBaseY) {
-        mark.y = mark.minBaseY;
-        mark.direction = 1;
-      }
-    } else {
-      if (mark.visible) mark.visible = false;
-    }
-  }
-}
-function updateOldFilmSeed() {
-  oldFilm.seed = Math.random();
-}
-function createTimer(intervalMs, callback) {
-  let counter = 0;
-  return (deltaMs) => {
-    counter += deltaMs;
-    if (counter >= intervalMs) {
-      counter = 0;
-      callback();
     }
   };
-}
-const activeBullets = new Set();
 
-function gameLoop() {
-  if (!activePlayer) return;
-  let vx = 0;
-  let vy = activePlayer.body.velocity.y;
-  const input = controller.keys;
-  if (!stopCaozuo) {
-    // 移动逻辑只在 stopCaozuo 为 false 时执行
-    if (input.left.pressed) vx = -activePlayer.speed;
-    else if (input.right.pressed) vx = activePlayer.speed;
-    else if (activePlayer.isDashing) {
-      vx =
-        activePlayer.spine.direction === 1
-          ? activePlayer.speed
-          : -activePlayer.speed;
+  // 13. 启用玩家控制
+  enablePlayerControl();
+
+  // 14. 等待几帧确保所有Spine资源加载渲染完成
+  await new Promise(resolve => requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  }));
+
+  // 15. 后台预加载其他地图
+  afterTpMap('one01');
+
+  // 16. 隐藏loading，显示游戏
+  isPageLoading.value = false;
+  // 主循环：移除主线程Matter.Engine.update，仅发送输入+步进指令
+  let tickCount = 0;
+  app.ticker.add(() => {
+    // ====================
+    // ✅ 新增：帧率计算
+    // ====================
+    const now = performance.now();
+    frameCount++;
+    if (now - lastTime >= 1000) {
+      fps.value = Math.round(frameCount);
+      frameCount = 0;
+      lastTime = now;
     }
-    if (input.space.pressed && isOnGround) {
-      const h = activePlayer.playerH * 0.26; //减少跳跃高度
-      const v = Math.sqrt(2 * engine.gravity.y * h);
-      vy = -v;
-      input.space.pressed = false;
+
+    tickCount++;
+    if (tickCount % 2 === 0) {
+      // ✅ 禁用时，永远发静止输入给Worker
+      if (!canPlayerControl) {
+        physicsWorker.postMessage({
+          type: "input",
+          data: { left: false, right: false, jump: false },
+          VW: VW
+        });
+      } else {
+        const left = (joystick?.x < -20) || joystick?.keyLeft;
+        const right = (joystick?.x > 20) || joystick?.keyRight;
+        playerInput.value.left = left;
+        playerInput.value.right = right;
+
+        physicsWorker.postMessage({
+          type: "input",
+          data: { ...playerInput.value },
+          VW: VW
+        });
+      }
+    }
+
+
+    Matter.Engine.update(engine, 16.666);
+    updateWenhao();
+    gameLoop();
+    updateGameUI(fps, activePlayer);
+    // 发给 Worker：所有需要计算视图的角色（每帧执行，关键路径）
+    sendAllToViewWorker()
+  });
+});
+let globalTimeScale = 1; // 全局游戏时间倍速，暂停/快进只改这一个值
+async function ceshi5() {
+  console.log('user.pixi.npcDataList=', user.pixi.npcDataList);
+
+  user.pixi.activePlayer = {
+    hp: activePlayer.data.data.hp,
+    maxHp: activePlayer.data.data.maxHp,
+    x: activePlayer.body.position.x,
+    y: activePlayer.body.position.y,
+    speed: activePlayer.speed,
+    juese: activePlayer.data.juese
+  };
+  emitter.emit("vnZanting");
+}
+function guodu() {
+  // 进入战斗：先变黑，加载完所有资源再变白
+  jinruzhandou();
+}
+async function jinruzhandou() {
+  // 1. 先变黑
+  isMapTransitioning = false;
+  const map = user.pixi.mapDataList.find(m => m.id === "desert_02");
+  WORLD_WIDTH = map.realWidth;
+  const tpPosition = map.offsetX + WORLD_WIDTH * 0.08
+  activePlayer.spine.direction = 1;
+  activePlayer.spine.setDirection(1);
+  await TpMap("desert_02", tpPosition);
+  user.pixi.gameUi = true;
+  // 3. 创建敌人数据
+  const enemyData = createEnemiesData();
+  console.log('enemyData=', enemyData);
+
+  user.pixi.npcDataList = [...user.pixi.npcDataList, ...enemyData];
+  // // 5. 创建敌人NPC
+  emitter.emit('npcConfigUpdated', user.pixi.npcDataList);
+  // 6. 等待几帧确保所有敌人Spine资源加载渲染完成
+  await new Promise(resolve => requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(resolve);
+      });
+    });
+  }));
+
+  // 7. 启动战斗
+  fightQidong(user);
+  disablePlayerControl();
+
+}
+let cachedTriggerAreas = [];
+let frameCount1 = 0
+// 把所有玩家、NPC的位置数据发给Worker计算视图
+const ACTIVE_DISTANCE = VW * 75; // npc可见距离
+// 优化：计数器，降低非关键计算频率
+let reflectionFrameCount = 0;
+let godrayFrameCount = 0;
+// 优化：NPC视距剔除缓存，减少每帧遍历开销
+let npcCullTick = 0;
+const NPC_CULL_INTERVAL = 3; // 每3帧做一次视距剔除
+function sendAllToViewWorker() {
+  if (!activePlayer || !activePlayer.body) return;
+
+  const entries = [];
+  const playerX = activePlayer.body.position.x;
+
+  // 优化：每3帧做一次视距剔除，中间帧直接用上次结果
+  npcCullTick++;
+  if (npcCullTick % NPC_CULL_INTERVAL === 0) {
+    for (const n of npcs) {
+      if (!n || !n.body || !n.active) continue;
+
+      const dx = Math.abs(
+        n.body.position.x - playerX
+      );
+      // 超出范围直接跳过
+      if (dx > ACTIVE_DISTANCE) {
+        n.view.visible = false;
+        continue;
+      }
+      n.view.visible = true;
+
+      entries.push([
+        n.body.id,
+        n.body.position.x,
+        n.body.position.y,
+        n.playerH,
+        n.data.TopH ?? 5.5,
+        n.data.xuetiaoPosition ?? 25,
+        n.showBubble ?? false,
+        n.body.velocity.y,
+        n.isOnGround ? 1 : 0,
+        0
+      ]);
+    }
+  } else {
+    // 非剔除帧：只收集可见的NPC
+    for (const n of npcs) {
+      if (!n || !n.body || !n.active || !n.view.visible) continue;
+      entries.push([
+        n.body.id,
+        n.body.position.x,
+        n.body.position.y,
+        n.playerH,
+        n.data.TopH ?? 5.5,
+        n.data.xuetiaoPosition ?? 25,
+        n.showBubble ?? false,
+        n.body.velocity.y,
+        n.isOnGround ? 1 : 0,
+        0
+      ]);
     }
   }
-  // 玩家同步
+
+  entries.push([
+    activePlayer.body.id,
+    activePlayer.body.position.x,
+    activePlayer.body.position.y,
+    activePlayer.playerH,
+    activePlayer.data.TopH ?? 5.5,
+    activePlayer.data.xuetiaoPosition ?? 25,
+    activePlayer.showBubble ?? false,
+    activePlayer.body.velocity.y, // 新增 vy
+    activePlayer.isOnGround ? 1 : 0, // 新增落地标记
+    1
+  ]);
+
+  const count = entries.length;
+  // 原来每条32字节，现在每条40字节：4 + count * 40
+  const buf = new ArrayBuffer(4 + count * 40);
+  const view = new DataView(buf);
+  view.setUint32(0, count, true);
+
+  entries.forEach((e, i) => {
+    const o = 4 + i * 40; // 步长改成40
+    view.setUint32(o + 0, e[0], true);          // id
+    view.setFloat32(o + 4, e[1], true);         // x
+    view.setFloat32(o + 8, e[2], true);         // y
+    view.setFloat32(o + 12, e[3], true);        // playerH
+    view.setFloat32(o + 16, e[4], true);        // TopH
+    view.setFloat32(o + 20, e[5], true);         // xuetiao
+    view.setUint8(o + 24, e[6] ? 1 : 0, true);  // showBubble
+    view.setFloat32(o + 28, e[7], true);         // 新增 vy
+    view.setUint8(o + 32, e[8], true);           // 新增 isOnGround
+    view.setUint8(o + 33, e[9], true);           // 类型标记(玩家/NPC)
+  });
+
+  physicsWorker.postMessage({
+    type: 'computeAllViews',
+    buffer: buf,
+    count,
+    VH,
+    currentMapTopMap: defaultMap?.TopMap ?? 0,
+    currentGroundY,
+    // 只传必要数字，剥离复杂引用
+    light: currentLight ? {
+      x: currentLight.x,
+      y: currentLight.y,
+      offsetScale: currentLight.offsetScale
+    } : null
+  }, [buf]);
+
+  // ---------------- 传送触发器 二进制版 ----------------
+  frameCount1++;
+  if (frameCount1 % 10 === 0) {
+    const p = activePlayer.body.position;
+    const ph = activePlayer.playerH;
+    const trigCount = cachedTriggerAreas.length;
+
+    // 构造二进制
+    const trigBuf = new ArrayBuffer(
+      4 +        // 玩家数量
+      12 +       // 玩家 x,y,h
+      4 +        // 触发器数量
+      trigCount * 24  // x,y,w,h,offsetX, index
+    );
+    const v = new DataView(trigBuf);
+
+    // 玩家
+    v.setUint32(0, 1, true);
+    v.setFloat32(4, p.x, true);
+    v.setFloat32(8, p.y, true);
+    v.setFloat32(12, ph, true);
+
+    // 触发器
+    v.setUint32(16, trigCount, true);
+    for (let i = 0; i < trigCount; i++) {
+      const t = cachedTriggerAreas[i];
+      const o = 20 + i * 24;
+      v.setFloat32(o + 0, t.x, true);
+      v.setFloat32(o + 4, t.y, true);
+      v.setFloat32(o + 8, t.w, true);
+      v.setFloat32(o + 12, t.h, true);
+      v.setFloat32(o + 16, t.offsetX, true);
+      v.setUint32(o + 20, i, true); // 把索引传过去
+    }
+
+    physicsWorker.postMessage(
+      { type: 'checkTriggers', buffer: trigBuf },
+      [trigBuf]
+    );
+  }
+  // ---------------- 水面数据发给Worker（优化：每2帧一次） ----------------
+  if (isReflectionActive()) {
+    reflectionFrameCount++;
+    if (reflectionFrameCount % 2 === 0) {
+      const filter = getReflectionFilter();
+      if (filter) {
+        filter.time += 0.03 * 2; // 补偿跳过的帧
+        filter.boundary = getCurrentBoundary();
+      }
+      physicsWorker.postMessage({
+        type: 'updateReflection',
+        viewport: {
+          left: viewport.left,
+          top: viewport.top,
+          scaleX: viewport.scale.x,
+          scaleY: viewport.scale.y,
+        },
+        waterWorldY: 90 * VH, // 水面高度
+        screenHeight: app.screen.height
+      })
+    }
+  }
+  // ====================== 体积光 同水面写法（优化：每2帧一次） ======================
+  if (isGodrayActive() && currentLight && activePlayer) {
+    godrayFrameCount++;
+    if (godrayFrameCount % 2 === 0) {
+      physicsWorker.postMessage({
+        type: 'godray:calc',
+        deltaMS: app.ticker.deltaMS * 2, // 补偿跳过的帧
+        lightWorldX: currentLight.x,
+        playerX: activePlayer.body.position.x
+      });
+    }
+  }
+  // ====================== 昼夜滤镜 ======================
+  if (isDayNightActive()) {
+    const delta = app.ticker.deltaTime * globalTimeScale;
+    let t = getDayTime();
+    t += getDayNightSpeed() * delta;
+    if (t > 1) t = 0;
+    setDayTime(t);
+
+    dayNightSendTimer += delta; // 用时间累加更稳定，不依赖帧速率
+    if (dayNightSendTimer >= 3) {
+      updateDayNightCalc();
+      dayNightSendTimer = 0;
+    }
+    dayNightLogTimer += delta;
+    if (dayNightLogTimer >= 10) {
+      dayNightLogTimer = 0;
+      const darkFactor = getNightFactor();
+      if (isGodrayActive()) {
+        const filter = getGodrayFilter();
+        // 颜色渐变
+        const r = Math.floor(lerp(255, 160, darkFactor));
+        const g = Math.floor(lerp(255, 184, darkFactor));
+        const b = Math.floor(lerp(255, 255, darkFactor));
+        filter.color = (r << 16) + (g << 8) + b;
+        // 亮度：白天0.75，深夜0.3
+        filter.gain = lerp(0.75, 0.5, darkFactor);
+      }
+      if (isReflectionActive()) {
+        const refFilter = getReflectionFilter();
+        // 白天透明度 [0.3,0.5]，夜晚反光更淡 [0.12, 0.26]
+        const alphaMin = lerp(0.5, 0.65, darkFactor);
+        const alphaMax = lerp(0.7, 0.9, darkFactor);
+        refFilter.alpha = [alphaMin, alphaMax];
+      }
+      if (isNight()) {
+        // console.log('当前：黑夜');
+      } else {
+        // console.log('当前：白天');
+      }
+    }
+  }
+}
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+let MAP_BOUNDS = null;
+let dayNightSendTimer = 0; //昼夜
+let dayNightLogTimer = 0; // 昼夜打印间隔计时器
+function getCurrentMapClampBounds(playerX) {
+  if (!MAP_BOUNDS) {
+    MAP_BOUNDS = [];
+    for (const map of user.pixi.mapDataList) {
+      MAP_BOUNDS.push({ left: map.offsetX, right: map.offsetX + map.realWidth });
+    }
+  }
+  for (const b of MAP_BOUNDS) {
+    if (playerX >= b.left && playerX <= b.right) return b;
+  }
+  return { left: 0, right: WORLD_WIDTH };
+}
+//根据传送点名称传送
+function teleportByName(triggerName) {
+  // 根据不同名字 跳不同地图+坐标
+  let map;
+  let tpPosition;
+  switch (triggerName) {
+    // TP0 → 传送回 第一张地图
+    case "TP0":
+      map = user.pixi.mapDataList.find(m => m.id === "one01");
+      WORLD_WIDTH = map.realWidth;
+      tpPosition = map.offsetX + WORLD_WIDTH * 0.97
+      TpMap("one01", tpPosition);
+      break;
+
+    case "TP1":
+      map = user.pixi.mapDataList.find(m => m.id === "desert_01");
+      WORLD_WIDTH = map.realWidth;
+      tpPosition = map.offsetX + WORLD_WIDTH * 0.03
+      TpMap("desert_01", tpPosition);
+      break;
+  }
+}
+let frame = 0;
+let ACTIVE_MARK_DIST = VW * 19;
+//浮动道具
+function updateWenhao() {
+  if (++frame % 7 !== 0) return;
+  if (!activePlayer || !activePlayer.body) return;
+
+  const px = activePlayer.body.position.x;
+  const py = activePlayer.body.position.y;
+
+  // 先过滤出玩家范围内的标记，只传这部分给Worker
+  const validMarks = floatingMarks.filter(m => {
+    const dx = Math.abs(m.x - px);
+    // 只判断X横向距离（和NPC逻辑对齐，横版游戏够用）
+    return dx <= ACTIVE_MARK_DIST;
+  });
+  const count = validMarks.length;
+
+  const BYTES_PER_ENTRY = 4 * 9;
+  const buf = new ArrayBuffer(4 + count * BYTES_PER_ENTRY);
+  const view = new DataView(buf);
+  view.setUint32(0, count, true);
+
+  for (let i = 0; i < count; i++) {
+    const m = validMarks[i];
+    const off = 4 + i * BYTES_PER_ENTRY;
+
+    view.setFloat32(off + 0, m.x ?? 0, true);
+    view.setFloat32(off + 4, m.baseY ?? m.y, true); // 基准Y，固定不动，用于测距
+    view.setFloat32(off + 8, m.y ?? 0, true);       // 当前浮动渲染Y
+    view.setUint8(off + 12, m.locked ?? false, true);
+    view.setUint8(off + 16, m.isFloatEnable ?? false, true);
+    view.setFloat32(off + 20, m.speed ?? 0, true);
+    view.setInt8(off + 24, m.direction ?? 1, true);
+    view.setFloat32(off + 28, m.maxBaseY ?? 0, true);
+    view.setFloat32(off + 32, m.minBaseY ?? 0, true);
+  }
+
+  physicsWorker.postMessage(
+    {
+      type: 'updateWenhao',
+      buffer: buf,
+      px,
+      py,
+      ACTIVE_MARK_DIST // 同步距离阈值给worker（可选）
+    },
+    [buf]
+  );
+
+  // 关键：范围外的问号直接隐藏，不用等worker返回
+  floatingMarks.forEach(m => {
+    // 新增：冷却锁优先级最高，上锁期间永久隐藏
+    if (m.locked) {
+      m.visible = false;
+      return;
+    }
+    const dx = Math.abs(m.x - px);
+    if (dx > ACTIVE_MARK_DIST) {
+      m.visible = false;
+    }
+  });
+}
+// 接收 Worker 计算好的所有视图位置
+physicsWorker.addEventListener('message', (e) => {
+  if (e.data.type === 'viewResult') {
+    const { views } = e.data;
+
+    // 构建映射
+    const viewMap = new Map();
+    views.forEach(v => viewMap.set(v.id, v));
+
+    // 更新主角
+    if (activePlayer) {
+      const v = viewMap.get(activePlayer.body.id);
+      if (v) {
+        // 人物
+        activePlayer.spine.view.x = v.x;
+        activePlayer.spine.view.y = v.y;
+
+        // 气泡
+        if (activePlayer.showBubble && activePlayer.speechBubble.visible) {
+          activePlayer.speechBubble.position.set(v.bubbleX, v.bubbleY);
+        }
+      }
+    }
+
+    // 更新所有 NPC
+    npcs.forEach(npc => {
+      const v = viewMap.get(npc.body.id);
+      if (!v) return;
+
+      npc.spine.view.x = v.x;
+      npc.spine.view.y = v.y;
+
+      if (npc.showBubble && npc.speechBubble.visible) {
+        npc.speechBubble.position.set(v.bubbleX, v.bubbleY);
+      }
+
+      if (npc.data.player !== 3) {
+        npc.hpBar.view.x = v.hpX;
+        npc.hpBar.view.y = v.hpY;
+      }
+    });
+  } else if (e.data.type === 'wenhaoResult') {
+    const { buffer } = e.data;
+    const view = new DataView(buffer);
+    const count = view.getUint32(0, true);
+
+    for (let i = 0; i < count; i++) {
+      const off = 4 + i * 36;
+      const m = floatingMarks[i];
+      const inRange = view.getUint8(off + 25, true) === 1;
+      // locked 冷却锁优先级最高
+      if (m.locked) {
+        m.visible = false;
+      } else {
+        m.visible = inRange;
+      }
+      // 读取浮动渲染Y赋值给精灵y，baseY固定不变不覆盖
+      m.y = view.getFloat32(off + 8, true);
+      m.direction = view.getInt8(off + 24, true);
+    }
+  } else if (e.data.type === 'elevator:move') {
+    for (const item of e.data.list) {
+      // 找到对应的电梯刚体
+      let targetBody = null;
+      Matter.Composite.allBodies(world).forEach(b => {
+        if (b.label?.elevatorId === item.id) {
+          targetBody = b;
+        }
+      });
+
+      if (!targetBody) return;
+
+      // 真正移动电梯
+      Matter.Body.setPosition(targetBody, {
+        x: targetBody.position.x,
+        y: item.y
+      });
+
+      // 同步视图
+      if (targetBody.view) {
+        targetBody.view.y = item.y;
+      }
+    }
+  } else if (e.data.type === 'triggerEnter') {
+    const { index } = e.data;
+    const t = cachedTriggerAreas[index]; // 从缓存取
+    if (!t) return;
+
+    const label = t.label;
+    const name = t.name;
+
+    if (!triggerCooldown.get(label)) {
+      triggerCooldown.set(label, true);
+
+      if (label === 'teleportTrigger') {
+        teleportByName(name);
+        setTimeout(() => triggerCooldown.set(label, false), 1000);
+      } else {
+        setTimeout(() => triggerCooldown.set(label, false), 1000);
+      }
+    }
+  } else if (e.data.type === 'reflectionBoundary') {
+    if (isReflectionActive()) {
+      setReflectionBoundary(e.data.boundary);
+    }
+    return
+  } else if (e.data.type === 'shadowUpdate') {
+    const { list } = e.data;
+    list.forEach(item => {
+      // 匹配玩家
+      if (activePlayer && activePlayer.body.id === item.id) {
+        activePlayer.shadowData = {
+          x: item.x,
+          y: item.y,
+          scale: item.scale,
+          alpha: item.alpha
+        };
+        activePlayer.groundFixedY = item.groundFixedY;
+        return;
+      }
+      // 匹配NPC
+      for (const npc of npcs) {
+        if (npc.body.id === item.id) {
+          npc.shadowData = {
+            x: item.x,
+            y: item.y,
+            scale: item.scale,
+            alpha: item.alpha
+          };
+          npc.groundFixedY = item.groundFixedY;
+          break;
+        }
+      }
+    });
+  } else if (e.data.type === 'godray:result') {
+    const filter = getGodrayFilter();
+    if (!filter) return;
+    filter.time = e.data.time;
+    filter.center.x = e.data.screenPixelX;
+    return
+  }
+});
+// 全局锁：记录触发区域的冷却状态
+const triggerCooldown = new Map();
+let currentLight = null;
+let isMapTransitioning = false; // 地图切换过渡锁，防止重复触发
+async function TpMap(name, tpPosition) {
+  // 防止重复触发地图切换
+  if (isMapTransitioning) return;
+  isMapTransitioning = true;
+
+  // ====== 地图切换过渡：先变黑 ======
+  const transition = createOldFilmFilter(app, viewport, {
+    startDelay: 0,
+    fadeInDuration: 0.4,
+    fullBlackDuration: 0.5, // 完全黑屏时长，可按需调整
+    fadeOutDuration: 0.5,
+    autoFadeOut: false
+  });
+  // 等待完全黑屏后再加载地图
+
+  // ====== 黑屏状态下加载地图资源 ======
+  if (!isBundleLoaded(name)) {
+    await loadMapInfo(name)
+  }
+
+  // ====== 切换地图数据和玩家位置 ======
+  const data = goToMap(name, activePlayer, Matter, tpPosition)
+  defaultMap = data
+  WORLD_WIDTH = data.realWidth;
+
+  // ====== 根据地图配置自动开关滤镜 ======
+  const effect = data.effects?.reflection;
+  currentLight = data.lightSource;
+  initOnceDayNightFilter()
+  if (effect?.enable) {
+    createReflectionFilter(viewport, app);
+  } else {
+    if (isReflectionActive()) {
+      removeReflectionFilter();
+    }
+  }
+  if (currentLight.night.enable) {
+    showDayNightFilter();
+  } else {
+    hideDayNightFilter();
+  }
+  if (currentLight.show) {
+    createGodrayLight(bgContainer, app, currentLight, activePlayer);
+  } else {
+    removeGodrayLight();
+  }
+
+  currentGroundY = data.currentGroundY
+  cachedTriggerAreas = (defaultMap.TriggerAreaArr || [])
+    .filter(t => t.enableAABB)
+    .map(t => ({
+      x: t.x, y: t.y, w: t.w, h: t.h,
+      label: t.label, enableAABB: t.enableAABB ?? false,
+      name: t.name, offsetX: defaultMap.offsetX,
+    }));
+
+  // 更新视口边界
+  const playerX = activePlayer.body.position.x;
+  const bounds = getCurrentMapClampBounds(playerX);
+  viewport.clamp({ left: bounds.left, right: bounds.right, top: -Infinity, bottom: 100 * VH });
+
+  // ====== 等待几帧确保渲染完成 ======
+  await new Promise(resolve => requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  }));
+
+  // ====== 地图切换过渡：通知可以开始淡入新场景 ======
+
+  // ====== 后台预加载下一张地图 ======
+  afterTpMap(name);
+
+  isMapTransitioning = false;
+}
+async function loadMapInfo(name = 'one01') {
+  if (!isBundleLoaded(name)) {
+    // 1. 先判断目标地图资源有没有加载
+    user.pixi.mapLoading = true;
+    // 加载目标地图资源，可传入进度回调更新加载条
+    await loadMapBundle(name, (progress) => {
+
+      user.pixi.mapLoadingProgress = progress;
+    });
+    user.pixi.mapLoading = false;
+  }
+}
+// 进入地图后，后台预加载下一张地图
+function afterTpMap(currentMapId) {
+  const nextMapMap = {
+    one01: "desert_01",
+    desert_01: "huli_01",
+    huli_01: "yu_01",
+  };
+  const nextMapId = nextMapMap[currentMapId];
+  if (nextMapId && !isBundleLoaded(nextMapId)) {
+    // 低优先级后台加载，不占用当前游戏性能
+    loadMapBundle(nextMapId).catch(() => { });
+  }
+}
+let dayNightInited = false;
+
+// 初始化昼夜滤镜（仅执行一次）
+function initOnceDayNightFilter() {
+  if (dayNightInited) return;
+  dayNightInited = true;
+  createDayNightFilter(bgContainer, app);
+  setDayNightSpeed(currentLight.night.speed ?? 0.0005);
+}
+function gameLoop() {
+  if (!activePlayer) return;
+  // ✅ 新增：控制禁用时，完全跳过移动逻辑
+  if (!canPlayerControl) {
+    // 禁用状态下，强制保持静止
+    if (activePlayer?.body) {
+      Matter.Body.setVelocity(activePlayer.body, {
+        x: 0,
+        y: activePlayer.body.velocity.y
+      });
+    }
+    // 只更新NPC和相机，不处理玩家输入
+    for (const npc of npcs) {
+      if (!npc.active) continue;
+      npc.npcAIUpdate(activePlayer);
+    }
+    cameraTarget.position.set(
+      activePlayer.body.position.x + cameraOffsetX.value * VW,
+      activePlayer.body.position.y
+    );
+    return; // 直接返回，不执行下面的玩家移动逻辑
+  }
+  const tempSpeed = 0.2 * VW;
+  // ✅ 修复：键盘 + 摇杆 双输入
+  const left = (joystick?.x < -20) || joystick?.keyLeft;
+  const right = (joystick?.x > 20) || joystick?.keyRight;
+
+  if (left) {
+    Matter.Body.setVelocity(activePlayer.body, { x: -tempSpeed, y: activePlayer.body.velocity.y });
+  } else if (right) {
+    Matter.Body.setVelocity(activePlayer.body, { x: tempSpeed, y: activePlayer.body.velocity.y });
+  }
+
+  let vx = 0;
+  if (left) vx = -activePlayer.speed;
+  else if (right) vx = activePlayer.speed;
+  else if (activePlayer.isDashing) {
+    vx = activePlayer.spine.direction === 1 ? activePlayer.speed : -activePlayer.speed;
+  }
+
   const absVX = Math.abs(vx);
-  //update1
-  activePlayer.update(vx, isOnGround, absVX, vy);
+  activePlayer.updateMotion(vx, activePlayer.isOnGround, absVX, activePlayer.body.velocity.y);
+
+  for (const npc of npcs) {
+    if (!npc.active) continue;
+    npc.npcAIUpdate(activePlayer);
+  }
+
+  cameraTarget.position.set(
+    activePlayer.body.position.x + cameraOffsetX.value * VW,
+    activePlayer.body.position.y   // 镜头也跟随电梯
+  );
+
+  const playerX = activePlayer.body.position.x;
+  const bounds = getCurrentMapClampBounds(playerX);
+  viewport.clamp({ left: bounds.left, right: bounds.right, top: -Infinity, bottom: 100 * VH });
+  //电梯
+  physicsWorker.postMessage({ type: "elevator:updateAll" });
 }
 function vnZanting() {
   emitter.off("vnZanting");
   emitter.on("vnZanting", () => {
+    if (!runner) runner = Matter.Runner.create();
     user.pixi.isPaused = !user.pixi.isPaused;
     if (user.pixi.isPaused) {
       app.ticker.stop();
       Matter.Runner.stop(runner);
-    } else {
-      app.ticker.start();
-      Matter.Runner.run(runner, engine);
-    }
+    } else app.ticker.start();
   });
 }
-// 给 viewport 的父级添加抖动
-function shakeViewport(vpParent, intensity = 10, duration = 300) {
-  const startTime = performance.now();
 
-  function step() {
-    const elapsed = performance.now() - startTime;
-
-    if (elapsed < duration) {
-      vpParent.x = (Math.random() * 2 - 1) * intensity;
-      vpParent.y = (Math.random() * 2 - 1) * intensity;
-      requestAnimationFrame(step);
-    } else {
-      vpParent.x = 0;
-      vpParent.y = 0;
-    }
-  }
-
-  requestAnimationFrame(step);
-}
-
-function ceshi5() {
-  // teshuSpine[0].playBase("donghua1", false);
-  // viewport.setZoom(0.5);
-  shakeViewport(viewport.parent, 8, 300);
-  console.log("123");
-  return;
-  // app.ticker.remove(wutituidong[0].ticker);
-  //销毁物品 rectPool.release(wuti);
-  // viewport.snapZoom({ //缩放
-  //   width: WORLD_WIDTH*0.5,   // 缩放到世界宽度为 800
-  //   time: 600,    // ms
-  //   ease: 'easeInOutSine',
-  // });
-  // 人物 worldContainer  //背景  bgContainer  //全部 app.stage
-  emitter.emit("vnZanting");
-}
 function destroyRectsByIndex(index) {
-  //删除就给 destroyRectsByIndex(数字)
   const list = wuti.get(index);
   if (!list) return;
-
-  for (let i = 0; i < list.length; i++) {
-    rectPool.release(list[i]);
-  }
-
+  for (let i = 0; i < list.length; i++) rectPool.release(list[i]);
   wuti.delete(index);
 }
 
-// --------------------
-// 冲刺函数（仅地面）
-// --------------------
-function dash(player) {
-  if (player.isDashing) return;
-  if (!isOnGround) return;
+function npcConfigUpdated() {
+  emitter.off("npcConfigUpdated");
+  emitter.on('npcConfigUpdated', (newList = []) => {
+    if (!world || !viewport || !playerPool) return;
 
-  const DASH_SPEED = activePlayer.speed * 3; // 冲刺速度
-  const DASH_TIME = 150; // 持续时间
+    updateNPCPool(newList, playerPool, WORLD_WIDTH, VH, Matter, world, app, currentGroundY, defaultMap.TopMap)
 
-  anniu.isDashCoolingDown = true;
-  player.isDashing = true;
-  const jiasu = activePlayer.speed * 3;
-  activePlayer.speed += jiasu;
-  elapsed1 = 0;
-  animate2();
-  // ⭐ 使用角色当前面朝方向
-  const dir = player.spine.direction || 1;
-  // 直接施加冲刺速度
-  Matter.Body.setVelocity(player.body, {
-    x: dir * DASH_SPEED,
-    y: player.body.velocity.y,
+    syncAllNPC(newList, Matter, viewport, currentGroundY); // 正常保留
+    if (user.pixi.activePlayer) playerUpdate(Matter, activePlayer, viewport);
   });
+}
 
-  // 视觉动感模糊
-  const motionBlur = new MotionBlurFilter({
-    velocity: [dir * 25, 0],
-    kernelSize: 15,
-  });
+// 🎮 禁用玩家所有移动/跳跃（战斗开始时调用）
+function disablePlayerControl() {
+  if (!canPlayerControl) return; // 已经禁用直接返回，避免重复执行
+  canPlayerControl = false;
+  user.pixi.activePlayer = {
+    hp: activePlayer.data.data.hp,
+    maxHp: activePlayer.data.data.maxHp,
+    x: activePlayer.body.position.x,
+    y: activePlayer.body.position.y,
+    speed: activePlayer.speed,
+    juese: activePlayer.data.juese
+  };
+  user.pixi.app = markRaw(worldContainer)
+  const npcData = npcs.filter((item) => item.data.mapId === "desert_02");
+  user.pixi.npcInstance = markRaw(npcData)
 
-  player.spine.spine.filters = [motionBlur];
-
-  setTimeout(() => {
-    player.isDashing = false;
-
-    // 冲刺结束后减速（可选）
-    Matter.Body.setVelocity(player.body, {
-      x: player.body.velocity.x * 0.5,
-      y: player.body.velocity.y,
+  showAllEnemyHpBar()
+  if (activePlayer?.body) {
+    Matter.Body.setVelocity(activePlayer.body, {
+      x: 0,  // 水平速度直接清零
+      y: activePlayer.body.velocity.y // 垂直速度保留（比如正在跳跃就自然下落）
     });
-    activePlayer.speed -= jiasu;
-    player.spine.spine.filters = null;
-  }, DASH_TIME);
-}
-
-//最近的敌人
-function fireAtNearestEnemy() {
-  if (npcs.length > 0) {
-    const aliveEnemies = npcs.filter((e) => e.active);
-    if (aliveEnemies.length === 0) return; // 没有敌人直接返回
-    let nearest = aliveEnemies[0];
-    let minDist = Math.abs(aliveEnemies[0].view.x - activePlayer.spine.view.x);
-
-    for (let e of aliveEnemies) {
-      const dist = Math.abs(e.view.x - activePlayer.spine.view.x);
-      if (dist < minDist) {
-        minDist = dist;
-        nearest = e;
-      }
-    }
-    // ===== 强制调整玩家方向 =====
-    if (nearest.view.x > activePlayer.spine.view.x) {
-      activePlayer.spine.direction = 1; // 朝右
-      activePlayer.char.setDirection(1);
-    } else {
-      activePlayer.spine.direction = -1; // 朝左
-      activePlayer.char.setDirection(-1);
-    }
+    // 如果需要连跳跃也立刻中断，y也清零：y: 0
   }
-}
-// ==================== 获取最近敌人 ====================
-function getNearestEnemy(sourceX, sourceY, enemies, maxDistance = 51 * VW()) {
-  const alive = enemies.filter((e) => e.active);
-  if (alive.length === 0) return null;
-
-  let nearest = null;
-  let minDist = Infinity;
-  for (let e of alive) {
-    const dist = Math.hypot(e.view.x - sourceX, e.view.y - sourceY);
-    if (dist < minDist) {
-      nearest = e;
-      minDist = dist;
-    }
+  if (activePlayer?.spine) {
+    activePlayer.spine.playIdle();
+    // 强制更新一次运动状态，确保动画生效
+    activePlayer.updateMotion(0, activePlayer.isOnGround, 0, 0);
   }
-
-  // 距离超过 maxDistance 就返回 null
-  if (minDist > maxDistance) return null;
-
-  return nearest;
+  playerInput.value = {
+    left: false,
+    right: false,
+    jump: false
+  };
 }
-let attackDelayExtra = false; //无人机攻击延迟
-function createDrone() {
-  const height = 8 * VH(); // 高度 9 VH
-  const width = height * (16 / 9); // 宽度 = 高度 × 16/9
-  drone = rectPool.acquire(
-    activePlayer.mainBody.position.x,
-    activePlayer.mainBody.position.y - 5 * VH(),
-    width,
-    height,
-    {
-      texture: "drop",
-      create: true,
+// 🎮 恢复玩家所有移动/跳跃（战斗结束时调用）
+function enablePlayerControl() {
+  emitter.off("enablePlayerControl");
+  emitter.on('enablePlayerControl', async () => {
+    if (canPlayerControl) return;
+
+    // 2. 入场：暗角从 1 消失到 0（战斗场景渐显）
+
+    canPlayerControl = true;
+    user.pixi.fight = false;
+    user.pixi.gameUi = false
+
+    // ✅ 【关键】恢复时强制清空所有输入状态，彻底解决残留
+    if (joystick) {
+      joystick.keyLeft = false;
+      joystick.keyRight = false;
+      joystick.x = 0; // 摇杆也强制归位
     }
-  );
-  const droneAttackTimer = createTimer(3000, () => {
-    if (attackDelayExtra) return; // 延迟期间不触发
-    return;
-    updateDroneAttack(); // 无人机攻击
+    playerInput.value = {
+      left: false,
+      right: false,
+      jump: false
+    };
+
+    // ✅ 强制清零玩家速度，防止恢复瞬间还有惯性
+    if (activePlayer?.body) {
+      Matter.Body.setVelocity(activePlayer.body, { x: 0, y: activePlayer.body.velocity.y });
+    }
+
+    // ✅ 立刻给Worker发一次静止输入，确保Worker那边也彻底清空
+    physicsWorker.postMessage({
+      type: "input",
+      data: { left: false, right: false, jump: false },
+      VW: VW
+    });
+    hideAllEnemyHpBar()
+    removeNPCsByMapId("desert_02", Matter, world, app);
+    user.pixi.activePlayer = null
+    const map = user.pixi.mapDataList.find(m => m.id === "one01");
+    WORLD_WIDTH = map.realWidth;
+    const tpPosition = map.offsetX + WORLD_WIDTH * 0.97
+    await TpMap("one01", tpPosition);
   });
-
-  const droneTimerFn = createTimer(25, updateDrone);
-  droneTicker = (ticker) => {
-    const deltaMs = ticker.deltaMS;
-    droneAttackTimer(deltaMs);
-    droneTimerFn(deltaMs);
-  };
-  app.ticker.add(droneTicker);
 }
-// 更新无人机位置
-function updateDrone() {
-  const facingDir = activePlayer.spine.direction;
-
-  // ===== 判断速度和浮动幅度 =====
-  const normalSpeed = 0.03;
-  const slowSpeed = 0.001; // 明显减缓
-  const followSpeed = dropActive ? slowSpeed : normalSpeed;
-
-  // 浮动幅度
-  const normalFloatX = DEVICE_WIDTH * 0.003;
-  const normalFloatY = DEVICE_HEIGHT * 0.003;
-  const slowFloatX = DEVICE_WIDTH * 0.001; // dropActive 时浮动幅度变小
-  const slowFloatY = DEVICE_HEIGHT * 0.001;
-
-  const floatX =
-    Math.sin(performance.now() / 600) *
-    (dropActive ? slowFloatX : normalFloatX);
-  const floatY =
-    Math.sin(performance.now() / 700) *
-    (dropActive ? slowFloatY : normalFloatY);
-
-  // ===== 基础目标位置（玩家位置 + 偏移） =====
-  const baseX = activePlayer.mainBody.position.x + facingDir * (2 * VW());
-  const baseY =
-    activePlayer.mainBody.position.y - activePlayer.playerH - 7 * VH();
-
-  // ===== 平滑跟随，产生拖尾 =====
-  const newX =
-    drone.view.position.x +
-    (baseX - drone.view.position.x) * followSpeed +
-    floatX;
-  const newY =
-    drone.view.position.y +
-    (baseY - drone.view.position.y) * followSpeed +
-    floatY;
-
-  // ===== 更新显示 + 刚体 =====
-  drone.reset(newX, newY);
-}
-
-// 无人机攻击
-function updateDroneAttack() {
-  const target = getNearestEnemy(
-    activePlayer.spine.view.x,
-    activePlayer.spine.view.y,
-    npcs
-  );
-  if (target === null) return;
-  const skillShanghai = skillSearch("被动");
-  const durationTime = skillShanghai.skill.durationTime; //激光持续时间
-  // 设置本次激光伤害
-  laser.damage = skillShanghai.shanghai;
-  const start = {
-    x: drone.view.position.x,
-    y: drone.view.position.y,
-  };
-  const targetX = target.body.position.x;
-  const targetY = target.body.position.y;
-  // ===== 激光终点（朝敌人方向，拉一条很长的线）=====
-  const dx = targetX - start.x;
-  const dy = targetY - start.y;
-  const len = Math.hypot(dx, dy) || 1;
-
-  const maxLength = DEVICE_WIDTH * 2; // 激光最大长度
-  const end = {
-    x: start.x + (dx / len) * maxLength,
-    y: start.y + (dy / len) * maxLength,
-  };
-  //startContinuous
-  const sprite = playAnimation(
-    "激光1",
-    {
-      x: drone.view.position.x,
-      y: drone.view.position.y + 2.5 * VH(),
-    },
-    true
-  );
-  sprite.height = 5 * VH();
-  laser.shootOnce(
-    //1秒触发6次
-    start,
-    end,
-    {
-      spriteFactory: sprite,
-      duration: durationTime,
-    }
-  );
-  dropActive = true;
-  setTimeout(() => {
-    dropActive = false; //无人机可动
-  }, durationTime);
-}
-
-//NPC区域
-/* ==================== NPC 对象池（无碰撞） ==================== */
-const MAX_NPCS = 2;
-const npcPool = [];
-const npcs = []; // 当前激活 NPC
-
-// 外部定义 NPC 数据数组
-let npcDataList;
-// NPC 初始化时为每个 NPC 生成随机跟随距离
-function assignNPCRandomRanges(npc) {
-  if (npc.data.type === "melee") {
-    // 近战攻击范围，随机在 5% ~ 8% 屏幕宽度
-    npc.data.attackRange = DEVICE_WIDTH * (0.05 + Math.random() * 0.03);
-  } else if (npc.data.type === "ranged") {
-    // 远程安全距离范围，随机化避免重合
-    npc.data.minDist = DEVICE_WIDTH * (0.25 + Math.random() * 0.03); // 25%~28%
-    npc.data.maxDist = DEVICE_WIDTH * (0.3 + Math.random() * 0.03); // 30%~33%
-  }
-}
-function initNPCPool() {
-  const dataLen = npcDataList.length;
-  for (let i = 0; i < MAX_NPCS; i++) {
-    // ⭐ 用余数循环取 1 2 1 2 1 2
-    const npcData = { ...npcDataList[i % dataLen] };
-    //NPC生成位置
-    const activeNpc = playerPool.acquire(
-      WORLD_WIDTH * npcDataList[i].x,
-      npcDataList[i].y * VH() || 80 * VH(),
-      npcData
-    );
-
-    activeNpc.view.visible = false;
-    activeNpc.active = false;
-
-    npcPool.push(activeNpc);
-  }
-}
-//激活NPC
-function activateNPC(xPercent) {
-  const npc = npcPool.find((n) => !n.active);
-  if (!npc) return null;
-  assignNPCRandomRanges(npc);
-  npc.reset(xPercent);
-  npcs.push(npc);
-}
-
 onBeforeUnmount(() => {
+  app.ticker.stop();
   Matter.Runner.stop(runner);
-  Matter.World.clear(world);
+  Matter.World.clear(world, false);
   Matter.Engine.clear(engine);
-  app.destroy(true);
+  Matter.Events.off(engine, "collisionStart");
+  Matter.Events.off(engine, "collisionEnd");
+  npcs.forEach(npc => npc.deactivate?.())
+  npcs.length = 0
+  npcPool.length = 0
+  floatingMarks.length = 0
+  destroyDayNightFilter();
+  if (isReflectionActive()) removeReflectionFilter()
+  if (isGodrayActive()) removeGodrayLight()
+  app.destroy(true, { children: true });
+  // 销毁Worker释放线程
+  physicsWorker.terminate();
+  destroyDayNightFilter();
 });
 </script>
 
 <style scoped>
 :deep(.el-dialog__header) {
   padding-bottom: 0;
+}
+
+:deep(.el-overlay-dialog) {
+  bottom: auto;
 }
 </style>

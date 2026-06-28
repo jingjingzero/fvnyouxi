@@ -6,11 +6,37 @@ export function createSpineBoy(options = {}, data) {
 
   const view = new Container();
   const dirView = new Container();
-  const spine = Spine.from({
+  const spine = new Spine({
     skeleton: `${data.juese}_skel`,
     atlas: `${data.juese}_atlas`,
   });
 
+  spine.state.timeScale = 1;
+
+  const skeleton = spine.skeleton
+  const state = spine.state
+  const skins = skeleton.data.skins
+
+  if (skins.length > 1) {
+
+    const realSkins = skins.filter(v => v.name !== "default")
+
+    const skinName = data.skin
+
+    // 设置皮肤
+    if (skinName && skeleton.data.findSkin(skinName)) {
+
+      skeleton.setSkinByName(skinName)
+
+    } else if (realSkins.length > 0) {
+
+      skeleton.setSkin(realSkins[0])
+
+    }
+
+    // ⭐ 正确刷新方式（关键）
+    state.apply(skeleton)
+  }
   spine.state.data.defaultMix = 0.12;
 
   dirView.addChild(spine);
@@ -22,13 +48,7 @@ export function createSpineBoy(options = {}, data) {
   spine.state.addListener({
     event(entry, event) {
       if (entry.trackIndex === 1 && event.data.name === "shoot") {
-        if (onShoot) {
-          onShoot({
-            x: view.x,
-            y: view.y,
-            direction: dirView.scale.x
-          });
-        }
+
       }
     }
   });
@@ -48,9 +68,10 @@ export function createSpineBoy(options = {}, data) {
   let currentBase = null;
 
   function setBase(name, loop = true) {
+
+
     if (!name) return;
     if (currentBase === name) return;
-
     currentBase = name;
     spine.state.setAnimation(0, name, loop);
   }
@@ -108,7 +129,31 @@ export function createSpineBoy(options = {}, data) {
     },
 
     update(delta) {
-      spine.update(delta);
+
+    },
+    destroy() {
+      try {
+
+        spine.state.clearTracks();
+        spine.state.clearListeners?.();
+
+        view.removeChildren();
+
+        spine.destroy({
+          children: true,
+        });
+
+        dirView.destroy({
+          children: true,
+        });
+
+        view.destroy({
+          children: true,
+        });
+
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 }

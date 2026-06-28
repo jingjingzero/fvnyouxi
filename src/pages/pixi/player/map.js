@@ -1,331 +1,204 @@
-// src/data/mapData.js
+import { log2 } from "pixi.js";
 
 /**
  * 所有地图定义都在这里
  * 每个 map 是一个函数，接收 WORLD_WIDTH，返回地图数据
  */
 const MAPS = {
+    // ========================
+    // 区域 1：初始地图
+    // ========================
     one01({ WORLD_WIDTH, VH = v => v, VW = v => v }) {
+        const OFFSET = 0; // 👈 定义一个变量
+        const OFFSETY = 76;//地面位置
         return {
             id: "one01",
             name: "第一章地图",
-            //矩形物体
+            effects: {
+                reflection: {
+                    enable: true,             // 是否开启水面
+                    waterWorldY: 90 * VH      // 水面高度（世界坐标）
+                },
+                // 以后还能加：bloom, blur, fog 等
+            },
+            lightSource: {
+                x: WORLD_WIDTH * 0.5, // 光源X世界坐标
+                y: 60 * VH,           // 光源Y世界坐标（越高影子偏移越大）
+                offsetScale: 0.02,  // 影子偏移强度
+                show: true,
+                night: {
+                    enable: true, // true=进图自动开启昼夜滤镜 false=关闭
+                    speed: 0.0015 // 昼夜流逝速度
+                }
+            },
+            TopMap: 0,//地面位置
+            backgroundImages: ['map1_01', 'map1_02'], //【地图背景】
+            offsetX: OFFSET, // 区域1在 X=0 位置
+            currentGroundY: OFFSETY,
+            WORLD_WIDTH: WORLD_WIDTH,
             rectPoolArr: [
-                //地板1黑色
-                {
-                    x: WORLD_WIDTH * 0.5,
-                    y: 100 * VH(),
-                    w: WORLD_WIDTH,
-                    h: 11 * VH(),
-                    color: undefined,
-                    withBody: true, //是否有碰撞体积
-                    create: false, //是否显示矩形
-                },
-                //左墙
-                {
-                    x: 0,
-                    y: 100 * VH(),
-                    w: WORLD_WIDTH * 0.002,
-                    h: 200 * VH(),
-                    color: undefined,
-                    withBody: true, //是否有碰撞体积
-                    create: true, //是否显示矩形
-                },
-                //右墙
-                {
-                    x: WORLD_WIDTH,
-                    y: 100 * VH(),
-                    w: WORLD_WIDTH * 0.002,
-                    h: 200 * VH(),
-                    color: undefined,
-                    withBody: true, //是否有碰撞体积
-                    create: true, //是否显示矩形
-                },
-                //无碰撞在角色前面
-                // {
-                //     x: WORLD_WIDTH * 0.2,
-                //     y: 82.5 * VH(),
-                //     w: 20 * VH(),
-                //     h: 15 * VH(),
-                //     color: undefined,
-                //     withBody: false, //是否有碰撞体积
-                //     create: true, //是否显示矩形
-                //     zIndex: 100, //z轴高度
-                // },
-                {
-                    x: WORLD_WIDTH * 0.97,
-                    y: 88 * VH(),
-                    w: 25 * VH(),
-                    h: 50 * VH(),
-                    withBody: true, //是否有碰撞体积
-                    create: false, //是否显示矩形
-                    zIndex: 0, //z轴高度
-                    tietu: null,
-                    movable: false,//是否可推动
-                    // isSensor:true,//true无碰撞
-                },
-         
+                { x: WORLD_WIDTH * 0.5, y: 100 * VH, w: WORLD_WIDTH, h: 11 * VH, color: undefined, withBody: true, create: false },
+                { x: 0, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: false },
+                { x: WORLD_WIDTH, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: false },
+                // { x: WORLD_WIDTH * 0.97, y: 88 * VH, w: 25 * VH, h: 50 * VH, withBody: true, create: false, zIndex: 0, tietu: null, movable: false },//障碍物
             ],
-            //矩形区域触发
             TriggerAreaArr: [
-                // //无碰撞在角色前面
-                // {
-                //     x: WORLD_WIDTH * 0.15,
-                //     y: 82.5 * VH(),
-                //     w: 12 * VH(),
-                //     h: 20 * VH(),
-                //     color: undefined,
-                //     withBody: true, //是否有碰撞体积
-                //     create: true, //是否显示矩形
-                //     zIndex: 100, //z轴高度
-                //     Area: {
-                //         label:'playerBottom',
-                //         type:"tips",
-                //         message:"前方可能有敌人",
-                //         shiti:false
-                //     },//区域检测，传感器
-                // },
-                // {
-                //     x: WORLD_WIDTH * 0.15,
-                //     y: 89 * VH(),
-                //     w: 15 * VH(),
-                //     h: 10 * VH(),
-                //     color: undefined,
-                //     withBody: true, //是否有碰撞体积
-                //     create: true, //是否显示矩形
-                //     zIndex: 100, //z轴高度
-                //     movable: false,//是否可推动
-                //     isSensor: false,
-                //     label: {
-                //         name: "电梯",
-                //         type: true,
-                //         ticker:null
-                //     },
-                // },
-            ],
-            trianglePoolArr: [
+                { x: WORLD_WIDTH * 0.85, y: 89 * VH, w: 15 * VH, h: 10 * VH, color: undefined, withBody: true, create: true, zIndex: -1, movable: false, isSensor: false, label: { name: "电梯", type: true, ticker: null } },
+                //  { x: WORLD_WIDTH * 0.75, y: 84 * VH, w: 15 * VH, h: 10 * VH, color: undefined, withBody: true, create: true, zIndex: 100, movable: false, isSensor: false, label: { name: "电梯", type: true, ticker: null } },
                 {
-                    x: WORLD_WIDTH * 0.3,
-                    y: 88 * VH(),
-                    w: 20 * VH(),
-                    h: 10 * VH(),
-                    color: undefined,
-                    withBody: true, //是否有碰撞体积
-                    create: true, //是否显示矩形
-                    zIndex: 0, //z轴高度
-                },
+                    x: WORLD_WIDTH * 0.99,
+                    y: 86 * VH,
+                    w: 4 * VH,
+                    h: 12 * VH,
+                    label: "teleportTrigger", // 👈 自定义标记，用来识别它
+                    enableAABB: 1,
+                    name: "TP1",
+                    teleportToMap: "desert_01",    // 目标地图ID
+                }
             ],
-            circlePoolArr: [
-                // {
-                //     x: WORLD_WIDTH * 0.25,
-                //     y: 88 * VH(),
-                //     r: 10 * VH(),
-                //     color: undefined,
-                //     withBody: true, //是否有碰撞体积
-                //     create: true, //是否显示矩形
-                //     zIndex: 0, //z轴高度
-                // },
-            ],
-            //敌人
+            trianglePoolArr: [],
+            circlePoolArr: [],
             npcDataList: [
                 {
-                    type: "melee",//近战
-                    juese:"mao",
-                    player: 2,
-                    maxHp: 5,
-                    currentHp: 5,
-                    x: 0.9,
-                    TopH:5,
-                    width:10,
-                    height:9,
-                    speed:0.22,
-                    aiMode:"follow"
+                    id: 1,
+                    type: "ranged", juese: "two219", player: 3, xuetiaoPosition: 21, x: 0.7, speed: 0.3, data: {
+                        name: '史莱姆',
+                        hp: 1500,
+                        maxHp: 1500,
+                        baseSpeed: 90,
+                        speed: 90,
+                        camp: 'enemy',
+                        position: 1,
+                        baseArmor: 50,
+                        armor: 50,
+                        baseAttack: 70,
+                        attack: 70,
+                        baseLuck: 10,
+                        luck: 10
+                    }
                 },
+                // { type: "ranged", juese: "huli", player: 2, maxHp: 500, currentHp: 500, xuetiaoPosition: 21, x: 0.64, TopH: 9, speed: 0.3 },
+                // { type: "ranged", juese: "jinmao", player: 2, maxHp: 500, currentHp: 500, xuetiaoPosition: 21, x: 0.7, TopH: 9, speed: 0.3 },
+                // { type: "ranged", juese: "yu", player: 2, maxHp: 500, currentHp: 500, xuetiaoPosition: 21, x: 0.69, TopH: 9, speed: 0.3 },
+            ],
+            wenhaoHudong: [
                 {
-                    type: "ranged",//远程
-                    juese:"spineboy",
-                    player: 2,
-                    maxHp: 5,
-                    currentHp: 5,
-                    x: 0.8,
-                    TopH:10,
-                    speed:0.3,
+                    x: WORLD_WIDTH * 0.8, y: 71.9 * VH, show: true, isInteractive: true,
+                    wuxian: -1,//可点击次数，-1可以无限点击
+                    isFloatEnable: true,//是否会上下浮动
                 },
             ],
-            //特殊物品
-            teshuData:[
-                {
-                    x: WORLD_WIDTH * 0.776,
-                    y: 71.9 * VH(),
-                    texture:"jingdao",
-                    show:true,
-                    isInteractive:true,//未互动
-                    interactRange:20*VW(),//互动范围
-                },
-            ],
-            //问号互动
-            wenhaoHudong:[
-                {
-                    x: WORLD_WIDTH * 0.9,
-                    y: 71.9 * VH(),
-                    texture:"jingdao",
-                    show:true,
-                    isInteractive:true,//未互动
-                    interactRange:25*VW(),//互动范围
-                },
-            ]
+
+            // 出生点
+            playerSpawnX: OFFSET + WORLD_WIDTH * 0.9,
+            playerSpawnY: OFFSETY * VH,
         };
     },
 
+    // ========================
+    // 区域 2：沙漠地图
+    // ========================
     desert_01({ WORLD_WIDTH, VH = v => v, VW = v => v }) {
+        const OFFSET = 250 * VW; // 👈 定义一个变量
+        const OFFSETY = 80;//地面位置
+
         return {
             id: "desert_01",
             name: "沙漠 · 炙热",
-            objects: [
-                {
-                    type: "ground",
-                    x: WORLD_WIDTH / 2,
-                    y: 92 * VH(),
-                    width: WORLD_WIDTH,
-                    height: 12 * VH(),
-                },
-                {
-                    type: "spike",
-                    x: WORLD_WIDTH * 0.5,
-                    y: 90 * VH(),
-                    width: 16 * VW(),
-                    height: 6 * VH(),
-                },
-                {
-                    type: "goal",
-                    x: WORLD_WIDTH * 0.95,
-                    y: 85 * VH(),
-                },
+            lightSource: {
+                x: OFFSET + WORLD_WIDTH * 0.5, // 光源X世界坐标
+                y: 60 * VH,           // 光源Y世界坐标（越高影子偏移越大）
+                offsetScale: 0,     // 影子偏移强度
+                show: false,
+                night: {
+                    enable: false,
+                }
+            },
+            TopMap: 3.5,//地面位置
+            backgroundImages: ['wall_01'], //【地图背景】
+            offsetX: OFFSET,// 区域2 放在 6000 位置，完全不重叠
+            currentGroundY: OFFSETY,
+            WORLD_WIDTH: WORLD_WIDTH,
+            rectPoolArr: [
+                { x: WORLD_WIDTH * 0.5, y: 100 * VH, w: WORLD_WIDTH, h: 11 * VH, color: undefined, withBody: true, create: false },
+                { x: 0, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: true },
+                { x: WORLD_WIDTH, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: true },
             ],
+            TriggerAreaArr: [
+                {
+                    x: WORLD_WIDTH * 0.005,
+                    y: 89 * VH,
+                    w: 4 * VH,
+                    h: 10 * VH,
+                    label: "teleportTrigger", // 👈 自定义标记，用来识别它
+                    enableAABB: 1,
+                    name: "TP0",
+                    teleportToMap: "one01",    // 目标地图ID
+                }
+            ],
+            trianglePoolArr: [],
+            circlePoolArr: [],
+            npcDataList: [
+            ],
+            wenhaoHudong: [],
+
+            // 出生点
+            playerSpawnX: OFFSET + WORLD_WIDTH * 0.02,
+            playerSpawnY: OFFSETY * VH,
+        };
+    },
+    desert_02({ WORLD_WIDTH, VH = v => v, VW = v => v }) {
+        const OFFSET = 900 * VW; // 👈 定义一个变量
+        const OFFSETY = 80;//地面位置
+
+        return {
+            id: "desert_02",
+            name: "沙漠 · 炙热",
+            lightSource: {
+                x: OFFSET + WORLD_WIDTH * 0.5, // 光源X世界坐标
+                y: 60 * VH,           // 光源Y世界坐标（越高影子偏移越大）
+                offsetScale: 0,     // 影子偏移强度
+                show: false,
+                night: {
+                    enable: false,
+                }
+            },
+            TopMap: 3.5,//地面位置
+            backgroundImages: ['wall_02'], //【地图背景】
+            offsetX: OFFSET,// 区域2 放在 6000 位置，完全不重叠
+            currentGroundY: OFFSETY,
+            WORLD_WIDTH: WORLD_WIDTH,
+            rectPoolArr: [
+                { x: WORLD_WIDTH * 0.5, y: 100 * VH, w: WORLD_WIDTH, h: 11 * VH, color: undefined, withBody: true, create: false },
+                { x: 0, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: true },
+                { x: WORLD_WIDTH, y: 100 * VH, w: WORLD_WIDTH * 0.002, h: 200 * VH, color: undefined, withBody: true, create: true },
+            ],
+            TriggerAreaArr: [
+            ],
+            trianglePoolArr: [],
+            circlePoolArr: [],
+            npcDataList: [
+
+            ],
+            wenhaoHudong: [],
+
+            // 出生点
+            playerSpawnX: OFFSET + WORLD_WIDTH * 0.1,
+            playerSpawnY: OFFSETY * VH,
         };
     },
 
-    boss_01({ WORLD_WIDTH, VH = v => v, VW = v => v }) {
-        return {
-            id: "boss_01",
-            name: "Boss · 决战",
-            objects: [
-                {
-                    type: "ground",
-                    x: WORLD_WIDTH / 2,
-                    y: 96 * VH(),
-                    width: WORLD_WIDTH,
-                    height: 8 * VH(),
-                },
-                {
-                    type: "boss",
-                    x: WORLD_WIDTH * 0.7,
-                    y: 80 * VH(),
-                },
-            ],
-        };
-    },
 };
-/**
- * 获取地图数据
- */
 export function getMapData(mapId, params) {
     const mapFactory = MAPS[mapId];
-
     if (!mapFactory) {
         console.warn(`[Map] 未找到地图: ${mapId}`);
-        return {
-            id: mapId,
-            name: "unknown",
-            objects: [],
-        };
+        return { id: mapId, name: "unknown", objects: [] };
     }
-
+    // 🔥 删掉所有缓存！每次都重新执行！
     return mapFactory(params);
 }
 
-/**
- * （可选）获取所有地图 ID
- */
 export function getAllMapIds() {
     return Object.keys(MAPS);
 }
-//动画
-export const animationConfigs = {
-    "爆炸": {
-        textureKey: "baozha",
-        frameW: 200,
-        frameH: 200,
-        gapX: 10,
-        gapY: 10,
-        nCols: 3,
-        nRows: 2,
-        frameTime: 4,
-        loop: false,
-        loopStartIndex: 0,
-        offsetX: 10,
-        offsetY: 10,
-        widthVH: 10,   // 5 * VH()
-        heightVH: 10,  // 5 * VH()
-    },
-    "子弹": {
-        textureKey: "zidan",
-        frameW: 200,
-        frameH: 100,
-        gapX: 20,
-        gapY: 20,
-        nCols: 3,
-        nRows: 3,
-        frameTime: 10,
-        loop: true,
-        loopStartIndex: 1,
-        offsetX: 0,
-        offsetY: 0,
-        widthVH: 15,    // 1 * VH()
-        heightVH: 7.5, // 0.5 * VH()
-        visible: false // 默认隐藏
-    },
-    "激光": {
-        textureKey: "jiguang",
-        frameW: 600,
-        frameH: 200,
-        gapX: 10,
-        gapY: 10,
-        nCols: 3,
-        nRows: 2,
-        frameTimes: [
-            0.02,
-            0.02,
-            0.03, // 蓄力
-            0.03,
-            0.12,
-            0.12, // 飞行
-        ],
-        loop: true,
-        loopStartIndex: 4,
-        offsetX: 0,
-        offsetY: 0,
-        visible: true // 默认隐藏
-    },
-    "激光1": {
-        textureKey: "jiguang",
-        frameW: 600,
-        frameH: 200,
-        gapX: 10,
-        gapY: 10,
-        nCols: 3,
-        nRows: 2,
-        frameTimes: [
-            0.02,
-            0.02,
-            0.02, // 蓄力
-            0.02,
-            0.02,
-            0.05, // 飞行
-        ],
-        loop: false,
-        offsetX: 0,
-        offsetY: 0,
-        visible: true // 默认隐藏
-    }
-};

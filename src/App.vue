@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import {onMounted } from "vue";
 import LandscapeOnly from "./zujian/LandscapeOnly.vue";
 
 const videos = import.meta.glob("@/assets/lihui/*.webm", { eager: true });
