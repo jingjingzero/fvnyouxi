@@ -19,9 +19,11 @@ const videos2 = import.meta.glob("@/assets/donghua/*.webm", { eager: true });
 const icons = import.meta.glob("@/assets/icon/*.{png,webp}", { eager: true });
 const bgImg = import.meta.glob("@/assets/images/*.{webp}", { eager: true });
 const teshu = import.meta.glob("@/assets/teshu/*.{webp}", { eager: true });
-
+const head = import.meta.glob("@/assets/fullBody/head/*.{webp}", { eager: true });
+const body = import.meta.glob("@/assets/fullBody/fullbody/*.{webp}", { eager: true });
+const daoju = import.meta.glob("@/assets/daoju/*.{webp}", { eager: true });
 // 合并资源对象
-const allAssets = { ...videos, ...videos2, ...icons, ...bgImg,...teshu };
+const allAssets = { ...videos, ...videos2, ...icons, ...bgImg,...teshu,...head,...body,...daoju };
 
 onMounted(async () => {
   // 2️⃣ 获取所有 URL 并过滤 undefined
@@ -33,8 +35,8 @@ onMounted(async () => {
 
   const start = performance.now();
 
-  // 3️⃣ 并行加载所有资源
-  await Promise.all(
+  // 3️⃣ 并行加载所有资源（容错：单个失败不影响整体）
+  const results = await Promise.allSettled(
     urls.map(
       (url) =>
         new Promise((resolve, reject) => {
@@ -42,20 +44,30 @@ onMounted(async () => {
             const video = document.createElement("video");
             video.src = url;
             video.preload = "auto";
-            video.oncanplaythrough = resolve;
-            video.onerror = reject;
+            video.oncanplaythrough = () => resolve(url);
+            video.onerror = () => reject(new Error(`视频加载失败: ${url}`));
           } else {
             const img = new Image();
             img.src = url;
-            img.onload = resolve;
-            img.onerror = reject;
+            img.onload = () => resolve(url);
+            img.onerror = () => reject(new Error(`图片加载失败: ${url}`));
           }
         })
     )
   );
 
   const end = performance.now();
-  console.log(`✅ 所有资源加载完成，用时 ${((end - start) / 1000).toFixed(2)} 秒`);
+  
+  // 统计成功/失败数量
+  const successCount = results.filter(r => r.status === 'fulfilled').length;
+  const failedResults = results.filter(r => r.status === 'rejected');
+  
+  console.log(`✅ 资源预加载完成，成功 ${successCount}/${urls.length}，用时 ${((end - start) / 1000).toFixed(2)} 秒`);
+  
+  if (failedResults.length > 0) {
+    console.warn(`⚠️ 有 ${failedResults.length} 个资源加载失败:`);
+    failedResults.forEach(r => console.warn(r.reason));
+  }
 });
 </script>
 

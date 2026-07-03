@@ -17,17 +17,7 @@
                         </div>
                     </div>
 
-                    <!-- 所有卡牌 -->
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">所有卡牌</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <div v-for="c in allCards" :key="c.name"
-                                class="rounded-md bg-gray-800 px-3 py-2 text-sm cursor-pointer hover:bg-gray-700 transition-colors"
-                                @click="openCardInfo(c)">
-                                {{ c.name }}
-                            </div>
-                        </div>
-                    </div>
+                
                 </div>
             </template>
             <template v-else-if="value === '友军信息'">
@@ -41,7 +31,7 @@
     </div>
     <!-- 卡牌详情弹窗 -->
     <el-dialog v-model="showInfo" title="卡牌详情" width="600px" top="5vh" :z-index="9999" class="h-90vh! bg-[#f5f7fa]!">
-        <div v-if="currentCard" class="text-black flex gap-5">
+        <div v-if="currentCard" class="text-black flex gap-5 mt-3vh">
 
             <!-- 左侧：卡牌容器（130×198，和你要的大小一致） -->
             <div class="w-[130px] h-[198px] relative rounded-lg overflow-hidden ">
@@ -69,13 +59,13 @@
             <!-- 右侧：属性 -->
             <div class="flex-1">
                 <!-- 卡牌详细说明 -->
-                <div class="text-sm font-bold mb-1 ">卡牌详细说明</div>
+                <div class="text-sm font-bold  ">卡牌介绍</div>
                 <div class="text-12px bg-gray-100 p-2.5 rounded mb-4 leading-relaxed iconfont2 text-#333">
                     {{ currentCard.desc || '暂无描述' }}
                 </div>
 
                 <!-- 进化效果 -->
-                <div class="mt-2">
+                <div>
                     <div class="text-sm font-bold mb-2">进化效果</div>
                     <div class="flex flex-wrap gap-1">
                         <el-popover v-for="(evo, idx) in currentCard.evoOptions" :key="idx" placement="bottom"
@@ -184,6 +174,11 @@ watch(() => props.visible, async (newVal) => {
     showInfo.value = false
     currentCard.value = null
   }
+})
+
+// 暴露方法给父组件调用
+defineExpose({
+  openCardInfo
 })
 
 

@@ -283,6 +283,56 @@ export function getNightFactor() {
     return Math.sin(getDayTime() * Math.PI);
 }
 
+/** 直接设置为白天 */
+export function setDay() {
+    setDayTime(0);
+    // 立即更新所有相关滤镜
+    updateDayNightFiltersImmediate();
+}
+
+/** 直接设置为夜晚 */
+export function setNight() {
+    setDayTime(0.5); // sin(0.5*π)=1，最黑
+    // 立即更新所有相关滤镜
+    updateDayNightFiltersImmediate();
+}
+
+/** 暂停自动昼夜变化 */
+export function pauseDayNightCycle() {
+    dayTimeSpeed = 0;
+}
+
+/** 恢复自动昼夜变化（默认速度） */
+export function resumeDayNightCycle(speed = 0.0005) {
+    dayTimeSpeed = speed;
+}
+
+/** 立即更新所有和昼夜相关的滤镜（体积光、倒影等） */
+function updateDayNightFiltersImmediate() {
+    const darkFactor = getNightFactor();
+    
+    // 更新体积光颜色和亮度
+    if (isGodrayActive()) {
+        const filter = getGodrayFilter();
+        const r = Math.floor(lerp(255, 160, darkFactor));
+        const g = Math.floor(lerp(255, 184, darkFactor));
+        const b = Math.floor(lerp(255, 255, darkFactor));
+        filter.color = (r << 16) + (g << 8) + b;
+        filter.gain = lerp(0.75, 0.5, darkFactor);
+    }
+    
+    // 更新倒影透明度
+    if (isReflectionActive()) {
+        const refFilter = getReflectionFilter();
+        const alphaMin = lerp(0.5, 0.65, darkFactor);
+        const alphaMax = lerp(0.7, 0.9, darkFactor);
+        refFilter.alpha = [alphaMin, alphaMax];
+    }
+    
+    // 通知worker更新
+    if (dayNightWorker) dayNightWorker.postMessage({ dayTime });
+}
+
 // ==============================================
 // 老电影过渡滤镜 全局缓存（战斗入场过渡，默认挂载 app.stage）
 // ==============================================
@@ -295,7 +345,7 @@ let oldFilmHidden = false;
 // ==============================================
 // 公开：创建滤镜
 // ==============================================
-export function createOldFilmFilter(app, targetContainer) {
+export function createOldFilmFilter(app, targetContainer,duration,onComplete) {
     if (!app || !app.renderer) {
         console.warn("createOldFilmFilter 无效：缺少合法 app 实例");
         return;
@@ -305,7 +355,7 @@ export function createOldFilmFilter(app, targetContainer) {
     oldFilmApp = app;
     oldFilmTarget = targetContainer || app.stage;
     oldFilmHidden = false;
-   console.log("触发")
+
     oldFilmFilter = new OldFilmFilter({
         sepia: 0,
         noise: 0,
@@ -322,6 +372,7 @@ export function createOldFilmFilter(app, targetContainer) {
     // 放到数组末尾，保证层级最高
     const currentFilters = oldFilmTarget.filters || [];
     oldFilmTarget.filters = [...currentFilters, oldFilmFilter];
+    playOldFilmEnter(duration,onComplete)
 }
 
 // ==============================================
@@ -354,6 +405,39 @@ export function getOldFilmFilter() {
     return oldFilmFilter;
 }
 
+// ==============================================
+// 公开：入场动画
+// ==============================================
+export function playOldFilmEnter(duration = 0.35, onComplete) {
+    if (!oldFilmFilter || !oldFilmApp) return;
+    _tweenByTicker(
+        oldFilmFilter, 'vignetting',
+        0,  // from
+        1,  // to
+        duration,
+        () => {
+            // 到达全黑，停顿0.25秒再播放消失动画
+            setTimeout(() => {
+                playOldFilmExit()
+            }, 150);
+            onComplete?.();
+        }
+    );
+}
+// ==============================================
+// 公开：退场动画
+// ==============================================
+export function playOldFilmExit(duration = 0.2) {
+    if (!oldFilmFilter || !oldFilmApp) return;
+    _tweenByTicker(
+        oldFilmFilter, 'vignetting',
+        1, 0,
+        duration,
+        () => {
+            removeOldFilmFilter();
+        }
+    );
+}
 
 // ==============================================
 // 公开：隐藏 / 显示
@@ -385,7 +469,7 @@ function _stopTicker() {
     oldFilmTickerFn = null;
 }
 
-function _tweenByTicker(target, prop, from, to, duration, ease, onComplete) {
+function _tweenByTicker(target, prop, from, to, duration, onComplete) {
     _stopTicker();
     if (!oldFilmApp) return;
 
@@ -399,9 +483,8 @@ function _tweenByTicker(target, prop, from, to, duration, ease, onComplete) {
         }
         const elapsed = (oldFilmApp.ticker.lastTime - startTime) / 1000;
         const progress = Math.min(elapsed / duration, 1);
-        const eased = ease(progress);
-
-        target[prop] = from + (to - from) * eased;
+        // 直接线性插值，去掉缓动
+        target[prop] = from + (to - from) * progress;
 
         if (progress >= 1) {
             _stopTicker();
@@ -410,15 +493,4 @@ function _tweenByTicker(target, prop, from, to, duration, ease, onComplete) {
     };
 
     oldFilmApp.ticker.add(oldFilmTickerFn);
-}
-
-// ==============================================
-// 内部：缓动函数
-// ==============================================
-function _easeOutPower2(t) {
-    return 1 - (1 - t) * (1 - t);
-}
-
-function _easeInPower2(t) {
-    return t * t;
 }

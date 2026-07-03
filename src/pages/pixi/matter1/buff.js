@@ -16,5 +16,7 @@ export const BUFF_COLOR_MAP = {
   '弱点+1': { color: '#FF4500' },
   '汲灵秘术': { color: '#00CED1' },
   '乘胜追击': { color: '#00CED1' },
+  '武器强化': { color: '#00CED1' },
   '减益': { color: '#FF6347' },
+  '瘴毒': { color: '#7CFC00' },
 };

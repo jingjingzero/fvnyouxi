@@ -1,9 +1,39 @@
 import { getEvolutionBuff } from './SkillEvolution';
 import { createUnit } from './Unit.js'
-import { BattleSystem } from './battle.js'
+import { BattleSystem, getCritDamageMultiplier } from './battle.js'
 import { useCounterStore } from "@/store/counter";
 import { createSummon, getEffect, returnEffect } from "./SkillLogic"
+import { ColorMatrixFilter } from 'pixi.js';
 const user = useCounterStore();
+
+// 全局中毒绿色闪屏滤镜（所有敌人共享）
+const globalPoisonFilter = new ColorMatrixFilter();
+// 绿色调：偏绿，亮度适中
+globalPoisonFilter.tint(0x44ff44);
+globalPoisonFilter.brightness(1.3);
+globalPoisonFilter.contrast(1.1);
+
+/**
+ * 让敌人闪一下绿色（中毒效果）
+ * @param {Object} enemy - 敌人对象
+ */
+export function flashPoison(enemy) {
+  if (!enemy || !enemy.view) return;
+
+  // 清除之前的定时器
+  if (enemy.poisonTimer) {
+    clearTimeout(enemy.poisonTimer);
+  }
+
+  // 添加绿色滤镜
+  enemy.view.filters = [...(enemy.view.filters || []), globalPoisonFilter];
+
+  // 100ms 后移除
+  enemy.poisonTimer = setTimeout(() => {
+    enemy.view.filters = enemy.view.filters?.filter(f => f !== globalPoisonFilter) || [];
+    enemy.poisonTimer = null;
+  }, 250);
+}
 // 统一计算技能基础伤害 原始伤害吃加成
 export function calculateSkillDamage(skillName, player, card) {
   const cfg = user.pixi.player.CARD_DATA[skillName];
@@ -55,7 +85,11 @@ export function calculateFinalDamage(rawDmg, target, ignoreArmorPercent = 0, dmg
     const luckRate = 1 + luck / (120 + luck);
     const finalCritRate = baseCrit * luckRate;
     isCrit = Math.random() < finalCritRate;
-    if (isCrit) finalDmg = Math.floor(finalDmg * critMul);
+    if (isCrit) {
+      // 🔥 应用天赋的暴击伤害加成
+      const talentCritMul = getCritDamageMultiplier();
+      finalDmg = Math.floor(finalDmg * critMul * talentCritMul);
+    }
   }
 
   finalDmg = Math.max(1, Math.floor(finalDmg));
@@ -65,7 +99,7 @@ export function calculateFinalDamage(rawDmg, target, ignoreArmorPercent = 0, dmg
   targetNpc?.takeDamage(finalDmg, {
     type: dmgType,
     isCritical: isCrit
-  }, player.baseAttack);
+  }, player?.baseAttack);
 
   // ❌ 必须删掉这行！避免和takeDamage重复扣血
   target.hp = Math.max(0, target.hp - finalDmg);
@@ -167,6 +201,12 @@ export function useSkillMiasma(player, enemies, card) {
     // 初始化敌人全局毒易伤（第一次上毒时确保有值）
     if (en.poisonTaken === undefined) en.poisonTaken = 0;
 
+    // 找到对应的 NPC 实例，播放中毒闪绿效果
+    const targetNpc = user.pixi.npcInstance.find(item => item.data.data.name === en.name);
+    if (targetNpc) {
+      flashPoison(targetNpc);
+    }
+
     const baseDot = cfg.fixedDmg + Math.floor(player.attack * cfg.atkRatio);
     const exist = en.debuffs.find(b => b.name === '瘴毒');
 
@@ -175,7 +215,8 @@ export function useSkillMiasma(player, enemies, card) {
       exist.stack += 1;
     } else {
       const reduceArmor = hasWeak ? Math.floor(en.baseArmor * 0.15) : 0;
-
+      const targetNpc = user.pixi.npcInstance.find(item => item.data.data.name === en.name);
+      // 查找弱点 debuff
       en.debuffs.push({
         name: '瘴毒',
         type: 'poison',
@@ -186,7 +227,7 @@ export function useSkillMiasma(player, enemies, card) {
         reduceArmor: reduceArmor,
         poisonTaken: hasWeak ? 0.12 : 0, // 毒易伤
       });
-
+      targetNpc.showBuffText('瘴毒');
       // 减护甲 + 加全局毒易伤
       if (reduceArmor > 0) {
         en.armor -= reduceArmor;
@@ -200,6 +241,34 @@ export function useSkillMiasma(player, enemies, card) {
     const curr = en.debuffs.find(b => b.name === '瘴毒');
     let finalDmg = baseDot * (1 + curr.stack * 0.5);
     curr.damage = Math.floor(finalDmg);
+
+    // ✅ 播放瘴气 spine 动画（在敌人位置）
+    try {
+      const zhangqiEffect = getEffect('zhangqi');
+      if (zhangqiEffect) {
+        const targetNpc = user.pixi.npcInstance.find(item => item.data.data.name === en.name);
+        if (targetNpc) {
+          zhangqiEffect.x = targetNpc.view.x;
+          zhangqiEffect.y = targetNpc.view.y;
+          zhangqiEffect.zIndex = targetNpc.view.zIndex + 1;
+          // 播放动画（不循环，播完回收）
+          zhangqiEffect.state.setAnimation(0, 'animation', false);
+          // 动画结束后回收
+          zhangqiEffect.state.addListener({
+            complete: () => {
+              returnEffect('zhangqi', zhangqiEffect);
+            }
+          });
+          user.pixi.app.addChild(zhangqiEffect);
+        } else {
+          // 没找到敌人NPC，回收特效
+          returnEffect('zhangqi', zhangqiEffect);
+        }
+      }
+    } catch (e) {
+      // 没有找到 zhangqi 特效，不执行
+      console.warn('⚠️ 未找到 zhangqi 特效，跳过播放');
+    }
   });
 }
 
@@ -451,8 +520,7 @@ export function useWeaponBoost(player, card, playerHand) {
 
   // ✅【修复】根据是否有负荷提升，设置正确的最大层数
   const maxStack = hasLoadBoost ? 5 : 3;
-  console.log('maxStack=', maxStack);
-
+  user.pixi.playerInstance?.showBuffText('武器强化');
   // 叠加一层
   player.weaponBoostStack += 1;
   player.physicalBoost += boostPercent;
@@ -561,6 +629,12 @@ export function usePoisonMist(player, enemies, card) {
   card.disabledLevel++;
   // 对所有敌人释放永久效果
   enemies.filter(e => e.hp > 0).forEach(en => {
+    // 找到对应的 NPC 实例，播放中毒闪绿效果
+    const targetNpc = user.pixi.npcInstance.find(item => item.data.data.name === en.name);
+    if (targetNpc) {
+      flashPoison(targetNpc);
+    }
+
     // 1. 永久破甲 20%
     const armorReduction = Math.floor(en.baseArmor * 0.2);
     en.debuffs.push({
@@ -604,20 +678,24 @@ export function tickMiasma(enemy, player, playerHand, name, du) {
     // 最终增伤 = 毒易伤 + 毒素紊乱
     const finalBoost = totalBoost + disorderBoost;
 
-    const realDmg = Math.floor(du.damage * (1 + finalBoost));
+    const rawDmg = Math.floor(du.damage * (1 + finalBoost));
 
-    enemy.hp = Math.max(0, enemy.hp - realDmg);
-    console.log(`🧪 瘴毒伤害：${du.damage} → 最终：${realDmg} (毒易伤+${(totalBoost * 100).toFixed(0)}% + 紊乱+${(disorderBoost * 100).toFixed(0)}%)`);
+    // ✅ 统一用 calculateFinalDamage 结算（真实伤害，忽略100%护甲，不暴击）
+    calculateFinalDamage(rawDmg, enemy, 1, 'poison', player, null);
+
+    console.log(`🧪 瘴毒伤害：${du.damage} → 最终：${rawDmg} (毒易伤+${(totalBoost * 100).toFixed(0)}% + 紊乱+${(disorderBoost * 100).toFixed(0)}%)`);
 
   } else if (name === '毒雾') { // 统一用毒雾领域更严谨
     const baseDmg = du.baseDmg;
     const ratio = du.ratio;
     const rawDmg = baseDmg + Math.floor(player.attack * ratio);
     const totalBoost = enemy.poisonTaken || 0;
-    const realDmg = Math.floor(rawDmg * (1 + totalBoost));
+    const finalDmg = Math.floor(rawDmg * (1 + totalBoost));
 
-    enemy.hp = Math.max(0, enemy.hp - realDmg);
-    console.log(`☠️ 毒雾领域伤害：${rawDmg} → 最终：${realDmg}`);
+    // ✅ 统一用 calculateFinalDamage 结算（真实伤害，忽略100%护甲，不暴击）
+    calculateFinalDamage(finalDmg, enemy, 1, 'poison', player, null);
+
+    console.log(`☠️ 毒雾领域伤害：${rawDmg} → 最终：${finalDmg}`);
   } else if (name === '扩散') {
     // ============================
     // ✅ 扩散毒伤（统一走这里）
@@ -628,14 +706,11 @@ export function tickMiasma(enemy, player, playerHand, name, du) {
 
     // 吃毒易伤
     const totalBoost = enemy.poisonTaken || 0;
-    const realDmg = Math.floor(rawDmg * (1 + totalBoost));
+    const finalDmg = Math.floor(rawDmg * (1 + totalBoost));
 
-    enemy.hp = Math.max(0, enemy.hp - realDmg);
-    console.log(`☣️ 扩散毒伤：${rawDmg} → 最终：${realDmg}`);
-  }
+    // ✅ 统一用 calculateFinalDamage 结算（真实伤害，忽略100%护甲，不暴击）
+    calculateFinalDamage(finalDmg, enemy, 1, 'poison', player, null);
 
-  // 死亡结算
-  if (enemy.hp <= 0) {
-    BattleSystem.checkBattleEnd(playerHand);
+    console.log(`☣️ 扩散毒伤：${rawDmg} → 最终：${finalDmg}`);
   }
 }

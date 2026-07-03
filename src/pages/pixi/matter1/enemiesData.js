@@ -15,8 +15,8 @@ function createEnemiesData() {
             direction: -1,
             data: {
                 name: '史莱姆',
-                hp: 50,
-                maxHp: 50,
+                hp: 100,
+                maxHp: 100,
                 baseSpeed: 90,
                 speed: 90,
                 camp: 'enemy',

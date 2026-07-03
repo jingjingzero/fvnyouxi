@@ -1,54 +1,79 @@
 <template>
-  <div class="fixed bottom-[0.8vh] left-1/2 -translate-x-1/2 w-[90vw] h-[23vh]">
+  <!-- CG 层（v-show常驻canvas，避免销毁重建报错） -->
+  <div
+    v-show="isCgVisible"
+    ref="cgContainer"
+    class="fixed inset-0 z-40 bg-black flex items-center justify-center overflow-hidden"
+  >
+    <canvas 
+      ref="cgCanvas" 
+      class="block"
+      style="aspect-ratio: 16/9; width: min(100vw, calc(100vh * 16/9)); height: min(100vh, calc(100vw * 9/16));"
+    ></canvas>
+  </div>
+
+  <!-- 对话框 -->
+  <div class="fixed bottom-[0.8vh] left-1/2 -translate-x-1/2 w-[90vw] h-[26vh] z-50">
     <div
       class="bg-black/50 text-white  px-2vw box-border flex flex-col h-full relative"
     >
-        <el-divider style="margin:0 0" class="absolute -left-3.5vw w-50%!"/>
+      <!-- 玩家头像 - 左边（CG显示时隐藏） -->
+      <div
+        v-if="!isCgVisible"
+        class="w-40vh h-50vh bottom-10vh absolute left-4vw -z-1 rounded flex-shrink-0 text-xs"
+      >
+        <img
+          :src="Img('zhujue')"
+          class="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
+      
+      <!-- NPC头像 - 右边（有头像才显示，CG显示时隐藏） -->
+      <div
+        v-if="currentDialogue?.avatar && !isCgVisible"
+        class="w-40vh h-50vh bottom-10vh absolute right-0 -z-1 rounded flex-shrink-0 text-xs"
+      >
+        <img
+          :src="Img(currentDialogue.avatar)"
+          class="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
+      
       <!-- 内容滚动区域 -->
       <div
         ref="contentContainer"
         class="flex-1 overflow-y-auto scroll-smooth whitespace-pre-wrap break-words mt-1.5vh"
-        @click="next"
+        @click="handleNext"
       >
         <div v-if="currentDialogue" class="flex items-start gap-3 mb-2">
-          <!-- 头像 -->
-          <div
-            class="w-40vh h-50vh bottom-8vh absolute left-0 -z-1 rounded flex-shrink-0 text-xs"
-          >
-            <img
-              :src="Img(currentDialogue.avatar)"
-              class="w-full h-full object-cover pointer-events-none"
-            />
-          </div>
-
           <div class="flex-1 flex flex-col">
-            <!-- 姓名 -->
+            <!-- 姓名（旁白/系统不显示） -->
             <div
-              v-if="currentDialogue.name"
-              class="font-bold text-[2.5vw] mb-1 absolute bottom-22vh iconfont2  -left-4vw px-2vw rounded-2 py-1vh"
+              v-if="showName"
+              class="font-bold text-[4vh] mb-1 absolute bottom-25.2vh iconfont2 bg-black/50 px-2vw rounded-2 py-1vh left-0"
             >
               {{ currentDialogue.name }}
             </div>
 
             <!-- 表情 + 文本 -->
-            <div class="flex flex-col gap-1">
-              <span v-html="displayedText" class="text-[2.1vw] iconfont2" ></span>
+            <div class="flex flex-col gap-1 py-1vh w-full">
+              <span v-html="displayedText" class="text-[5vh] iconfont2 block w-full leading-relaxed" style="word-break: break-word; word-wrap: break-word; white-space: pre-wrap;"></span>
             </div>
           </div>
         </div>
 
         <!-- 分支选项 -->
         <div
-          v-if="finished && currentDialogue.options"
+          v-if="finished && visibleOptions.length > 0"
           class="mt-2 flex flex-wrap gap-4"
         >
           <el-button
-            v-for="(opt, i) in currentDialogue.options"
+            v-for="(opt, i) in visibleOptions"
             size="small"
             :key="i"
             type="primary"
 
-            @click.stop="chooseOption(i)"
+            @click.stop="handleChooseOption(i)"
             >{{ opt.text }}</el-button
           >
         </div>
@@ -56,7 +81,7 @@
 
       <!-- 尾随箭头 -->
       <div
-        v-if="finished && !currentDialogue.options"
+        v-if="finished && visibleOptions.length === 0 && !currentDialogue?.end"
         class="absolute bottom-2 right-[5%]"
       >
         <el-icon class="next-icon" color="white">
@@ -68,172 +93,329 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from "vue";
 import { useCounterStore } from "@/store/counter";
+import { 
+  currentDialogue, 
+  startDialogue, 
+  goToDialogue, 
+  chooseOption, 
+  endDialogue,
+  getDialogueText,
+  getVisibleOptions,
+  isDialogueActive,
+  // CG 相关
+  isCgVisible,
+  currentCgName,
+  currentCgAnimation,
+} from "./dialogue/index.js";
+
+// PixiJS 和 Spine
+import { Application, Container } from "pixi.js";
+import { Spine } from "@esotericsoftware/spine-pixi-v8";
+
 const user = useCounterStore();
-const state = ref({ affection: 4, flags: {} });
+
 const Img = (src) => {
-  return new URL(`../../assets/fullBody/zhujue/${src}.webp`, import.meta.url)
+  return new URL(`../../assets/fullBody/head/${src}.webp`, import.meta.url)
     .href;
 };
-// 每条 dialogue 就是一条独立对话，不用数组
-const dialogues = [
-  {
-    id: "start",
-    name: "林恩",
-    avatar: "zhujue",
-    face: "",
-    text: "你好，欢迎来到游戏世界！你要做什么？",
-    options: [
-      { text: "探索地图", affection: 1, next: "explore" },
-      { text: "休息一下", affection: 0, next: "rest" },
-    ],
-  },
-  {
-    id: "explore",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text:
-      state.value.affection > 0
-        ? "你满怀热情地开始探索，伙伴对你很信任！"
-        : "你开始探索，但伙伴看起来有些冷漠。",
-    options: [
-      { text: "继续探索", affection: 1, next: "find_item" },
-      { text: "返回营地", affection: 0, next: "camp" },
-    ],
-  },
-  {
-    id: "rest",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你休息了一会儿，恢复了精神，但错过了一些机会。",
-    options: [
-      { text: "继续冒险", affection: 0, next: "explore" },
-      { text: "静坐发呆", affection: 0, next: "idle" },
-    ],
-  },
-  {
-    id: "find_item",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "你在地图上发现了珍贵的道具！",
-    next: "lake_scene",
-  },
-  {
-    id: "camp",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "你回到营地，伙伴依然在等待你的决定。",
-    next: "camp_talk",
-  },
-  {
-    id: "idle",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你坐在原地发呆了一会儿，时间悄悄流逝。",
-    next: "idle_scenery",
-  },
-  {
-    id: "lake_scene",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你沿着小路走到湖边，湖水清澈见底，微风拂面。",
-    next: "red_comment",
-  },
-  {
-    id: "red_comment",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "小红看着湖水，笑着说：“这里真美呀！”",
-    next: "mysterious_sound",
-  },
-  {
-    id: "mysterious_sound",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "突然，树林里传来奇怪的声音，你立刻警觉起来。",
-    next: "follow_sound",
-  },
-  {
-    id: "follow_sound",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "小红紧紧跟在你身后，你们决定去看看声音的来源。",
-    next: "discover_item",
-  },
-  {
-    id: "discover_item",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你们发现一件闪闪发光的物品，似乎很珍贵。",
-    next: "red_happy",
-  },
-  {
-    id: "red_happy",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "小红高兴地拍手：“太好了！我们找到了宝物！”",
-    next: "continue_adventure",
-  },
-  {
-    id: "continue_adventure",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你们继续前进，期待新的冒险。",
-    next: "evening_scene",
-  },
-  {
-    id: "evening_scene",
-    name: "小红",
-    avatar: "",
-    face: "",
-    text: "夕阳慢慢落下，营地的轮廓显现出来。",
-    next: "camp_fire",
-  },
-  {
-    id: "camp_fire",
-    name: "小明",
-    avatar: "",
-    face: "",
-    text: "你们围坐在营火旁，感受一天冒险的疲惫和温暖。",
-    end: true,
-  },
-];
 
+// 是否显示姓名（旁白/系统不显示）
+const showName = computed(() => {
+  if (!currentDialogue.value?.name) return false;
+  const name = currentDialogue.value.name;
+  // 系统、旁白不显示姓名
+  if (name === '系统' || name === '旁白' || name === '') return false;
+  return true;
+});
+
+// ========================
+// CG 相关
+// ========================
+const cgContainer = ref(null);
+const cgCanvas = ref(null);
+
+// PixiJS 应用和 CG spine 实例
+let cgApp = null;
+let cgSpine = null;
+let cgContainerPixi = null;
+
+/**
+ * 初始化 CG PixiJS 应用
+ */
+async function initCgApp() {
+  if (cgApp) return;
+  
+  if (!cgCanvas.value) {
+    console.error('[对话组件] cgCanvas不存在');
+    return;
+  }
+  
+  try {
+    // 直接计算16:9尺寸（和CSS一致，不依赖getBoundingClientRect，因为v-show隐藏时尺寸为0）
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    let canvasWidth, canvasHeight;
+    
+    if (screenWidth / screenHeight > 16/9) {
+      // 屏幕更宽，以高度为准
+      canvasHeight = screenHeight;
+      canvasWidth = canvasHeight * 16/9;
+    } else {
+      // 屏幕更高，以宽度为准
+      canvasWidth = screenWidth;
+      canvasHeight = canvasWidth * 9/16;
+    }
+    
+    console.log('[对话组件] CG初始化尺寸:', canvasWidth, canvasHeight);
+    
+    cgApp = new Application();
+    await cgApp.init({
+      view: cgCanvas.value,
+      width: canvasWidth,
+      height: canvasHeight,
+      backgroundAlpha: 0,
+      autoStart: true,
+      autoDensity: true,
+      resolution: window.devicePixelRatio || 1,
+    });
+    
+    cgContainerPixi = new Container();
+    cgApp.stage.addChild(cgContainerPixi);
+    
+    console.log('[对话组件] CG PixiJS 应用初始化完成');
+  } catch (e) {
+    console.error('[对话组件] CG PixiJS 应用初始化失败:', e);
+  }
+}
+
+/**
+ * 显示 CG
+ */
+async function showCgSpine() {
+  const cgName = currentCgName.value;
+  if (!cgName || !cgApp) return;
+  
+  // 先销毁旧的
+  destroyCgSpine();
+  
+  try {
+    const skelName = `${cgName}_skel`;
+    const atlasName = `${cgName}_atlas`;
+    
+    // 创建 Spine 实例
+    cgSpine = new Spine({
+      skeleton: skelName,
+      atlas: atlasName,
+    });
+    
+    if (!cgSpine) {
+      console.error('[对话组件] CG Spine 创建失败');
+      return;
+    }
+    
+    // 获取可用动画列表
+    const animations = cgSpine.skeleton.data.animations;
+    let animName = currentCgAnimation.value;
+    
+    // 如果没有指定动画，播放第一个
+    if (!animName && animations && animations.length > 0) {
+      animName = animations[0].name;
+    }
+    
+    // 播放动画（不循环，播完停在最后一帧）
+    if (animName) {
+      const trackEntry = cgSpine.state.setAnimation(0, animName, false);
+      trackEntry.loop = false;
+      // 动画播放完成后停在最后一帧
+      trackEntry.listener = {
+        complete: () => {
+          console.log(`[对话组件] CG动画 ${animName} 播放完成，停在最后一帧`);
+        }
+      };
+    }
+    
+    // 添加到容器
+    cgContainerPixi.addChild(cgSpine);
+    
+    // 等待Spine初始化完成，多帧重试直到bounds有效
+    let retryCount = 0;
+    const tryResize = () => {
+      const bounds = cgSpine.getBounds();
+      if (bounds.width > 0 && bounds.height > 0) {
+        resizeCgSpine();
+        console.log('[对话组件] CG resize成功', bounds.width, bounds.height);
+      } else if (retryCount < 10) {
+        retryCount++;
+        requestAnimationFrame(tryResize);
+      } else {
+        console.warn('[对话组件] CG bounds获取失败，使用默认缩放');
+        // 默认缩放
+        cgSpine.scale.set(1);
+        cgSpine.x = cgApp.renderer.width / 2;
+        cgSpine.y = cgApp.renderer.height / 2;
+      }
+    };
+    requestAnimationFrame(tryResize);
+    
+    console.log(`[对话组件] CG 显示: ${cgName}, 动画: ${animName}`);
+  } catch (e) {
+    console.error('[对话组件] CG 显示失败:', e);
+  }
+}
+
+/**
+ * 调整 CG 大小，cover 模式（填满画布，不留间隙）
+ */
+function resizeCgSpine() {
+  if (!cgSpine || !cgApp) return;
+  
+  const canvasWidth = cgApp.renderer.width;
+  const canvasHeight = cgApp.renderer.height;
+  
+  // 获取 spine 原始尺寸
+  const bounds = cgSpine.getBounds();
+  const spineWidth = bounds.width;
+  const spineHeight = bounds.height;
+  
+  console.log('[对话组件] CG resize:', { canvasWidth, canvasHeight, spineWidth, spineHeight, bounds });
+  
+  if (spineWidth === 0 || spineHeight === 0) return;
+  
+  // cover模式：取较大的缩放比例，填满画布不留间隙
+  const scaleX = canvasWidth / spineWidth;
+  const scaleY = canvasHeight / spineHeight;
+  const scale = Math.max(scaleX, scaleY);
+  
+  cgSpine.scale.set(scale);
+  
+  // 居中
+  cgSpine.x = canvasWidth / 2 - bounds.x * scale - spineWidth * scale / 2;
+  cgSpine.y = canvasHeight / 2 - bounds.y * scale - spineHeight * scale / 2;
+}
+
+/**
+ * 切换 CG 动画
+ */
+function changeCgAnimation() {
+  if (!cgSpine || !currentCgAnimation.value) return;
+  
+  try {
+    const trackEntry = cgSpine.state.setAnimation(0, currentCgAnimation.value, false);
+    trackEntry.loop = false;
+    console.log(`[对话组件] CG 动画切换: ${currentCgAnimation.value}`);
+  } catch (e) {
+    console.error('[对话组件] CG 动画切换失败:', e);
+  }
+}
+
+/**
+ * 销毁 CG spine
+ */
+function destroyCgSpine() {
+  if (cgSpine && cgContainerPixi) {
+    try {
+      cgContainerPixi.removeChild(cgSpine);
+      cgSpine.destroy();
+    } catch (e) {
+      console.warn('[对话组件] CG Spine销毁警告:', e.message);
+    }
+    cgSpine = null;
+  }
+}
+
+/**
+ * 销毁 CG 应用
+ */
+function destroyCgApp() {
+  // 先移除Spine
+  destroyCgSpine();
+  
+  if (cgApp) {
+    try {
+      cgApp.ticker.stop();
+      if (cgContainerPixi) {
+        cgContainerPixi.removeChildren();
+        cgApp.stage.removeChild(cgContainerPixi);
+        cgContainerPixi.destroy({ children: true });
+      }
+      cgApp.destroy(true, { children: true });
+    } catch (e) {
+      console.warn('[对话组件] CG App销毁警告:', e.message);
+    }
+    cgApp = null;
+    cgContainerPixi = null;
+  }
+}
+
+// 监听 CG 显示状态
+watch(isCgVisible, async (visible) => {
+  if (visible) {
+    // 显示 CG：只创建Spine（cgApp已在onMounted初始化）
+    showCgSpine();
+  } else {
+    // 隐藏 CG：只移除Spine，不销毁cgApp（canvas常驻）
+    destroyCgSpine();
+  }
+});
+
+// 监听 CG 动画变化
+watch(currentCgAnimation, () => {
+  if (isCgVisible.value && cgSpine) {
+    changeCgAnimation();
+  }
+});
+
+// 监听窗口大小变化
+function handleResize() {
+  if (!cgApp) return;
+  
+  // 重新计算16:9尺寸
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  let canvasWidth, canvasHeight;
+  
+  if (screenWidth / screenHeight > 16/9) {
+    canvasHeight = screenHeight;
+    canvasWidth = canvasHeight * 16/9;
+  } else {
+    canvasWidth = screenWidth;
+    canvasHeight = canvasWidth * 9/16;
+  }
+  
+  // 更新渲染器尺寸
+  cgApp.renderer.resize(canvasWidth, canvasHeight);
+  
+  // 重新调整Spine大小
+  if (cgSpine) {
+    resizeCgSpine();
+  }
+}
+
+// 打字机效果相关
 const displayedText = ref("");
 const finished = ref(false);
-const currentDialogue = ref(dialogues[0]);
 
 let charIndex = 0,
   acc = 0,
   lastTime = 0,
   rafId = null;
-const cps = 30,
+const cps = 50, // 打字速度：每秒 50 字
   interval = 1000 / cps;
 const pauseMap = {
   "，": 150,
   ",": 150,
-  "。": 325,
-  ".": 325,
-  "！": 325,
-  "!": 325,
-  "？": 325,
-  "?": 325,
+  "。": 200,
+  ".": 200,
+  "！": 200,
+  "!": 200,
+  "？": 200,
+  "?": 200,
 };
 const contentContainer = ref(null);
 
+// 打字机步进
 function typeStep(now) {
   if (!lastTime) lastTime = now;
   const delta = now - lastTime;
@@ -242,7 +424,7 @@ function typeStep(now) {
 
   if (!currentDialogue.value) return;
 
-  const text = currentDialogue.value.text || "";
+  const text = getDialogueText() || ""; // 不传参数，读缓存
 
   while (acc >= interval && charIndex < text.length) {
     const ch = text[charIndex++];
@@ -262,26 +444,42 @@ function typeStep(now) {
   }
 }
 
-// 开始对话
-function startDialogue(id) {
-  const dlg = dialogues.find((d) => d.id === id);
-  if (!dlg) return;
-  currentDialogue.value = dlg;
+// 开始打字机效果
+function startTyping() {
   displayedText.value = "";
   charIndex = 0;
   acc = 0;
   lastTime = 0;
   finished.value = false;
+  if (rafId) cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(typeStep);
 }
 
+// 监听对话变化，重新开始打字
+watch(currentDialogue, (newDialogue) => {
+  if (newDialogue) {
+    startTyping();
+  }
+});
+
+// 监听打字完成，如果是结束节点，自动关闭对话框
+watch(finished, (isFinished) => {
+  if (isFinished && currentDialogue.value?.end) {
+    // 延迟一点再关闭，让用户看完最后一句话
+    setTimeout(() => {
+      endDialogue();
+      user.hideDialogue();
+    }, 800);
+  }
+});
+
 // 点击跳过或下一段
-function next() {
+function handleNext() {
   if (!currentDialogue.value) return;
 
   // 如果打字机还没完成，直接显示完整文本
   if (!finished.value) {
-    displayedText.value = currentDialogue.value.text;
+    displayedText.value = getDialogueText(currentDialogue.value);
     finished.value = true;
     if (rafId) cancelAnimationFrame(rafId);
     nextTick(() => {
@@ -291,33 +489,73 @@ function next() {
     return;
   }
 
+  // 如果有选项，不处理点击（等用户选选项）
+  if (visibleOptions.value.length > 0) {
+    return;
+  }
+
   // 如果对话标记为结束
   if (currentDialogue.value.end) {
-    console.log("你好"); // 这里就是检测到 end:true 执行的逻辑
-    user.pixi.duihua = false;
+    endDialogue();
+    user.hideDialogue();
     return;
   }
 
   // 如果有 next 字段，跳到下一条对话
   if (currentDialogue.value.next) {
-    startDialogue(currentDialogue.value.next);
+    goToDialogue(currentDialogue.value.next);
   }
 }
 
 // 选择选项
-function chooseOption(i) {
-  const opt = currentDialogue.value.options[i];
-  state.value.affection += opt.affection || 0;
-  if (opt.next) startDialogue(opt.next);
+function handleChooseOption(optionIndex) {
+  // 直接使用可见选项中的 originalIndex（原始索引）
+  const visibleOpt = visibleOptions.value[optionIndex];
+  if (!visibleOpt) return;
+
+  // 使用原始索引调用 chooseOption
+  if (typeof visibleOpt.originalIndex === 'number') {
+    chooseOption(visibleOpt.originalIndex);
+  }
 }
+
+// 可见的选项（从对话系统缓存读取，避免重复计算）
+const visibleOptions = computed(() => {
+  if (!currentDialogue.value) return [];
+  return getVisibleOptions(); // 不传参数，读缓存
+});
 
 // 光标闪烁
 const showCursor = ref(true);
 setInterval(() => (showCursor.value = !showCursor.value), 500);
 
-onMounted(() => startDialogue("start"));
+// 暴露方法给外部调用
+defineExpose({
+  startDialogue,
+  goToDialogue,
+  endDialogue
+});
+
+onMounted(async () => {
+  // 如果有默认对话可以在这里开始
+  // startDialogue("start");
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+  
+  // 初始化CG应用（canvas常驻，只初始化一次）
+  await nextTick();
+  await initCgApp();
+});
+
 onBeforeUnmount(() => {
   if (rafId) cancelAnimationFrame(rafId);
+  
+  // 移除窗口大小变化监听
+  window.removeEventListener('resize', handleResize);
+  
+  // 销毁 CG 应用
+  destroyCgApp();
 });
 </script>
 

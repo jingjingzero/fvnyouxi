@@ -10,28 +10,13 @@ const routes = [
     path: '/index01', name: "index", component: () => import('@/pages/index.vue'),
   },
   {
-    path: '/searchIndex', name: "searchIndex", component: () => import('@/pages/searchIndex.vue'),
-  },
-  {
-    path: '/ceshi', name: "ceshi", component: () => import('@/pages/ceshi.vue'),
-  },
-  {
     path: '/ceshi1', name: "ceshi1", component: () => import('@/pages/ceshi1.vue'),
-  },
-    {
-    path: '/ceshi2', name: "ceshi2", component: () => import('@/pages/ceshi2.vue'),
-  },
-  {
-    path: '/nihao', name: "nihao", component: () => import('@/pages/pixi/nihao.vue'),
   },
   {
     path: '/ceshipixi', name: "ceshipixi", component: () => import('@/pages/pixi/ceshipixi.vue'),
   },
   {
     path: '/matter', name: "matter", component: () => import('@/pages/pixi/matter.vue'),
-  },
-      {
-    path: '/ceshi3', component: () => import('@/pages/ceshi3.vue'),
   },
 ]
 

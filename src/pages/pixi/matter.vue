@@ -1,10 +1,11 @@
   <template>
     <div v-loading="isPageLoading" element-loading-text="游戏加载中..." element-loading-background="#000"
       class="w-screen h-screen overflow-hidden">
+      <div class="absolute z-9999">{{ user.pixi.duihua }}</div>
       <!-- 对话 -->
-      <!-- <div v-show="user.pixi.duihua" class="absolute z-999">
-      <duihua />
-    </div> -->
+      <div v-show="user.pixi.duihua" class="absolute z-999">
+        <duihua />
+      </div>
       <div v-if="user.pixi.setting === 1" class="absolute left-0 w-full h-full z-5 ">
         <infoMap />
         <!-- <Ipad /> -->
@@ -12,43 +13,160 @@
       <kapai v-if="user.pixi.fight" class="absolute!" @fight-end="enablePlayerControl" />
       <div ref="gameContainer" class="w-screen h-screen overflow-hidden relative">
         <!-- 菜单 -->
-        <div
+        <!-- <div
           class="absolute right-7vh top-5vh w-[13vh] h-[6vh] rounded-3 bg-black/20 backdrop-blur-md flex items-center justify-center text-white text-4vh select-none"
           v-show="!user.pixi.fight && !isPageLoading" @click="ceshi5">
-          <el-popover v-if="user.pixi.setting === 0" placement="left-start" :visible="user.pixi.isPaused" :width="200"
+          <el-popover v-if="user.pixi.setting !== 1" placement="left-start" :visible="user.pixi.isPaused" :width="200"
             trigger="click" popper-class="mr-1.5vh w-15vw! min-w-15vw!">
             <template #reference>
               <span class="text-3vh iconfont2">菜单</span>
             </template>
-            <div class="text-1.4vw flex flex-col items-center iconfont2 text-#333 gap-y-1.3vh py-0.5vh">
-              <div @click="tanchuang(0)" class="w-full h-full text-center">
-                人物信息
+<div class="text-1.4vw flex flex-col items-center iconfont2 text-#333 gap-y-1.3vh py-0.5vh">
+  <div @click="tanchuang(0)" class="w-full h-full text-center">
+    信息
+  </div>
+  <el-divider style="margin: 0" />
+  <div @click="tanchuang(1)" class="w-full h-full text-center">
+    管理员权限
+  </div>
+  <el-divider style="margin: 0" />
+  <div @click="tanchuang(4)" class="w-full h-full text-center">
+    任务
+  </div>
+  <el-divider style="margin: 0" />
+  <div @click="tanchuang(5)" class="w-full h-full text-center">
+    NPC查看
+  </div>
+  <el-divider style="margin: 0" />
+  <div @click="tanchuang(2)" class="w-full h-full text-center">
+    进入战斗
+  </div>
+  <el-divider style="margin: 0" />
+  <div @click="tanchuang(3)" class="w-full h-full text-center">
+    返回主界面
+  </div>
+</div>
+</el-popover>
+</div> -->
+        <img src="@/assets/daoju/juese.webp"
+          class="absolute right-5vh w-12vh h-12vh object-contain top-3vh rounded-full"
+          style="border:1.5px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"
+          v-show="!user.pixi.gameUi && !isPageLoading" @click="ceshi5" />
+        <el-drawer v-model="drawer" :with-header="false" @close="guanbi" :z-index="100">
+          <div class="bg-#f5f5f5 w-full h-full py-2.5vh px-1vw">
+            <!-- 第一行：头像 + 等级经验 + 血量 -->
+            <div class="flex items-start gap-3vw mb-3vh">
+              <!-- 左侧：角色头像 -->
+              <div class="flex-shrink-0 relative">
+                <img src="@/assets/fullBody/head/zhujue.webp" class="w-15vh h-15vh rounded-full object-cover block"
+                  style="border:3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" />
+                <!-- 等级徽章 -->
+                <div
+                  class="absolute -bottom-2vh left-1/2 iconfont2 -translate-x-1/2 bg-gradient-to-r from-#FFD700 to-#FFA500 text-white text-2.5vh px-1.5vw py-0.2vh rounded-full shadow-md whitespace-nowrap">
+                  Lv.{{ user.pixi.player.Level }}
+                </div>
               </div>
-              <el-divider style="margin: 0" />
-              <div @click="tanchuang(1)" class="w-full h-full text-center">
-                管理员权限
-              </div>
-              <div @click="tanchuang(4)" class="w-full h-full text-center">
-                任务
-              </div>
-              <el-divider style="margin: 0" />
-              <div @click="tanchuang(2)" class="w-full h-full text-center">
-                进入战斗
-              </div>
-              <el-divider style="margin: 0" />
-              <div @click="tanchuang(3)" class="w-full h-full text-center">
-                返回主界面
+
+              <!-- 右侧：经验条 + 血量条 -->
+              <div class="flex-1 flex flex-col justify-center gap-2vh pt-1vh">
+                <!-- 血量进度条 -->
+                <div>
+                  <div class="flex justify-between items-center mb-0.8vh">
+                    <span class="text-2vh font-bold text-#333">生命值</span>
+                    <span class="text-1.8vh text-#666">
+                      {{ user.pixi.player.juese.hp }} / {{ user.pixi.player.juese.maxHp }}
+                    </span>
+                  </div>
+                  <div class="w-full h-2.5vh bg-#e0e0e0 rounded-full overflow-hidden shadow-inner">
+                    <div
+                      class="h-full bg-gradient-to-r from-#F56C6C to-#FF7878 rounded-full transition-all duration-300"
+                      :style="{ width: (user.pixi.player.juese.hp / user.pixi.player.juese.maxHp * 100) + '%' }">
+                    </div>
+                  </div>
+                </div>
+                <!-- 经验值进度条 -->
+                <div>
+                  <div class="flex justify-between items-center mb-0.8vh">
+                    <span class="text-2vh font-bold text-#333">经验值</span>
+                    <span class="text-1.8vh text-#666">
+                      {{ user.pixi.player.exp }} / {{ user.pixi.player.maxExp }}
+                    </span>
+                  </div>
+                  <div class="w-full h-2vh bg-#e0e0e0 rounded-full overflow-hidden shadow-inner">
+                    <div
+                      class="h-full bg-gradient-to-r from-#409EFF to-#67C23A rounded-full transition-all duration-300"
+                      :style="{ width: (user.pixi.player.exp / user.pixi.player.maxExp * 100) + '%' }">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </el-popover>
-        </div>
-
-
+            <!-- 分割线 -->
+            <div class="w-full h-0.1vh bg-#ddd mb-4vh mt-5vh!"></div>
+            <!-- 功能图标区：每行最多4个 -->
+            <div class="grid grid-cols-4 gap-2vh">
+              <!-- 角色信息 -->
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="openInventory">
+                <img src="@/assets/daoju/beibao.webp" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">背包系统</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="openCards">
+                <img src="@/assets/daoju/cardList.webp" class="w-11vh h-11vh object-contain scale-115" />
+                <span class="text-2.5vh text-white font-medium">卡牌系统</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="tanchuang(4)">
+                <img src="@/assets/daoju/taskList.webp" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">任务系统</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="tanchuang(5)">
+                <img src="@/assets/daoju/jibanList.webp" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">羁绊系统</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="openTalent">
+                <img src="@/assets/daoju/tianfuList.webp" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">天赋系统</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="talkToNpc('npc/jingling','jingling_first_meet')">
+                <img src="@/assets/daoju/tianfuList.webp" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">触发对话</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="tanchuang(2)">
+                <img src="@/assets/daoju/zhandou.png" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">进入战斗</span>
+              </div>
+              <div
+                class="flex flex-col items-center  cursor-pointer hover:scale-105 transition-transform bg-black/75 rounded-1 py-1.5vh"
+                @click="tanchuang(3)">
+                <img src="@/assets/daoju/fanhui.png" class="w-11vh h-11vh object-contain" />
+                <span class="text-2.5vh text-white font-medium">返回主界面</span>
+              </div>
+            </div>
+          </div>
+        </el-drawer>
         <el-dialog v-model="dialogTableVisible" width="75vw" :show-close="false" @close="ceshi5" top="4vh">
-          <xinxi class="overflow-hidden" />
+          <xinxi class="overflow-hidden" :defaultTab="playerInfoDefaultTab" />
         </el-dialog>
-        <el-dialog v-model="dialogTableVisible1" width="75vw" :show-close="false" @close="ceshi5" top="4vh">
+        <el-dialog v-model="dialogTableVisible1" width="75vw" :show-close="false" @close="ceshi5" top="2vh"
+          class="p-0!">
           <task class="overflow-hidden" />
+        </el-dialog>
+        <el-dialog v-model="dialogTableVisible2" width="75vw" :show-close="false" @close="ceshi5" top="2vh"
+          class="p-0!">
+          <npcLook class="overflow-hidden" />
         </el-dialog>
       </div>
     </div>
@@ -86,17 +204,18 @@ import {
 import { useCounterStore } from "@/store/counter";
 import xinxi from "./player/xinxi.vue";
 import task from "./player/task.vue";
+import npcLook from "./player/npcLook.vue";
 import { getMapData, getAllMapIds } from "./player/map";
 
 import { loadAssets, loadMapBundle, unloadMapBundle, isBundleLoaded } from "../../components/loadAssets";
 import infoMap from "./info/index.vue";
 import router from "@/router";
-import { BgWall, createWallObject, createPool, createSpeechBubble, loadMapData } from './matter1/bg.js';
+import { useRoute, onBeforeRouteLeave } from 'vue-router';
+import { BgWall, createWallObject, createBgSpine, createPool, createSpeechBubble, loadMapData } from './matter1/bg.js';
 import { createPlayerPhysicsBody, applyDamageFilter, updatePlayerAnimation, updatePlayerDirection, createHpBar } from './matter1/playerCreate.js';
 import { wenhaoHudong, floatingMarks } from './matter1/daoju.js';
 import { savePlayerPosition, teleportBack, removeNPCsByMapId, playerUpdate, updateNPCPool, hideAllEnemyHpBar, fightMode, showAllEnemyHpBar, npcs, npcPool, syncAllNPC, cameraOffsetX, goToMap, npcManager } from './matter1/npcManager.js';
 import { setupCollisionStart, setupCollisionEnd, allElevators } from './matter1/collisionEvents.js';
-import { shakeViewport } from "./matter1/myFilter.js";
 import { initGameUI, updateGameUI, getJoystick } from "./matter1/gameUI.js";
 import {
   createOldFilmFilter, destroyDayNightFilter, setDayNightSpeed, hideDayNightFilter, showDayNightFilter, isNight, isDay, getNightFactor, isDayNightActive, getDayTime, setDayTime, getDayNightSpeed, updateDayNightCalc, createDayNightFilter, getCurrentBoundary,
@@ -106,6 +225,7 @@ import kapai from "./fight/index.vue"
 import { fightQidong } from "./matter1/fightKaiqi.js"
 import { DAMAGE_COLOR_MAP, BUFF_COLOR_MAP } from './matter1/buff.js'
 import createEnemiesData from './matter1/enemiesData.js';
+import { loadDialogueModule, startDialogue } from './dialogue/index.js';
 // 全局记录已生成的地图ID，避免重复生成
 const generatedMapIds = new Set();
 // 全局记录已加载的地图数据
@@ -127,6 +247,93 @@ let lastTime = performance.now();
 const gameContainer = ref(null);
 const isPageLoading = ref(true); // 全局加载状态
 const user = useCounterStore();
+const route = useRoute();
+const drawer = ref(false)
+// 离开游戏页面时自动存档（所有返回主界面的入口都会触发）
+onBeforeRouteLeave((to, from, next) => {
+  // 战斗中退出不存档，避免存档异常数据
+  if (user.pixi.fight) {
+    next();
+    return;
+  }
+  if (activePlayer) {
+    user.autoSave(getSaveData());
+  }
+  next();
+});
+
+// 收集存档数据（包括朝向）
+function getSaveData() {
+  // 收集NPC朝向
+  const npcDirections = {};
+  for (const npc of npcs) {
+    if (npc.spine?.direction != null && npc.data?.name) {
+      npcDirections[npc.data.name] = npc.spine.direction;
+    }
+  }
+
+  return {
+    currentMap: currentMapId,
+    playerX: activePlayer?.body?.position.x ?? 0,
+    playerY: activePlayer?.body?.position.y ?? 0,
+    playerDirection: activePlayer?.spine?.direction ?? 1,
+    npcDirections: npcDirections,
+  };
+}
+
+// 恢复朝向（读档时调用）
+function restoreDirections() {
+  // 恢复玩家朝向
+  if (route.query.playerDir && activePlayer?.spine) {
+    const dir = Number(route.query.playerDir);
+    activePlayer.spine.direction = dir;
+    activePlayer.spine.setDirection?.(dir);
+    console.log('[读档] 恢复玩家朝向:', dir);
+  }
+
+  // 恢复NPC朝向
+  if (route.query.npcDirs) {
+    try {
+      const npcDirs = JSON.parse(route.query.npcDirs);
+      let restoredCount = 0;
+      for (const npc of npcs) {
+        if (npc.data?.name && npcDirs[npc.data.name] != null && npc.spine) {
+          const dir = npcDirs[npc.data.name];
+          npc.spine.direction = dir;
+          npc.spine.setDirection?.(dir);
+          restoredCount++;
+        }
+      }
+      console.log(`[读档] 恢复了 ${restoredCount} 个NPC的朝向`);
+    } catch (e) {
+      console.warn('[读档] 解析NPC朝向失败:', e);
+    }
+  }
+}
+
+// 自动存档定时器（每6分钟自动存一次）
+let autoSaveTimer = null;
+function startAutoSaveTimer() {
+  if (autoSaveTimer) return;
+  autoSaveTimer = setInterval(() => {
+    // 战斗中不自动存档
+    if (user.pixi.fight) {
+      console.log('[自动存档] 战斗中，跳过自动存档');
+      return;
+    }
+    if (activePlayer) {
+      user.autoSave(getSaveData());
+    }
+  }, 6 * 60 * 1000); // 6分钟
+}
+
+function stopAutoSaveTimer() {
+  if (autoSaveTimer) {
+    clearInterval(autoSaveTimer);
+    autoSaveTimer = null;
+    console.log('[自动存档] 已停止');
+  }
+}
 
 let app;
 let worldContainer;
@@ -138,6 +345,8 @@ let world;
 
 const dialogTableVisible = ref(null);
 const dialogTableVisible1 = ref(null);
+const dialogTableVisible2 = ref(null);
+const playerInfoDefaultTab = ref('info'); // 角色信息面板默认激活的标签
 const rectPool = createPool(createRectObject);
 const circlePool = createPool(createCircleObject);
 const trianglePool = createPool(createTriangleObject);
@@ -160,16 +369,26 @@ function tanchuang(i) {
   if (i === 3) {
     user.pixi.fight = false
     user.pixi.isPaused = false;
+    // 返回主界面前自动存档
+    // if (activePlayer) {
+    //   user.autoSave({
+    //     currentMap: currentMapId,
+    //     playerX: activePlayer.body.position.x,
+    //     playerY: activePlayer.body.position.y,
+    //   });
+    // }
     router.push({ name: "index" });
     return;
   }
   user.pixi.setting = i;
   if (i === 2) {
-    user.pixi.setting = 0
-    emitter.emit("vnZanting");
+    // user.pixi.setting = 0
+    // emitter.emit("vnZanting");
+    drawer.value = false
     guodu()
   } else if (i === 0) dialogTableVisible.value = true;
   else if (i === 4) dialogTableVisible1.value = true;
+  else if (i === 5) dialogTableVisible2.value = true;
 }
 const vh = (percent) => {
   const viewportHeight = window.innerHeight; // 或者用你的Pixi应用高度：app.renderer.height
@@ -276,12 +495,16 @@ function createPlayerObject(x, y, options) {
     shadowScale,
     shadowAlpha,
     shadowData: null,
+    _damageTextStack: 0, // 伤害数字堆叠计数器，防止多个数字重合
 
     takeDamage(damage = 1, options = {}, playerAttack = 1) {
       if (!this.active) return
       const { type = 'normal', isCritical = false } = options;
 
       this.data.data.hp -= damage
+
+      // 🔥 受击震动效果
+      this._playHitShake();
 
       // 原有闪白滤镜逻辑不变
       if (this.damageTimer) clearTimeout(this.damageTimer)
@@ -307,6 +530,47 @@ function createPlayerObject(x, y, options) {
 
       if (this.data.data.hp <= 0) this.deactivate();
     },
+
+    // 🔥 受击震动效果
+    _playHitShake() {
+      if (!this.body || !this.active) return;
+
+      // 判断阵营：玩家/友方往左震，怪物往右震
+      const isPlayer = this.data.player === 1 || this.data.player === 3;
+      const direction = isPlayer ? -1 : 1;
+
+      const shakeDistance = 4; // 震动距离（像素）
+      const shakeTimes = 3; // 震动次数
+      const shakeDuration = 0.06; // 每次震动时长
+
+      // 记录原始位置
+      const originalX = this.body.position.x;
+
+      // 清除之前的震动动画，避免叠加
+      if (this._shakeTween) {
+        this._shakeTween.kill();
+      }
+
+      // 震动动画：来回抖动
+      this._shakeTween = gsap.to(this.body.position, {
+        x: originalX + direction * shakeDistance,
+        duration: shakeDuration,
+        yoyo: true,
+        repeat: shakeTimes * 2 - 1, // 来回算一次，重复N次
+        ease: "power2.inOut",
+        onComplete: () => {
+          // 确保回到原位
+          if (this.body) {
+            Matter.Body.setPosition(this.body, {
+              x: originalX,
+              y: this.body.position.y
+            });
+          }
+          this._shakeTween = null;
+        }
+      });
+    },
+
     _spawnDamageText(value, type = 'normal', isCritical = false, playerAttack = 0) {
       const activeType = DAMAGE_COLOR_MAP[type] ? type : 'normal';
       const textColor = DAMAGE_COLOR_MAP[activeType][isCritical ? 'critical' : 'normal'];
@@ -338,8 +602,14 @@ function createPlayerObject(x, y, options) {
 
       // 后面的位置、动画、层级逻辑 完全复用，一点不用改
       damageText.anchor.set(0.5);
-      damageText.x = this.view.x + (Math.random() - 0.5) * (finalFontSize * 1.2);
-      damageText.y = this.view.y - this.view.height / 2 - vh(0.5);
+      // ✅ 伤害数字堆叠偏移：每个新数字往上偏移，避免重合
+      const stackOffset = this._damageTextStack * vh(1.5);
+      // 水平随机偏移加大，避免完全重叠
+      damageText.x = this.view.x + (Math.random() - 0.5) * (finalFontSize * 3);
+      // 往上堆叠，新的在上面
+      damageText.y = this.view.y - this.view.height / 2 - vh(0.5) - stackOffset;
+      // 堆叠计数+1
+      this._damageTextStack++;
       damageText.alpha = 1;
       damageText.scale.set(1);
       damageText.zIndex = 999;
@@ -365,7 +635,11 @@ function createPlayerObject(x, y, options) {
           duration: 0.2,
           ease: 'power1.out',
         }, '>')
-        .call(() => damageText.destroy({ children: true }), null, '>');
+        .call(() => {
+          // 动画结束，堆叠计数-1
+          this._damageTextStack = Math.max(0, this._damageTextStack - 1);
+          damageText.destroy({ children: true });
+        }, null, '>');
     },
     takeHeal(value, type = 'heal', isCritical = false) {
       if (!this.active) return;
@@ -489,20 +763,22 @@ function createPlayerObject(x, y, options) {
     },
 
     deactivate() {
-      this.active = false;
-      this.view.visible = false;
-      this.view.renderable = false;
-      this.shadow.visible = false;
-      this.shadow.renderable = false;
-      this.speechBubble.visible = false;
-      if (this.hpBar) {
-        this.hpBar.view.visible = false;
-        this.hpBar.view.renderable = false;
+      if (options.player === 2) {
+        this.active = false;
+        this.view.visible = false;
+        this.view.renderable = false;
+        this.shadow.visible = false;
+        this.shadow.renderable = false;
+        this.speechBubble.visible = false;
+        if (this.hpBar) {
+          this.hpBar.view.visible = false;
+          this.hpBar.view.renderable = false;
+        }
+        this.body.collisionFilter.mask = COLLISION_GROUPS.OBSTACLE;
+        if (this.damageTimer) clearTimeout(this.damageTimer);
+        this.shadowAlpha = 0;
+        this.shadow.alpha = this.shadowAlpha;
       }
-      this.body.collisionFilter.mask = COLLISION_GROUPS.OBSTACLE;
-      if (this.damageTimer) clearTimeout(this.damageTimer);
-      this.shadowAlpha = 0;
-      this.shadow.alpha = this.shadowAlpha;
     },
 
     showSpeech(text) {
@@ -523,6 +799,9 @@ function createPlayerObject(x, y, options) {
 }
 let WallScale;
 let bgContainer;
+let spineBgContainer; // spine 动态背景容器（独立于静态背景）
+let farBgContainer; // 远景背景容器（最底层，视差最慢）
+let allBgContainer; // 所有背景的父容器，用于统一应用滤镜
 
 const wuti = new Map();
 let viewport;
@@ -559,9 +838,212 @@ function createRectFromData(rectData, index, name, mapId) {
   wuti.get(mapId).push(rect);
 }
 
-const PARALLAX = 0.2;
+// 视差滚动系数（越大移动越慢，景深效果越强）
+const PARALLAX_FAR_BG = 0.5;  // 远景背景视差系数（更大=移动更慢）
+// 当前远景的地图偏移量（用于视差滚动对齐）
+let currentFarBgOffsetX = 0;
+
 function onViewportMoved() {
-  bgContainer.x = viewport.left * (1 - PARALLAX);
+  // 远景移动最慢（景深效果）
+  // 公式：farBgContainer.x = 视差系数 * (视口位置 - 地图偏移)
+  // 确保当 viewport.left = offsetX 时，远景和静态背景对齐
+  farBgContainer.x = PARALLAX_FAR_BG * (viewport.left - currentFarBgOffsetX);
+}
+
+/**
+ * 创建单张地图的远景背景和 Spine 动态背景
+ * @param {Object} mapData - 地图数据对象
+ */
+function createMapExtraBackgrounds(mapData) {
+  console.log('mapData=', mapData);
+
+  const mapId = mapData.id;
+  let createdSomething = false;
+
+  // ===== 远景背景 =====
+  if (mapData.farBackgroundImages && mapData.farBackgroundImages.length > 0) {
+    const farBgKey = mapId + '_farBg';
+    console.log('generatedMapIds=', generatedMapIds);
+
+    if (!generatedMapIds.has(farBgKey)) {
+      const farBgData = BgWall(Assets, mapData.farBackgroundImages);
+      console.log('farBgData=', farBgData);
+
+      // 只有当实际有纹理时才创建（资源已加载）
+      if (farBgData.WallTextures.length > 0) {
+        farWallPiece = createWallObject(farBgData.WallScale, farBgData.WallTextures, Sprite, Container);
+        farWallPiece.x = mapData.offsetX;
+        console.log('mapData.offsetX=', mapData.offsetX);
+
+        farBgContainer.addChild(farWallPiece);
+        console.log('✅ 远景背景已添加，地图:', mapId, '图片:', mapData.farBackgroundImages);
+        generatedMapIds.add(farBgKey);
+        createdSomething = true;
+      }
+    }
+  }
+
+  // ===== Spine 动态背景 =====
+  if (mapData.spineBackground) {
+    const spineBgKey = mapId + '_spineBg';
+    if (!generatedMapIds.has(spineBgKey)) {
+      const bgData = BgWall(Assets, mapData.backgroundImages);
+      const bgHeight = bgData.WallTextures.length > 0
+        ? bgData.WallTextures[0].height * bgData.WallScale
+        : window.innerHeight;
+
+      const bgSpine = createBgSpine(
+        bgData.WallScale,
+        bgHeight,
+        mapData.spineBackground.skelName,
+        mapData.spineBackground.atlasName,
+        mapData.spineBackground.animationName,
+        Container,
+        app
+      );
+
+      if (bgSpine.spine) {
+        bgSpine.view.x = mapData.offsetX + mapData.realWidth / 2;
+        bgSpine.setGroundY(window.innerHeight);
+        spineBgContainer.addChild(bgSpine.view);
+        console.log('✅ spine 动态背景已添加，地图:', mapId);
+        generatedMapIds.add(spineBgKey);
+        createdSomething = true;
+      }
+    }
+  }
+
+  return createdSomething;
+}
+
+// ====== 远景背景全局单例（场景复用，同一张远景图多张地图共享） ======
+let currentFarBgImages = null;  // 当前远景背景的图片标识
+
+/**
+ * 更新远景背景（全局单例，切换地图时调用）
+ * 相同远景图自动复用，不重复创建；不同则切换
+ * @param {Object} mapData - 地图数据对象
+ */
+let farWallPiece;
+function updateFarBackground(mapData) {
+  const farImages = mapData.farBackgroundImages;
+
+  // 判断图片是否相同（相同则复用，不重新创建）
+  const isSame = currentFarBgImages && farImages &&
+    currentFarBgImages.length === farImages.length &&
+    currentFarBgImages.every((img, i) => img === farImages[i]);
+
+  if (isSame && farWallPiece) {
+    console.log('🔄 远景背景相同，复用当前远景:', farImages);
+    farWallPiece.x = mapData.offsetX;
+    // 更新当前偏移量，用于视差滚动对齐
+    currentFarBgOffsetX = mapData.offsetX;
+    // 手动更新一次视差位置（确保切换地图时立即对齐）
+    farBgContainer.x = PARALLAX_FAR_BG * (viewport.left - currentFarBgOffsetX);
+    console.log('    farWallPiece.x=', farWallPiece.x);
+    return;
+  }
+
+  // 清空旧的远景
+  while (farBgContainer.children.length > 0) {
+    const child = farBgContainer.removeChildAt(0);
+    if (child.destroy) child.destroy({ children: true });
+  }
+  farWallPiece = null;
+
+  // 创建新的远景
+  if (farImages && farImages.length > 0) {
+    const farBgData = BgWall(Assets, farImages);
+    if (farBgData.WallTextures.length > 0) {
+      farWallPiece = createWallObject(farBgData.WallScale, farBgData.WallTextures, Sprite, Container);
+      // 远景和地图对齐（世界坐标，和静态背景一样）
+      farWallPiece.x = mapData.offsetX;
+      farBgContainer.addChild(farWallPiece);
+      // 更新当前偏移量，用于视差滚动对齐
+      currentFarBgOffsetX = mapData.offsetX;
+      // 手动更新一次视差位置
+      farBgContainer.x = PARALLAX_FAR_BG * (viewport.left - currentFarBgOffsetX);
+      console.log('✅ 远景背景已更新，图片:', farImages, '位置:', mapData.offsetX);
+      // 只有成功创建时才设置当前图片标识
+      currentFarBgImages = [...farImages];
+    } else {
+      console.warn('⚠️ 远景资源未加载，无法创建远景背景');
+      // 创建失败，重置状态
+      currentFarBgImages = null;
+      currentFarBgOffsetX = 0;
+    }
+  } else {
+    console.log('ℹ️ 该地图无远景背景配置');
+    currentFarBgImages = null;
+    currentFarBgOffsetX = 0;
+  }
+
+  if (farWallPiece) {
+    console.log('farWallPiece.1x=', farWallPiece.x);
+  }
+}
+
+// ====== Spine 动态背景全局单例（场景复用） ======
+let currentSpineBgConfig = null;  // 当前 Spine 背景的配置标识
+
+/**
+ * 更新 Spine 动态背景（全局单例，切换地图时调用）
+ * 相同配置自动复用，不重复创建；不同则切换
+ * @param {Object} mapData - 地图数据对象
+ */
+function updateSpineBackground(mapData) {
+  const spineConfig = mapData.spineBackground;
+
+  // 判断配置是否相同（相同则复用，只更新位置）
+  const isSame = currentSpineBgConfig && spineConfig &&
+    currentSpineBgConfig.skelName === spineConfig.skelName &&
+    currentSpineBgConfig.atlasName === spineConfig.atlasName &&
+    currentSpineBgConfig.animationName === spineConfig.animationName;
+
+  if (isSame) {
+    console.log('🔄 Spine 动态背景相同，复用当前 Spine:', spineConfig.skelName);
+    // 复用同一个 Spine 实例，只更新位置（和当前地图对齐）
+    if (spineBgContainer.children.length > 0) {
+      const spineView = spineBgContainer.children[0];
+      spineView.x = mapData.offsetX + mapData.realWidth / 2;
+    }
+    return;
+  }
+
+  // 清空旧的 Spine 背景
+  while (spineBgContainer.children.length > 0) {
+    const child = spineBgContainer.removeChildAt(0);
+    if (child.destroy) child.destroy({ children: true });
+  }
+
+  // 创建新的 Spine 背景
+  if (spineConfig) {
+    const bgData = BgWall(Assets, mapData.backgroundImages);
+    const bgHeight = bgData.WallTextures.length > 0
+      ? bgData.WallTextures[0].height * bgData.WallScale
+      : window.innerHeight;
+
+    const bgSpine = createBgSpine(
+      bgData.WallScale,
+      bgHeight,
+      spineConfig.skelName,
+      spineConfig.atlasName,
+      spineConfig.animationName,
+      Container,
+      app
+    );
+
+    if (bgSpine.spine) {
+      // Spine 背景和地图对齐（世界坐标）
+      bgSpine.view.x = mapData.offsetX + mapData.realWidth / 2;
+      bgSpine.setGroundY(window.innerHeight);
+      spineBgContainer.addChild(bgSpine.view);
+    }
+  } else {
+    console.log('ℹ️ 该地图无 Spine 动态背景配置');
+  }
+
+  currentSpineBgConfig = spineConfig ? { ...spineConfig } : null;
 }
 
 let currentGroundY;
@@ -576,31 +1058,51 @@ onMounted(async () => {
   npcPool.length = 0;
   npcs.length = 0;
 
-  // 1. 先加载初始地图资源
-  await loadMapInfo('one01')
+  // 1. 先加载初始地图资源（读档则加载存档地图，否则默认one01）
+  const startMap = route.query.map || 'one01';
+  currentMapId = startMap;
+  await loadMapInfo(startMap)
 
   // 2. 创建 Pixi 应用
   app = await createApp(gameContainer.value);
   gameContainer.value.appendChild(app.canvas);
   bgContainer = new Container();
+  spineBgContainer = new Container();
+  farBgContainer = new Container();
+  allBgContainer = new Container();  // 所有背景的父容器，用于统一应用滤镜
   worldContainer = new Container();
   cameraTarget = new Container();
   hudMarkContainer = new Container();
   hudMarkContainer.zIndex = 9999;
 
   // 3. 配置RenderGroup分层合批
+  // spine 动态背景是否在静态背景上方（true=上方，false=下方）
+  const isSpineAboveBg = false;
+
+  // 远景背景（最底层，视差最慢）
+  farBgContainer.group = new RenderGroup({
+    priority: -2,
+    isStatic: true,
+    sortableChildren: false,
+  })
   bgContainer.group = new RenderGroup({
     priority: 0,
     isStatic: true,
     sortableChildren: false,
   })
+  // spine 动态背景用独立的动态渲染组（isStatic=false，保证每帧更新）
+  spineBgContainer.group = new RenderGroup({
+    priority: isSpineAboveBg ? 1 : -1,
+    isStatic: false,
+    sortableChildren: false,
+  })
   worldContainer.group = new RenderGroup({
-    priority: 1,
+    priority: 2,
     isStatic: false,
     sortableChildren: true,
   })
   hudMarkContainer.group = new RenderGroup({
-    priority: 2,
+    priority: 3,
     isStatic: true,
     sortableChildren: false,
   })
@@ -618,6 +1120,7 @@ onMounted(async () => {
     const wallPiece = createWallObject(bgData.WallScale, bgData.WallTextures, Sprite, Container);
     wallPiece.x = mapData.offsetX;
     bgContainer.addChild(wallPiece);
+
     mapData.realWidth = myOwnWidth;
     user.pixi.mapDataList.push(mapData);
   }
@@ -628,13 +1131,32 @@ onMounted(async () => {
 
   // 5. 创建视口和物理引擎
   viewport = createViewport(app, WORLD_WIDTH, WORLD_HEIGHT);
-  viewport.setZoom(1.4);
+  viewport.setZoom(1.3);
+  viewport.on('moved', onViewportMoved);
   engine = createEngine();
   world = engine.world;
   engine.gravity.y = 0.8;
 
   app.stage.addChild(viewport);
-  viewport.addChild(bgContainer);
+
+  // ===== 所有背景都放到 allBgContainer 中，统一应用滤镜 =====
+  // 远景最先添加（最底层）
+  allBgContainer.addChild(farBgContainer);
+
+  // 根据 isSpineAboveBg 参数决定添加顺序（后添加的在上层）
+  if (isSpineAboveBg) {
+    // spine 在静态背景上方
+    allBgContainer.addChild(bgContainer);
+    allBgContainer.addChild(spineBgContainer);
+  } else {
+    // spine 在静态背景下方
+    allBgContainer.addChild(spineBgContainer);
+    allBgContainer.addChild(bgContainer);
+  }
+
+  // 把所有背景的父容器添加到 viewport
+  viewport.addChild(allBgContainer);
+
   viewport.addChild(worldContainer);
   viewport.addChild(hudMarkContainer);
 
@@ -685,9 +1207,15 @@ onMounted(async () => {
 
   // 10. 注册NPC更新事件并渲染NPC
   npcConfigUpdated();
-  await TpMap("one01");
-  console.log('user.pixi.npcDataList=',user.pixi.npcDataList);
-  
+  await TpMap(startMap);
+  // 读档时设置玩家到存档坐标
+  if (route.query.x && route.query.y && activePlayer) {
+    Matter.Body.setPosition(activePlayer.body, {
+      x: Number(route.query.x),
+      y: Number(route.query.y)
+    });
+  }
+
   emitter.emit('npcConfigUpdated', user.pixi.npcDataList);
 
   vnZanting();
@@ -721,12 +1249,18 @@ onMounted(async () => {
       requestAnimationFrame(resolve);
     });
   }));
+  talkToNpc('npc/jingling','jingling_first_meet')
+  // 🔥 读档时恢复朝向
+  restoreDirections();
 
   // 15. 后台预加载其他地图
-  afterTpMap('one01');
+  afterTpMap(startMap);
 
   // 16. 隐藏loading，显示游戏
   isPageLoading.value = false;
+
+  // 17. 启动自动存档定时器（每6分钟）
+  startAutoSaveTimer();
   // 主循环：移除主线程Matter.Engine.update，仅发送输入+步进指令
   let tickCount = 0;
   app.ticker.add(() => {
@@ -775,8 +1309,7 @@ onMounted(async () => {
 });
 let globalTimeScale = 1; // 全局游戏时间倍速，暂停/快进只改这一个值
 async function ceshi5() {
-  console.log('user.pixi.npcDataList=', user.pixi.npcDataList);
-
+  drawer.value = true
   user.pixi.activePlayer = {
     hp: activePlayer.data.data.hp,
     maxHp: activePlayer.data.data.maxHp,
@@ -787,9 +1320,63 @@ async function ceshi5() {
   };
   emitter.emit("vnZanting");
 }
+
+
+// 打开角色信息 - 背包标签
+function openInventory() {
+  playerInfoDefaultTab.value = 'inventory';
+  drawer.value = false;
+  dialogTableVisible.value = true;
+}
+
+// 打开角色信息 - 卡牌携带标签
+function openCards() {
+  playerInfoDefaultTab.value = 'cardBook';
+  drawer.value = false;
+  dialogTableVisible.value = true;
+}
+
+// 打开角色信息 - 天赋标签
+function openTalent() {
+  playerInfoDefaultTab.value = 'talent';
+  drawer.value = false;
+  dialogTableVisible.value = true;
+}
+
+async function talkToNpc(loadData,name) {
+  // 根据 NPC ID 选择不同的对话入口
+  drawer.value = false;
+  user.pixi.gameUi = true;
+  disablePlayerControl();
+  await loadDialogueModule(loadData);
+  
+  // 判断是否是第一次和精灵对话
+  if (user.isDialogueComplete(name)) {
+    // 已经相遇过，播放普通对话
+    startDialogue('jingling_talk')
+  } else {
+    // 第一次相遇，播放初次相遇剧情
+    startDialogue(name)
+  }
+  
+  user.showDialogue() // 显示对话组件
+}
+// 保存游戏
+function saveGame() {
+  if (activePlayer && !user.pixi.fight) {
+    user.autoSave(getSaveData());
+    ElMessText("游戏已保存！", "success");
+  } else {
+    ElMessText("战斗中无法存档", "warning");
+  }
+}
 function guodu() {
   // 进入战斗：先变黑，加载完所有资源再变白
-  jinruzhandou();
+  createOldFilmFilter(app, viewport, 0.35, jinruzhandou);
+}
+function guanbi() {
+  user.pixi.isPaused = false;
+  app.ticker.start();
 }
 async function jinruzhandou() {
   // 1. 先变黑
@@ -803,8 +1390,6 @@ async function jinruzhandou() {
   user.pixi.gameUi = true;
   // 3. 创建敌人数据
   const enemyData = createEnemiesData();
-  console.log('enemyData=', enemyData);
-
   user.pixi.npcDataList = [...user.pixi.npcDataList, ...enemyData];
   // // 5. 创建敌人NPC
   emitter.emit('npcConfigUpdated', user.pixi.npcDataList);
@@ -820,7 +1405,6 @@ async function jinruzhandou() {
   // 7. 启动战斗
   fightQidong(user);
   disablePlayerControl();
-
 }
 let cachedTriggerAreas = [];
 let frameCount1 = 0
@@ -1015,7 +1599,6 @@ function sendAllToViewWorker() {
     t += getDayNightSpeed() * delta;
     if (t > 1) t = 0;
     setDayTime(t);
-
     dayNightSendTimer += delta; // 用时间累加更稳定，不依赖帧速率
     if (dayNightSendTimer >= 3) {
       updateDayNightCalc();
@@ -1298,21 +1881,12 @@ physicsWorker.addEventListener('message', (e) => {
 const triggerCooldown = new Map();
 let currentLight = null;
 let isMapTransitioning = false; // 地图切换过渡锁，防止重复触发
+let currentMapId = 'one01'; // 当前所在地图ID，用于存档
 async function TpMap(name, tpPosition) {
   // 防止重复触发地图切换
   if (isMapTransitioning) return;
   isMapTransitioning = true;
-
-  // ====== 地图切换过渡：先变黑 ======
-  const transition = createOldFilmFilter(app, viewport, {
-    startDelay: 0,
-    fadeInDuration: 0.4,
-    fullBlackDuration: 0.5, // 完全黑屏时长，可按需调整
-    fadeOutDuration: 0.5,
-    autoFadeOut: false
-  });
-  // 等待完全黑屏后再加载地图
-
+  currentMapId = name; // 更新当前地图ID
   // ====== 黑屏状态下加载地图资源 ======
   if (!isBundleLoaded(name)) {
     await loadMapInfo(name)
@@ -1322,6 +1896,10 @@ async function TpMap(name, tpPosition) {
   const data = goToMap(name, activePlayer, Matter, tpPosition)
   defaultMap = data
   WORLD_WIDTH = data.realWidth;
+
+  // ====== 更新远景背景和 Spine 动态背景（全局单例，相同则复用） ======
+  updateFarBackground(data);
+  updateSpineBackground(data);
 
   // ====== 根据地图配置自动开关滤镜 ======
   const effect = data.effects?.reflection;
@@ -1340,7 +1918,7 @@ async function TpMap(name, tpPosition) {
     hideDayNightFilter();
   }
   if (currentLight.show) {
-    createGodrayLight(bgContainer, app, currentLight, activePlayer);
+    createGodrayLight(allBgContainer, app, currentLight, activePlayer);
   } else {
     removeGodrayLight();
   }
@@ -1404,7 +1982,7 @@ let dayNightInited = false;
 function initOnceDayNightFilter() {
   if (dayNightInited) return;
   dayNightInited = true;
-  createDayNightFilter(bgContainer, app);
+  createDayNightFilter(allBgContainer, app);
   setDayNightSpeed(currentLight.night.speed ?? 0.0005);
 }
 function gameLoop() {
@@ -1429,7 +2007,7 @@ function gameLoop() {
     );
     return; // 直接返回，不执行下面的玩家移动逻辑
   }
-  const tempSpeed = 0.2 * VW;
+  const tempSpeed = 0.22 * VW;
   // ✅ 修复：键盘 + 摇杆 双输入
   const left = (joystick?.x < -20) || joystick?.keyLeft;
   const right = (joystick?.x > 20) || joystick?.keyRight;
@@ -1496,7 +2074,6 @@ function npcConfigUpdated() {
     if (user.pixi.activePlayer) playerUpdate(Matter, activePlayer, viewport);
   });
 }
-
 // 🎮 禁用玩家所有移动/跳跃（战斗开始时调用）
 function disablePlayerControl() {
   if (!canPlayerControl) return; // 已经禁用直接返回，避免重复执行
@@ -1535,9 +2112,11 @@ function disablePlayerControl() {
 // 🎮 恢复玩家所有移动/跳跃（战斗结束时调用）
 function enablePlayerControl() {
   emitter.off("enablePlayerControl");
-  emitter.on('enablePlayerControl', async () => {
+  emitter.on('enablePlayerControl', async (i) => {
     if (canPlayerControl) return;
-
+    if (i !== 1) {
+      createOldFilmFilter(app, viewport);
+    }
     // 2. 入场：暗角从 1 消失到 0（战斗场景渐显）
 
     canPlayerControl = true;
@@ -1570,13 +2149,22 @@ function enablePlayerControl() {
     hideAllEnemyHpBar()
     removeNPCsByMapId("desert_02", Matter, world, app);
     user.pixi.activePlayer = null
-    const map = user.pixi.mapDataList.find(m => m.id === "one01");
-    WORLD_WIDTH = map.realWidth;
-    const tpPosition = map.offsetX + WORLD_WIDTH * 0.97
-    await TpMap("one01", tpPosition);
+    if (i !== 1) {
+      const map = user.pixi.mapDataList.find(m => m.id === "one01");
+      WORLD_WIDTH = map.realWidth;
+      const tpPosition = map.offsetX + WORLD_WIDTH * 0.97
+      await TpMap("one01", tpPosition);
+      // 🔥 战斗结束后自动存档
+      if (activePlayer) {
+        user.autoSave(getSaveData());
+        console.log('[自动存档] 战斗结束，已自动存档');
+      }
+    }
   });
 }
 onBeforeUnmount(() => {
+  // 停止自动存档定时器
+  stopAutoSaveTimer();
   app.ticker.stop();
   Matter.Runner.stop(runner);
   Matter.World.clear(world, false);
@@ -1604,5 +2192,9 @@ onBeforeUnmount(() => {
 
 :deep(.el-overlay-dialog) {
   bottom: auto;
+}
+
+:deep(.el-drawer__body) {
+  padding: 0;
 }
 </style>

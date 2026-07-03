@@ -27,6 +27,9 @@
           {{ formatSign(player.luck - player.baseLuck) }} {{ Math.abs(player.luck - player.baseLuck).toFixed(1) }}
           = {{ player.luck }}
         </div>
+        <div>
+          暴击伤害：{{ critDamagePercent }}%
+        </div>
         <div v-if="player.physicalBoost">物理伤害加成：{{ Math.round(player.physicalBoost * 100) }}%</div>
         <div v-if="player.armorPenBoost">物理伤害无视护甲：{{ Math.round(player.armorPenBoost * 100) }}%</div>
         <div>行动进度：{{ Math.min(Math.round(player.actionProgress / 100), 100) }}%</div>
@@ -65,9 +68,28 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { useCounterStore } from "@/store/counter";
+
+const props = defineProps({
   player: Object,
   allies: Array
+})
+
+const user = useCounterStore()
+
+// 计算暴击伤害百分比
+const critDamagePercent = computed(() => {
+  const baseCritMul = 1.5 // 基础暴击伤害 150%
+  let talentBonus = 0
+  
+  // 检查天赋：致命一击 - 暴击伤害提升40%
+  const talents = user.pixi.player.activatedTalents || []
+  if (talents.includes('critical_strike')) {
+    talentBonus += 0.4
+  }
+  
+  return Math.round((baseCritMul + talentBonus) * 100)
 })
 
 // 自动显示 + 或 -

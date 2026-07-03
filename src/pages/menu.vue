@@ -224,7 +224,7 @@ let cundangBoolean = false;
 let tableYuanshi;
 //存读档
 function JSONGet(index) {
-  user.cundang(index);
+
 }
 // 分页
 function handleCurrentChange(i) {
@@ -237,11 +237,14 @@ function clearMyData() {
     // 5+APP 环境
     plus.storage.removeItem("_mylist.json");
     plus.storage.removeItem("_settings.json");
+    plus.storage.removeItem("auto_save");
   } else {
     // 浏览器环境
     localStorage.removeItem("_mylist.json");
     localStorage.removeItem("_settings.json");
+    localStorage.removeItem("auto_save");
   }
+  user.deleteAutoSave();
 }
 // 返回主菜单
 function menuFace() {

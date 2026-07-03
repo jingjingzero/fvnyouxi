@@ -1,0 +1,12 @@
+fantan.png
+size:292,116
+filter:Linear,Linear
+pma:true
+buff_huangjinshouhu/dun
+bounds:148,2,112,142
+offsets:4,3,120,150
+rotate:90
+buff_huangjinshouhu/dunguang
+bounds:2,3,111,144
+offsets:4,13,120,160
+rotate:90

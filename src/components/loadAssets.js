@@ -44,19 +44,23 @@ function registerBundle() {
     two219_atlas: "/pixi/two219.atlas",
     bluefive_skel: "/pixi/bluefive.skel",
     bluefive_atlas: "/pixi/bluefive.atlas",
-    wall_01: new URL("../assets/pixi/wall_01.jpg", import.meta.url).href,
-    map1_01: new URL("../assets/pixi/map1_01.jpg", import.meta.url).href,
+    wall_01: new URL("../assets/pixi/wall_01.png", import.meta.url).href,
+    map1_01: new URL("../assets/pixi/map1_01.webp", import.meta.url).href,
     yu_skel: "/pixi/yu.skel",
     yu_atlas: "/pixi/yu.atlas",
     jinmao_skel: "/pixi/jinmao.skel",
     jinmao_atlas: "/pixi/jinmao.atlas",
     wall_02: new URL("../assets/pixi/wall_02.jpg", import.meta.url).href,
-    map1_02: new URL("../assets/pixi/map1_02.jpg", import.meta.url).href,
+    map1_01yj: new URL("../assets/pixi/map1_01yj.jpg", import.meta.url).href,
+    map1_02yj: new URL("../assets/pixi/map1_02yj.jpg", import.meta.url).href,
+    map1_02: new URL("../assets/pixi/map1_02.webp", import.meta.url).href,
     huli_skel: "/pixi/huli.skel",
     huli_atlas: "/pixi/huli.atlas",
     wall_03: new URL("../assets/pixi/wall_03.jpg", import.meta.url).href,
     monster1_skel: "/pixi/monster1.skel",
     monster1_atlas: "/pixi/monster1.atlas",
+    changjing1_skel: "/pixi1/changjing1.skel",
+    changjing1_atlas: "/pixi1/changjing1.atlas",
     texiaozidan_skel: "/texiao/texiaozidan.skel",
     texiaozidan_atlas: "/texiao/texiaozidan.atlas",
     jiguang_skel: "/texiao/jiguang.skel",
@@ -67,6 +71,18 @@ function registerBundle() {
     drone_atlas: "/texiao/drone.atlas",
     dongcha_skel: "/texiao/dongcha.skel",
     dongcha_atlas: "/texiao/dongcha.atlas",
+    zhangqi_skel: "/texiao/zhangqi.skel",
+    zhangqi_atlas: "/texiao/zhangqi.atlas",
+    wuqiqianghua_skel: "/texiao/wuqiqianghua.skel",
+    wuqiqianghua_atlas: "/texiao/wuqiqianghua.atlas",
+    fantan_skel: "/texiao/fantan.skel",
+    fantan_atlas: "/texiao/fantan.atlas",
+    duwu_skel: "/texiao/duwu.skel",
+    duwu_atlas: "/texiao/duwu.atlas",
+    zhuaji_skel: "/texiao/zhuaji.skel",
+    zhuaji_atlas: "/texiao/zhuaji.atlas",
+    chuzuwu_skel: "/cg/chuzuwu.skel",
+    chuzuwu_atlas: "/cg/chuzuwu.atlas",
   });
 }
 
@@ -98,7 +114,7 @@ export async function loadAssets(onProgress, defaultMapId = "one01") {
     bundleLoadedMap.set(defaultBundleName, true);
 
     const end = performance.now();
-    console.log(`✅ 首屏资源加载完成，用时 ${((end - start) / 1000).toFixed(2)} 秒`);
+    // console.log(`✅ 首屏资源加载完成，用时 ${((end - start) / 1000).toFixed(2)} 秒`);
   } catch (err) {
     console.error("❌ 首屏资源加载失败", err);
     // 可加重试逻辑，最多重试3次

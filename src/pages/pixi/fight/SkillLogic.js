@@ -5,6 +5,33 @@ import {
 import { getEvolutionBuff } from './SkillEvolution';
 import gsap from "gsap";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
+
+// ==============================================
+// 🔥 性能优化：缓存配置数据，避免频繁访问Pinia
+// ==============================================
+let CARD_DATA_CACHE = null;
+let VH_CACHE = null;
+let VW_CACHE = null;
+let VH = window.innerHeight / 100;
+let VW = window.innerWidth / 100;
+
+/**
+ * 初始化缓存（战斗开始时调用一次）
+ */
+export function initSkillCache(user) {
+  CARD_DATA_CACHE = user.pixi.player.CARD_DATA;
+  VH_CACHE = window.innerHeight / 100;
+  VW_CACHE = window.innerWidth / 100;
+
+}
+
+/**
+ * 获取卡牌配置（从缓存取，不访问Pinia）
+ */
+function getCardConfig(skillName) {
+  return CARD_DATA_CACHE?.[skillName];
+}
+
 // ==============================================
 // 🔥 新增：Spine特效对象池（全局复用，不创建不销毁）
 // ==============================================
@@ -16,6 +43,11 @@ const EFFECT_CONFIG = {
   summon_drone: { skeleton: 'drone_skel', atlas: 'drone_atlas' },
   fenshen: { skeleton: 'linen_skel', atlas: 'linen_atlas' },
   dongcha: { skeleton: 'dongcha_skel', atlas: 'dongcha_atlas' },
+  zhangqi: { skeleton: 'zhangqi_skel', atlas: 'zhangqi_atlas' },
+  wuqiqianghua: { skeleton: 'wuqiqianghua_skel', atlas: 'wuqiqianghua_atlas' },
+  fantan: { skeleton: 'fantan_skel', atlas: 'fantan_atlas' },
+    duwu: { skeleton: 'duwu_skel', atlas: 'duwu_atlas' },
+        zhuaji: { skeleton: 'zhuaji_skel', atlas: 'zhuaji_atlas' },
 };
 
 // 对象池
@@ -25,7 +57,12 @@ const effectPool = {
   juling: [],
   summon_drone: [],
   fenshen: [],
-  dongcha: []
+  dongcha: [],
+  zhangqi: [],
+  wuqiqianghua: [],
+  fantan: [],
+  duwu:[],
+  zhuaji:[]
 };
 
 
@@ -42,6 +79,9 @@ export function getEffect(type) {
       skeleton: EFFECT_CONFIG[type].skeleton,
       atlas: EFFECT_CONFIG[type].atlas
     });
+    // 🔥 初始化回调数组
+    effect._completeListeners = [];
+    effect._hasCompleteListener = false;
   }
   // ✅ 重置特效状态（每次复用都清掉上一次的状态）
   effect.scale.set(1);
@@ -49,6 +89,12 @@ export function getEffect(type) {
   effect.alpha = 1;
   effect.visible = true;
   effect.renderable = true;
+  // 🔥 清空上一次的完成回调
+  if (effect._completeListeners) {
+    effect._completeListeners.length = 0;
+  } else {
+    effect._completeListeners = [];
+  }
   return effect;
 }
 
@@ -67,18 +113,78 @@ export function returnEffect(type, effect) {
   // 放回对象池
   effectPool[type].push(effect);
 }
+
+// ==============================================
+// 🔥 对象池预热（战斗开始前提前创建特效实例，避免首次播放掉帧）
+// ==============================================
+/**
+ * 预创建特效实例，预热对象池
+ * @param {Object} options - 预热配置
+ * @param {number} options.bulletCount - 子弹数量（默认8个，满足一梭子子弹需求）
+ * @param {number} options.laserCount - 激光数量（默认2个）
+ * @param {number} options.julingCount - 聚灵数量（默认1个）
+ * @param {number} options.dongchaCount - 洞察数量（默认1个）
+ * @param {number} options.fenshenCount - 影分身数量（默认2个）
+ * @param {number} options.droneCount - 无人机数量（默认3个）
+ */
+export function prewarmEffectPool(options = {}) {
+  const config = {
+    bulletCount: 8,
+    laserCount: 2,
+    julingCount: 1,
+    dongchaCount: 1,
+    fenshenCount: 2,
+    droneCount: 3,
+    ...options
+  };
+
+  const typeMap = {
+    bullet: config.bulletCount,
+    laser: config.laserCount,
+    juling: config.julingCount,
+    dongcha: config.dongchaCount,
+    fenshen: config.fenshenCount,
+    summon_drone: config.droneCount
+  };
+
+  for (const [type, count] of Object.entries(typeMap)) {
+    // 如果池子里已经有了，就不用创建那么多了
+    const currentCount = effectPool[type].length;
+    const needCreate = Math.max(0, count - currentCount);
+
+    if (needCreate > 0) {
+      // console.log(`[对象池预热] 创建 ${type} x${needCreate}`);
+      for (let i = 0; i < needCreate; i++) {
+        const effect = new Spine({
+          skeleton: EFFECT_CONFIG[type].skeleton,
+          atlas: EFFECT_CONFIG[type].atlas
+        });
+        effect._completeListeners = [];
+        effect._hasCompleteListener = false;
+        effectPool[type].push(effect);
+      }
+    }
+  }
+
+  console.log('[对象池预热] 完成');
+}
+
 // 原有技能逻辑（修改特效创建/回收逻辑）
 export function useSkill(skillName, player, enemies, allies, battle, card = null, playerHand, user) {
-  const cfg = user.pixi.player.CARD_DATA[skillName];
+  // 🔥 性能优化：从缓存取配置，不访问Pinia
+  const cfg = getCardConfig(skillName);
   if (!cfg) return 300;
 
   const baseDmg = calculateSkillDamage(skillName, player, card);
-  
+
+  // 🔥 性能优化：提前获取容器引用
+  const appContainer = user.pixi.app;
+
   if (skillName === '射击') {
-    spineX1X2(player, enemies, baseDmg, card, { n1: "texiaozidan_skel", n2: "texiaozidan_atlas" }, user)
+    spineX1X2(player, enemies, baseDmg, card, { n1: "texiaozidan_skel", n2: "texiaozidan_atlas" }, appContainer)
   }
   else if (skillName === '激光') {
-    useSkillLaser(player, enemies, baseDmg, card, user);
+    useSkillLaser(player, enemies, baseDmg, card, appContainer);
   } else if (skillName === "瘴气") {
     useSkillMiasma(player, enemies, card, battle)
   } else if (skillName === "无人机") {
@@ -88,9 +194,9 @@ export function useSkill(skillName, player, enemies, allies, battle, card = null
   } else if (skillName === "聚灵") {
     const options = {
       effectName: 'juling',
-      container: user.pixi.app,
+      container: appContainer,
       x: player.x,
-      y: player.y + 9 * VH,
+      y: player.y + 9 * VH_CACHE,
       scale: 1.6,
       animationName: 'animation',
       loop: false
@@ -98,15 +204,26 @@ export function useSkill(skillName, player, enemies, allies, battle, card = null
     playSpineEffect(options)
     useSkillSpiritGather(player, allies, card)
   } else if (skillName === "反弹") {
+    playReflectBuff(player, appContainer);
     useSkillReflect(player, card)
   } else if (skillName === "武器强化") {
+    const options = {
+      effectName: 'wuqiqianghua',
+      container: appContainer,
+      x: player.x,
+      y: player.y + 14 * VH_CACHE,
+      scale: 0.4,
+      animationName: 'animation',
+      loop: false
+    }
+    playSpineEffect(options)
     useWeaponBoost(player, card, playerHand)
   } else if (skillName === "洞察") {
     const options = {
       effectName: 'dongcha',
-      container: user.pixi.app,
-      x: player.x + 52*VW,
-      y: player.y -3*VH ,
+      container: appContainer,
+      x: player.x + 52 * VW_CACHE,
+      y: player.y - 3 * VH_CACHE,
       scale: 0.4,
       animationName: 'animation',
       loop: false
@@ -114,6 +231,7 @@ export function useSkill(skillName, player, enemies, allies, battle, card = null
     playSpineEffect(options)
     useInsight(player, enemies, card)
   } else if (skillName === "毒雾") {
+    playPoisonMist(player, enemies, appContainer);
     usePoisonMist(player, enemies, card)
   }
 
@@ -161,8 +279,9 @@ export function playSpineProjectile(
 }
 
 // 多发连射逻辑
-function spineX1X2(player, enemies, baseDmg, card, data, user) {
-  const cfg = user.pixi.player.CARD_DATA['射击'];
+function spineX1X2(player, enemies, baseDmg, card, data, worldContainer) {
+  // 🔥 性能优化：从缓存取配置
+  const cfg = getCardConfig('射击');
   const buff = getEvolutionBuff(card);
   let hitCount = cfg.hitCount || 1;
   const fireInterval = 100; // 发射间隔
@@ -195,13 +314,12 @@ function spineX1X2(player, enemies, baseDmg, card, data, user) {
     }
   }
 
-  const worldContainer = user.pixi.app;
-  const startPos = { x: player.x + 5 * VW, y: player.y * 0.9 };
+  const startPos = { x: player.x + 5 * VW_CACHE, y: player.y * 0.9 };
 
   // 发射前找初始目标，仅用于确定子弹初始飞行终点
   const initialTarget = enemies.find(e => e.hp > 0);
   if (!initialTarget) return 300;
-  const endPos = { x: initialTarget.x - 3 * VW, y: initialTarget.y * 0.9 };
+  const endPos = { x: initialTarget.x - 3 * VW_CACHE, y: initialTarget.y * 0.9 };
 
   // 循环发射子弹
   for (let i = 0; i < hitCount; i++) {
@@ -243,17 +361,14 @@ function spineX1X2(player, enemies, baseDmg, card, data, user) {
   return totalDuration;
 }
 
-const VH = window.innerHeight / 100;
-const VW = window.innerWidth / 100;
 //激光
-function useSkillLaser(player, enemies, baseDmg, card, user) {
+function useSkillLaser(player, enemies, baseDmg, card, worldContainer) {
   const buff = getEvolutionBuff(card);
   const DAMAGE_DELAY = 50;//延迟结算毫秒
 
   const aliveEnemies = enemies.filter(e => e.hp > 0);
   if (aliveEnemies.length === 0) return 800;
 
-  const worldContainer = user.pixi.app;
   let hasRefund = false;
 
   // 🎯 只改这里：用新模板把特效和延时伤害包起来
@@ -261,7 +376,7 @@ function useSkillLaser(player, enemies, baseDmg, card, user) {
     effectConfig: {
       effectName: 'laser',
       container: worldContainer,
-      x: player.x + 5.5 * VW,
+      x: player.x + 5.5 * VW_CACHE,
       y: player.y * 0.9,
       scale: 0.45,
       animationName: 'animation',
@@ -289,8 +404,8 @@ function useSkillLaser(player, enemies, baseDmg, card, user) {
 
   return 800;
 }
-function playSpineEffect(options) {
-  console.log('options=', options);
+
+export function playSpineEffect(options) {
 
   const {
     effectName,
@@ -298,6 +413,7 @@ function playSpineEffect(options) {
     x,
     y,
     scale = 1,
+    flipX = false,
     animationName = 'animation',
     loop = false,
     onComplete,
@@ -308,12 +424,33 @@ function playSpineEffect(options) {
   const effect = getEffect(effectName);
 
   // 基础属性设置
-  effect.scale.set(scale);
+  effect.scale.set(flipX ? -scale : scale, scale);
   effect.x = x;
   effect.y = y;
   effect.zIndex = 100;
   // 添加到容器
   container.addChild(effect);
+
+  // 🔥 性能优化：只添加一次完成监听器，用闭包捕获effect对象
+  if (!effect._hasCompleteListener) {
+    effect.state.addListener({
+      complete: () => {
+        // 执行所有回调
+        if (effect._completeListeners && effect._completeListeners.length > 0) {
+          effect._completeListeners.forEach(fn => {
+            try { fn(); } catch (e) { console.error(e); }
+          });
+          effect._completeListeners.length = 0;
+        }
+      }
+    });
+    effect._hasCompleteListener = true;
+  }
+
+  // 添加本次的完成回调
+  if (onComplete) {
+    effect._completeListeners.push(onComplete);
+  }
 
   // 播放动画
   effect.state.setAnimation(0, animationName, loop);
@@ -321,16 +458,16 @@ function playSpineEffect(options) {
   // 开始回调
   onStart?.();
 
-  // 动画完成监听：归还对象池 + 执行回调
-  effect.state.addListener({
-    complete: () => {
+  // 🔥 如果不是循环动画，动画结束后自动归还到对象池
+  if (!loop) {
+    effect._completeListeners.push(() => {
       returnEffect(effectName, effect);
-      onComplete?.();
-    }
-  });
+    });
+  }
 
   return effect;
 }
+
 function playSkillWithDamage(options) {
   const { effectConfig, damageDelay, damageLogic } = options;
 
@@ -459,7 +596,6 @@ export function onSummonTurnEnd(player) {
         // ✅ 统一销毁浮动动画，修复原来的变量名不一致问题
         summon.animTimeline?.kill();
         returnEffect(SUMMON_CONFIG[type].effectName, summon.instance);
-        console.log(`[召唤物] ${type}回合到期销毁`);
         return false;
       }
       return true;
@@ -495,7 +631,49 @@ export function clearAllSummons() {
     });
     activeSummons[type] = [];
   });
-  console.log('[召唤物] 已清空所有召唤物');
+
+}
+
+/**
+ * 清空所有战斗相关的召唤物和状态（进入新战斗前调用）
+ * 包括：无人机、影分身等所有spine召唤物
+ * @param {Array} allies - 友军数组，用于清理其中的召唤物单位
+ */
+export function clearBattleSummons(allies) {
+  // 1. 清空 activeSummons 管理的召唤物（无人机等）
+  clearAllSummons();
+
+  // 2. 清理 allies 数组中的召唤物单位及其spine
+  if (allies && Array.isArray(allies)) {
+    // 倒序遍历，安全删除
+    for (let i = allies.length - 1; i >= 0; i--) {
+      const unit = allies[i];
+
+      // 清理影分身
+      if (unit.isShadowClone) {
+        if (unit.spineInstance) {
+          returnEffect('fenshen', unit.spineInstance);
+          unit.spineInstance = null;
+        }
+        if (unit.onDeactivate) {
+          unit.onDeactivate();
+        }
+        allies.splice(i, 1);
+
+        continue;
+      }
+
+      // 清理无人机（通过 summonId 关联的）
+      if (unit.isDrone) {
+        // 对应的spine已经在 clearAllSummons 中清理了
+        allies.splice(i, 1);
+
+        continue;
+      }
+    }
+  }
+
+
 }
 
 function refreshSummonPositions(summonType, player) {
@@ -523,4 +701,116 @@ function refreshSummonPositions(summonType, player) {
       }
     });
   });
+}
+
+// ==============================================
+// 🔥 反弹 Buff 持续动画
+// ==============================================
+
+/**
+ * 播放反弹 Buff 持续动画（循环播放，直到 Buff 结束）
+ * @param {Object} player - 玩家对象
+ * @param {Container} container - 容器
+ */
+export function playReflectBuff(player, container) {
+  // 如果已经有反弹动画了，就不重复创建
+  if (player.reflectBuffSpine) {
+    return;
+  }
+
+  // 从对象池获取特效
+  const effect = getEffect('fantan');
+
+  // 设置位置（玩家身上）
+  effect.x = player.x + 3 * VW_CACHE;
+  effect.y = player.y - 3 * VH_CACHE;
+  effect.scale.set(0.35);
+  effect.zIndex = 100;
+  // 循环播放动画
+  effect.state.setAnimation(0, 'animation', true);
+
+  // 添加到容器
+  container.addChild(effect);
+
+  // 存储到 player 对象上，方便后续移除
+  player.reflectBuffSpine = effect;
+
+  console.log('[反弹Buff] 动画已播放');
+}
+
+/**
+ * 移除反弹 Buff 持续动画
+ * @param {Object} player - 玩家对象
+ */
+export function removeReflectBuff(player) {
+  if (player.reflectBuffSpine) {
+    returnEffect('fantan', player.reflectBuffSpine);
+    player.reflectBuffSpine = null;
+    console.log('[反弹Buff] 动画已移除');
+  }
+}
+
+// ==============================================
+// 🔥 毒雾 领域持续动画
+// ==============================================
+
+// 全局存储毒雾动画实例（因为是领域技能，全局唯一）
+let poisonMistSpine = null;
+
+/**
+ * 播放毒雾领域动画（无限循环，直到战斗结束）
+ * @param {Object} player - 玩家对象
+ * @param {Array} enemies - 敌人数组
+ * @param {Container} container - 容器
+ */
+export function playPoisonMist(player, enemies, container) {
+  // 如果已经有毒雾动画了，就不重复创建
+  if (poisonMistSpine) {
+    return;
+  }
+
+  // 从对象池获取特效
+  const effect = getEffect('duwu');
+
+  // 计算位置：放在敌人区域的中间（领域效果）
+  let centerX = window.innerWidth / 2;
+  let centerY = window.innerHeight / 2;
+  
+  if (enemies && enemies.length > 0) {
+    // 计算所有敌人的中心点
+    const aliveEnemies = enemies.filter(e => e.hp > 0);
+    if (aliveEnemies.length > 0) {
+      const sumX = aliveEnemies.reduce((sum, e) => sum + e.x, 0);
+      const sumY = aliveEnemies.reduce((sum, e) => sum + e.y, 0);
+      centerX = sumX / aliveEnemies.length;
+      centerY = sumY / aliveEnemies.length;
+    }
+  }
+
+  effect.x = centerX;
+  effect.y = centerY + 15 * VH_CACHE;
+    effect.zIndex = -1;
+  effect.scale.set(1.5); // 领域效果，缩放大一点
+  effect.state.timeScale = 0.6;
+  // 循环播放动画
+  effect.state.setAnimation(0, 'animation', true);
+
+  // 添加到容器
+  container.addChild(effect);
+
+  // 存储全局引用
+  poisonMistSpine = effect;
+
+  console.log('[毒雾领域] 动画已播放');
+}
+
+/**
+ * 移除毒雾领域动画（战斗结束时调用）
+ */
+export function removePoisonMist() {
+  if (poisonMistSpine) {
+    returnEffect('duwu', poisonMistSpine);
+    poisonMistSpine = null;
+    console.log('[毒雾领域] 动画已移除');
+  }
 }

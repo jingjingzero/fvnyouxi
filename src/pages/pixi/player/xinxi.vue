@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col text-1.6vw select-none!">
 
-    <el-tabs type="border-card" class="h-80vh" @tab-change="handleTabChange">
+    <el-tabs v-model="activeTab" type="border-card" class="h-80vh" @tab-change="handleTabChange">
       <!-- 个人信息 -->
-      <el-tab-pane class="px-2vw pt-5vh">
+      <el-tab-pane name="info" class="px-2vw pt-5vh">
         <template #label>
           <span class="text-3vh">个人信息</span>
         </template>
@@ -80,15 +80,15 @@
       </el-tab-pane>
 
       <!-- 物品栏 -->
-      <el-tab-pane>
+      <el-tab-pane name="inventory">
         <template #label>
-          <span class="text-3vh">物品栏</span>
+          <span class="text-3vh">背包</span>
         </template>
         <div class="flex flex-col h-70vh overflow-y-auto">
           <!-- 筛选标签 -->
           <div class="flex flex-wrap gap-x-1.5vh gap-y-1vh px-2vh py-2vh border-b border-#E4E7ED flex-shrink-0">
             <div v-for="tab in itemTabs" :key="tab.value"
-              class="px-2vh py-0.8vh rounded-full cursor-pointer text-1.6vh font-medium transition-all flex-shrink-0"
+              class="px-2vh py-0.8vh rounded-full cursor-pointer text-2.4vh font-medium transition-all flex-shrink-0"
               :class="itemTab === tab.value ? 'bg-gradient-to-r from-#409EFF to-#66B1FF text-white shadow-md' : 'bg-#F5F7FA text-#606266 hover:bg-#E4E7ED'"
               @click="itemTab = tab.value">
               {{ tab.label }}
@@ -151,7 +151,8 @@
                 class="w-15vh h-15vh rounded-xl overflow-hidden border-2 shadow-lg flex-shrink-0 bg-gradient-to-br from-#F5F7FA to-#E4E7ED flex items-center justify-center"
                 :style="{ borderColor: getItemQualityColor(activeItem) }">
                 <!-- 灵力晶核特殊显示 -->
-                <img v-if="!activeItem.isCard" :src="inventoryImg(activeItem.img)" class="w-12vh h-12vh object-contain" />
+                <img v-if="!activeItem.isCard" :src="inventoryImg(activeItem.img)"
+                  class="w-12vh h-12vh object-contain" />
                 <img v-else-if="cardImgMap[activeItem.name]" :src="cardImgMap[activeItem.name]"
                   class="w-12vh h-12vh object-contain scale-210" />
                 <div v-else class="w-12vh h-12vh flex items-center justify-center text-4vh font-bold"
@@ -170,9 +171,9 @@
                 <!-- 卡牌专属信息 -->
                 <div v-if="activeItem.isCard" class="flex gap-x-2vh text-2vh">
                   <span class="text-#909399">消耗: <span class="text-#E6A23C font-bold">{{ activeItem.cost
-                  }}</span></span>
+                      }}</span></span>
                   <span class="text-#909399">冷却: <span class="text-#F56C6C font-bold">{{ activeItem.maxCooldown
-                  }}</span></span>
+                      }}</span></span>
                 </div>
               </div>
             </div>
@@ -280,7 +281,7 @@
       </el-tab-pane>
 
       <!-- 卡牌图鉴 -->
-      <el-tab-pane class="pt-1.5vh">
+      <el-tab-pane name="cardBook" class="pt-1.5vh" >
         <template #label>
           <span class="text-3vh">卡牌图鉴</span>
         </template>
@@ -301,7 +302,7 @@
           <el-divider style="margin: 0 0;" />
           <!-- 卡牌列表 -->
           <div
-            class="grid  md:grid-cols-6 xl:grid-cols-7 gap-x-2.5vh gap-y-2.5vh px-2vh py-2vh overflow-y-auto flex-1 box-border content-start">
+            class="grid  md:grid-cols-6 xl:grid-cols-7 gap-x-2.5vh gap-y-2.5vh px-2vh py-2vh overflow-y-auto flex-1 box-border content-start card-gallery-scroll">
             <div v-for="card in displayCards" :key="card.name"
               class="relative w-full h-0 pt-[148.28%] rounded-lg overflow-hidden cursor-pointer group shadow-md transition-all duration-200"
               :class="[
@@ -330,15 +331,13 @@
                 </div>
 
                 <!-- 灵力消耗（左上角） -->
-                <div class="absolute top-[4%] left-[6%] text-3vh font-bold z-10"
-                  :style="{ color: card.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                <div class="absolute top-[4%] left-[8%] text-3.5vh font-bold z-10 text-#409EFF">
                   {{ card.cost }}
                 </div>
 
                 <!-- 卡牌名称（绝对居中） -->
                 <div
-                  class="absolute top-[4%] left-1/2 -translate-x-1/2 text-center text-2.2vh font-bold z-10 w-[55%] truncate"
-                  :style="{ color: card.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                  class="absolute top-[5%] left-1/2  -translate-x-1/2 text-center text-3vh  z-10 w-full  font-bold text-black iconfont2 ">
                   {{ card.name }}
                 </div>
 
@@ -353,24 +352,6 @@
                   <img v-if="cardImgMap[card.name]" :src="cardImgMap[card.name]" class="w-full h-full object-cover" />
                 </div>
 
-                <!-- 冷却信息 -->
-                <div
-                  class="absolute bottom-[1.2vh] left-[30%] right-0 text-center text-1.8vh text-white z-10 font-bold bg-black/50 w-50% rounded-2">
-                  <span v-if="card.maxCooldown > 0">冷却:{{ card.maxCooldown }}回合</span>
-                  <span v-if="card.limitPerTurn">每回合{{ card.limitPerTurn }}次</span>
-                </div>
-
-                <!-- 描述（点击展开，只能展开一个） -->
-                <Transition enter-active-class="transition-all duration-200 ease-out delay-100"
-                  enter-from-class="opacity-0 translate-y-full" leave-active-class="transition-all duration-150 ease-in"
-                  leave-to-class="opacity-0 translate-y-full">
-                  <div v-if="activeDescCard === card.name"
-                    class="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-sm p-2vh z-20">
-                    <div class="text-1.4vh leading-relaxed text-white">
-                      {{ card.desc }}
-                    </div>
-                  </div>
-                </Transition>
               </div>
             </div>
           </div>
@@ -392,24 +373,21 @@
               <!-- 卡牌头部信息 -->
               <div class="pt-4vh px-2vw pb-3vh border-b border-#409EFF/30">
                 <div class="flex items-center gap-x-2vh">
-                  <!-- 卡牌缩略图 -->
-                  <div class="w-12vh h-16vh rounded-lg overflow-hidden border-2 shadow-lg flex-shrink-0"
-                    :style="{ borderColor: activeEvoCard.color + '88' }">
-                    <img v-if="cardImgMap[activeEvoCard.name]" :src="cardImgMap[activeEvoCard.name]"
-                      class="w-full h-full object-cover" />
-                  </div>
                   <!-- 卡牌信息 -->
                   <div class="flex flex-col gap-y-1vh flex-1">
-                    <div class="text-3vh font-bold" :style="{ color: activeEvoCard.color }">
+                    <div class="text-3.5vh font-bold" :style="{ color: activeEvoCard.color }">
                       {{ activeEvoCard.name }}
                     </div>
-                    <div class="text-1.8vh text-#C0C4CC leading-relaxed font-medium">
+                    <div class="text-2.5vh text-#C0C4CC leading-relaxed font-medium">
                       {{ activeEvoCard.desc }}
                     </div>
                     <div class="flex gap-x-2vh text-1.6vh font-medium">
-                      <span class="text-#E6A23C">{{ activeEvoCard.cost > 0 ? `消耗: ${activeEvoCard.cost} 灵力` : '无消耗'
+                      <span class="text-#409EFF text-2.6vh iconfont2">{{ activeEvoCard.cost > 0 ? `消耗:
+                        ${activeEvoCard.cost} 灵力`
+                        : '无消耗'
                       }}</span>
-                      <span class="text-#F56C6C">{{ activeEvoCard.maxCooldown > 0 ? `冷却: ${activeEvoCard.maxCooldown}
+                      <span class="text-#E6A23C text-2.6vh iconfont2">{{ activeEvoCard.maxCooldown > 0 ? `冷却:
+                        ${activeEvoCard.maxCooldown}
                         回合` :
                         '无冷却' }}</span>
                     </div>
@@ -420,8 +398,7 @@
               <!-- 已进化词条 -->
               <div class="px-2vw py-2vh">
                 <div class="flex items-center gap-x-1vh mb-2vh">
-                  <span class="text-2.5vh">✨</span>
-                  <span class="text-2.2vh font-bold text-#67C23A">已进化 ({{ ownedEvos.length }})</span>
+                  <span class="text-2.5vh font-bold text-#67C23A">已进化 ({{ ownedEvos.length }})</span>
                   <span v-if="!activeEvoCard.num || activeEvoCard.num <= 0"
                     class="text-1.4vh px-1vh py-0.3vh rounded-full bg-#F56C6C/20 text-#F56C6C font-medium ml-auto">
                     🔒 未解锁
@@ -439,7 +416,7 @@
                       {{ activeEvoCard.evoDesc?.[evo] || '' }}
                     </div>
                   </div>
-                  <div v-if="ownedEvos.length === 0" class="text-center py-3vh text-1.6vh text-#909399">
+                  <div v-if="ownedEvos.length === 0" class="text-center py-3vh text-2vh text-#909399">
                     {{ activeEvoCard.num && activeEvoCard.num > 0 ? '暂无已进化词条' : '解锁后可进化' }}
                   </div>
                 </div>
@@ -448,8 +425,7 @@
               <!-- 未进化词条 -->
               <div class="px-2vw py-2vh">
                 <div class="flex items-center gap-x-1vh mb-2vh">
-                  <span class="text-2.5vh">🔮</span>
-                  <span class="text-2.2vh font-bold text-#E6A23C">可进化 ({{ lockedEvos.length }})</span>
+                  <span class="text-2.5vh font-bold text-#E6A23C">可进化 ({{ lockedEvos.length }})</span>
                 </div>
                 <div class="flex flex-col gap-y-1.5vh">
                   <div v-for="evo in lockedEvos" :key="evo" :class="[
@@ -462,16 +438,16 @@
                     <div class="flex items-center justify-between mb-1vh">
                       <span class="text-1.9vh font-bold text-#E6A23C">{{ evo }}</span>
                       <span v-if="activeEvoCard.num && activeEvoCard.num > 0"
-                        class="text-1.4vh px-1vh py-0.3vh rounded-full bg-#E6A23C/20 text-#E6A23C group-hover:bg-#E6A23C/40 transition-all font-medium">点击进化</span>
+                        class="text-2vh px-1vh py-0.3vh rounded-full bg-#E6A23C/20 text-#E6A23C group-hover:bg-#E6A23C/40 transition-all font-medium">点击进化</span>
                       <span v-else
-                        class="text-1.4vh px-1vh py-0.3vh rounded-full bg-#909399/20 text-#909399 font-medium">🔒
+                        class="text-2vh px-1vh py-0.3vh rounded-full bg-#909399/20 text-#909399 font-medium">🔒
                         未解锁</span>
                     </div>
-                    <div class="text-1.7vh text-#DCDFE6 leading-relaxed font-medium">
+                    <div class="text-2.5vh text-#DCDFE6 leading-relaxed font-medium">
                       {{ activeEvoCard.evoDesc?.[evo] || '' }}
                     </div>
                   </div>
-                  <div v-if="lockedEvos.length === 0" class="text-center py-3vh text-1.6vh text-#909399">
+                  <div v-if="lockedEvos.length === 0" class="text-center py-3vh text-2vh text-#909399">
                     所有词条已全部进化
                   </div>
                 </div>
@@ -508,13 +484,10 @@
               </div>
               <!-- 卡牌信息 -->
               <div class="flex flex-col gap-y-1vh flex-1">
-                <div class="text-2.5vh font-bold" :style="{ color: activeEvoCard.color }">
+                <div class="text-3vh font-bold" :style="{ color: activeEvoCard.color }">
                   {{ activeEvoCard.name }}
                 </div>
-                <div class="text-2vh text-white">
-                  第 {{ (activeEvoCard.defaultEvos?.length || 0) + 1 }} 次进化
-                </div>
-                <div class="flex gap-x-2vh text-2vh">
+                <div class="flex gap-x-2vh text-2.3vh">
                   <span class="text-#E6A23C">消耗 {{ activeEvoCard.cost }} 灵力</span>
                   <span class="text-#F56C6C">冷却 {{ activeEvoCard.maxCooldown }} 回合</span>
                 </div>
@@ -527,7 +500,7 @@
                 <el-icon class="text-1.8vh text-#E6A23C">
                   <Coin />
                 </el-icon>
-                <span class="text-1.8vh font-bold text-#333">进化消耗</span>
+                <span class="text-2vh font-bold text-#333">进化消耗</span>
               </div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-x-1.5vh">
@@ -536,7 +509,7 @@
                     <img v-if="cardImgMap[activeEvoCard.name]" :src="cardImgMap[activeEvoCard.name]"
                       class="w-full h-full object-contain scale-185 rounded-full" />
                   </div>
-                  <span class="text-2vh text-black">重复卡牌</span>
+                  <span class="text-2.5vh text-black">重复卡牌</span>
                 </div>
                 <div class="flex items-center gap-x-1vh">
                   <span class="text-3vh font-bold"
@@ -544,29 +517,23 @@
                     {{ getExtraCardCount(activeEvoCard.name) }}
                   </span>
                   <span class="text-2vh text-#333">/</span>
-                  <span class="text-2vh font-medium text-#333">
+                  <span class="text-3vh font-medium text-#333">
 
                     {{ getEvoCostCount(activeEvoCard.name) }}
                   </span>
                 </div>
               </div>
-              <div class="text-1.4vh text-#333 mt-1.5vh text-right">
+              <div class="text-2vh text-#333 mt-1.5vh text-right">
                 多余卡牌数量（不含基础卡牌）
               </div>
             </div>
 
             <!-- 进化效果 -->
             <div class=" p-2.5vh rounded-xl  bg-#E6A23C/25 border border-#E6A23C/30">
-              <div class="flex items-center gap-x-1vh mb-1vh">
-                <el-icon class="text-#E6A23C">
-                  <MagicStick />
-                </el-icon>
-                <span class="text-2vh font-bold text-#E6A23C">进化效果</span>
-              </div>
-              <div class="text-2.5vh text-black leading-relaxed font-medium">
+              <div class="text-3.5vh text-black leading-relaxed font-medium">
                 {{ pendingEvoName }}
               </div>
-              <div class="text-2vh text-black mt-0.5vh">
+              <div class="text-2.8vh text-black mt-0.5vh">
                 {{ activeEvoCard.evoDesc?.[pendingEvoName] || '' }}
               </div>
             </div>
@@ -587,18 +554,16 @@
       </el-tab-pane>
 
       <!-- 卡牌携带 -->
-      <el-tab-pane>
+      <el-tab-pane name="cardCarry">
         <template #label>
           <span class="text-3vh">卡牌携带</span>
         </template>
         <div class="flex flex-col h-72vh">
-          <!-- 已携带卡牌区域 -->
           <div class="px-2vh pt-2vh border-b border-#E4E7ED flex-shrink-0">
-            <div class="flex items-center justify-between mb-1.5vh">
-              <span class="text-2vh font-bold text-#303133">已携带卡牌</span>
-              <span class="text-1.8vh font-bold"
-                :class="playerHandList.length >= maxHandCards ? 'text-#F56C6C' : 'text-#409EFF'">
-                {{ playerHandList.length }}/{{ maxHandCards }}
+            <div class="flex items-center  gap-x-1 mb-1.5vh">
+              <span class="text-2.3vh font-bold text-#303133">已携带卡牌</span>
+              <span class="text-2.6vh" :class="playerHandList.length >= maxHandCards ? 'text-#F56C6C' : 'text-#409EFF'">
+                {{ playerHandList.length }} / {{ maxHandCards }}
               </span>
             </div>
             <div class="flex flex-wrap gap-x-1.5vh gap-y-1.5vh">
@@ -615,14 +580,12 @@
                   <div class="absolute inset-0 rounded-lg border-2 transition-all"
                     :style="{ borderColor: getCardData(cardName)?.color + '88' }"></div>
                   <!-- 灵力消耗（左上角） -->
-                  <div class="absolute top-[3%] left-[7%] text-2.2vh font-bold z-10"
-                    :style="{ color: getCardData(cardName)?.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                  <div class="absolute top-[3%] left-[7%] text-2.2vh font-bold z-10 text-#409EFF">
                     {{ getCardData(cardName)?.cost }}
                   </div>
                   <!-- 卡牌名称 -->
                   <div
-                    class="absolute top-[6%] left-1/2 -translate-x-1/2 text-center text-1.6vh font-bold z-10 w-[60%] truncate"
-                    :style="{ color: getCardData(cardName)?.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                    class="absolute top-[6%] left-[52%]  w-full  -translate-x-1/2 text-center text-1.5vh  z-10   font-bold text-black iconfont2 ">
                     {{ cardName }}
                   </div>
                   <!-- 中间卡牌图 -->
@@ -646,7 +609,7 @@
           </div>
           <el-divider style="margin:1.5vh 0 1vh 0;" />
           <!-- 可选卡牌区域 -->
-          <div class="flex-1 overflow-y-auto px-2vh py-0.5vh">
+          <div class="flex-1 overflow-y-auto pl-2vh pr-3vw py-0.5vh overflow-y-scroll">
             <div class="flex items-center justify-between mb-1vh">
               <span class="text-2vh font-bold text-#303133">可选卡牌</span>
               <span class="text-2vh text-#333 font-bold">点击卡牌添加到携带栏</span>
@@ -682,20 +645,13 @@
                     </span>
                   </div>
                   <!-- 灵力消耗（左上角） -->
-                  <div class="absolute top-[5%] left-[9%] text-2vh font-bold z-10"
-                    :style="{ color: card.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                  <div class="absolute top-[4.5%] left-[8.5%] text-2.7vh font-bold z-10 text-#409EFF font-bold">
                     {{ card.cost }}
                   </div>
                   <!-- 卡牌名称 -->
                   <div
-                    class="absolute top-[5%] left-1/2 -translate-x-1/2 text-center text-2vh font-bold z-11 w-[55%] truncate"
-                    :style="{ color: card.color, textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)' }">
+                    class="absolute top-[5%] left-[53%] -translate-x-1/2 text-center  text-3vh font-bold z-11 w-full iconfont2 text-black">
                     {{ card.name }}
-                  </div>
-                  <div v-if="card.owned && card.defaultEvos?.length" class="absolute top-[-2%] right-[3%] z-10">
-                    <span class="text-1.4vh px-1vh py-0.3vh rounded-full text-white font-medium bg-black/50">
-                      进化×{{ card.defaultEvos.length }}
-                    </span>
                   </div>
                   <!-- 中间卡牌图 -->
                   <div class="absolute inset-0 z-1">
@@ -707,8 +663,8 @@
           </div>
 
           <!-- 底部提示 -->
-          <div class="px-2vh pb-1.5vh pt-0.5vh border-t border-#E4E7ED flex-shrink-0 bg-#F5F7FA">
-            <div class="flex items-center gap-x-1vh text-1.5vh text-#333">
+          <div class="px-2vh pb-2.5vh pt-0.5vh border-t border-#E4E7ED flex-shrink-0 bg-#F5F7FA">
+            <div class="flex items-center gap-x-1vh text-1.8vh text-#333">
               <el-icon>
                 <InfoFilled />
               </el-icon>
@@ -719,7 +675,7 @@
       </el-tab-pane>
 
       <!-- 卡牌抽取 -->
-      <el-tab-pane>
+      <el-tab-pane name="cardGacha">
         <template #label>
           <span class="text-3vh">卡牌抽取</span>
         </template>
@@ -757,13 +713,13 @@
               <!-- 右侧：灵力晶核数量 -->
               <div
                 class="flex items-center gap-x-1.5vh bg-black/40 backdrop-blur-sm px-3vh py-1.5vh rounded-full border border-purple-500/30">
-               <img src="@/assets/daoju/jinghe.webp" class="w-4vh h-4vh object-contain" />
+                <img src="@/assets/daoju/jinghe.webp" class="w-4vh h-4vh object-contain" />
                 <span class="text-white text-2vh font-bold">{{ crystalCount }}</span>
               </div>
             </div>
 
             <!-- 中间：卡牌展示区 -->
-            <div ref="gachaResultRef" class="flex-1 flex"
+            <div ref="gachaResultRef" class="flex-1 flex gacha-result-container"
               :class="showResults ? 'items-start justify-center overflow-y-auto pt-5vh pb-3vh' : 'items-center justify-center'">
               <!-- 抽卡前：卡池展示 -->
               <div v-if="!isDrawing && !showResults" class="flex flex-col items-center gap-y-4vh">
@@ -868,7 +824,6 @@
               <!-- 抽卡结果展示 -->
               <div v-if="showResults" class="flex flex-col items-center gap-y-3vh w-full px-4vh">
                 <div class="text-2.5vh font-bold text-white mb-2vh">抽卡结果</div>
-
                 <!-- 单抽结果 -->
                 <div v-if="gachaResults.length === 1" class="flex flex-col items-center">
                   <div class="relative">
@@ -876,7 +831,6 @@
                     <div class="absolute inset-0 -m-5vh blur-2xl rounded-full animate-pulse"
                       :style="{ background: `radial-gradient(circle, ${gachaResults[0].color}66 0%, transparent 70%)` }">
                     </div>
-
                     <!-- 结果卡牌 -->
                     <div
                       class="relative w-25vh h-[37vh] rounded-2xl overflow-hidden shadow-2xl animate-result-appear hover:scale-105 transition-transform z-10">
@@ -888,14 +842,18 @@
                       <!-- 卡牌边框 -->
                       <div class="absolute inset-0 rounded-2xl border-4"
                         :style="{ borderColor: gachaResults[0].color + 'aa' }"></div>
-
+                      <!-- 灵力消耗（左上角） -->
+                      <div class="absolute top-[4%] left-[8%] text-4vh font-bold z-10 text-#409EFF">
+                        {{ gachaResults[0].cost }}
+                      </div>
                       <!-- 卡牌名称 -->
-                      <div class="absolute top-8vh left-1/2 -translate-x-1/2 text-center z-10 w-full px-2vh">
-                        <div class="text-3.5vh font-bold"
-                          :style="{ color: gachaResults[0].color, textShadow: '0 0 10px rgba(0,0,0,0.5), 0 0 20px ' + gachaResults[0].color + '44' }">
+                      <div class="absolute top-2vh left-1/2 -translate-x-1/2 text-center z-10 w-full px-2vh">
+                        <div class="text-3.5vh font-bold iconfont2 text-black">
                           {{ gachaResults[0].name }}
                         </div>
                       </div>
+
+
 
                       <!-- 中间 Spine 卡牌图 -->
                       <div class="absolute inset-0 z-1">
@@ -912,8 +870,8 @@
                 </div>
 
                 <!-- 十连抽结果 -->
-                <div v-else class="w-full">
-                  <div class="grid grid-cols-5 gap-x-2vh gap-y-2vh">
+                <div v-else class="w-full gacha-result-wrapper">
+                  <div class="grid grid-cols-5 gap-x-2vh gap-y-2vh gacha-result-grid">
                     <div v-for="(card, index) in gachaResults" :key="index"
                       class="relative w-full h-0 pt-[148%] rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform animate-result-card"
                       :style="{ animationDelay: `${index * 0.1}s` }" @click="showCardDetail(card)">
@@ -923,13 +881,19 @@
                       <div class="absolute inset-0 rounded-lg border-2" :style="{ borderColor: card.color + '88' }">
                       </div>
 
+                      <!-- 灵力消耗（左上角） -->
+                      <div class="absolute top-[4%] left-[7%] text-4vh font-bold z-10 text-#409EFF">
+                        {{ card.cost }}
+                      </div>
+
                       <!-- 卡牌名称 -->
-                      <div class="absolute top-2vh left-1/2 -translate-x-1/2 text-center z-10 w-full px-1vh">
-                        <div class="text-1.6vh font-bold truncate"
-                          :style="{ color: card.color, textShadow: '0 0 2px rgba(0,0,0,0.5)' }">
+                      <div class="absolute top-[5%] left-1/2 -translate-x-1/2 text-center z-10 w-full px-1vh ml-0.5vw">
+                        <div class="text-3vh font-bold truncate iconfont2 text-black">
                           {{ card.name }}
                         </div>
                       </div>
+
+
 
                       <!-- 中间 Spine 卡牌图 -->
                       <div class="absolute inset-0 z-1">
@@ -992,19 +956,111 @@
           </el-dialog>
         </div>
       </el-tab-pane>
+
+      <!-- 天赋系统 -->
+      <el-tab-pane name="talent">
+        <template #label>
+          <span class="text-3vh">天赋系统</span>
+        </template>
+        <div class="flex flex-col h-70vh">
+          <!-- 顶部：天赋点显示 -->
+          <div class="flex items-center justify-between px-4vh py-1.5vh border-b border-#E4E7ED flex-shrink-0">
+            <div class="flex items-center gap-2vh">
+              <span class="text-3vh">🌟</span>
+              <span class="text-2.5vh font-bold text-#303133">天赋点</span>
+            </div>
+            <div class="flex items-center gap-1.5vh">
+              <span class="text-4vh font-bold text-#E6A23C">{{ user.pixi.player.talentPoints }}</span>
+              <span class="text-2vh text-#909399">点可用</span>
+            </div>
+          </div>
+
+          <!-- 天赋列表 -->
+          <div class="flex-1 overflow-y-auto p-1vh">
+            <div class="grid grid-cols-3 gap-3vh">
+              <div v-for="talent in user.talentConfig" :key="talent.id"
+                class="relative py-2vh px-3vh rounded-2xl border-2 transition-all cursor-pointer" :class="user.hasTalent(talent.id)
+                  ? 'bg-gradient-to-br from-#F0F9FF to-#E0F2FE border-#409EFF shadow-lg'
+                  : 'bg-gradient-to-br from-#F5F7FA to-#F2F6FC border-#DCDFE6 hover:border-#C0C4CC hover:shadow-md'">
+                <!-- 已激活标记 -->
+                <div v-if="user.hasTalent(talent.id)"
+                  class="absolute top-2vh right-2vh w-3vh h-3vh rounded-full bg-#67C23A flex items-center justify-center">
+                  <span class="text-white text-1.5vh">✓</span>
+                </div>
+
+                <!-- 天赋图标和名称 -->
+                <div class="flex gap-x-2.5vh mb-1vh">
+                  <img :src="inventoryImg(talent.id)" class="w-15vh h-15vh object-contain rounded-full" />
+                  <div class="flex-1 flex flex-col  gap-y-1vh">
+                    <div class="text-3vh font-bold text-#303133">{{ talent.name }}</div>
+                    <div class="text-2.4vh iconfont2 text-#333 leading-relaxed">
+                      {{ talent.description }}
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- 底部：消耗和按钮 -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1vh">
+                    <span class="text-2vh text-#333">消耗</span>
+                    <span class="text-2.5vh font-bold text-#E6A23C">{{ talent.cost }}</span>
+                    <span class="text-2vh text-#333">点</span>
+                  </div>
+
+
+                  <div v-if="!user.hasTalent(talent.id)" class="bg-#409EFF text-white text-2vh px-2vh py-1vh rounded"
+                    @click="activateTalent(talent.id)" round>激活</div>
+
+                  <span v-else class="text-2vh font-semibold text-#67C23A py-1vh">
+                    已激活
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部提示 -->
+          <div class="px-4vh pb-1vh">
+            <el-divider style="margin: 0;" />
+            <span class="text-2vh text-#333 iconfont2 flex items-center justify-center">
+              💡 5/10/15/20以上等级都会获得一天赋点
+            </span>
+          </div>
+        </div>
+      </el-tab-pane>
     </el-tabs>
 
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useCounterStore } from "@/store/counter";
 import { ElMessText } from "@/pages/zujian/utils.js";
 import { createCardSpine } from "../fight/CardSpine"
 import { Star, Coin, MagicStick, Close, Check, InfoFilled, Clock } from '@element-plus/icons-vue'
 
 const user = useCounterStore();
+
+// 接收父组件传入的默认激活标签
+const props = defineProps({
+  defaultTab: {
+    type: String,
+    default: 'info' // 默认第一个标签
+  }
+});
+
+// 当前激活的标签
+const activeTab = ref(props.defaultTab);
+
+// 监听默认标签变化，切换到对应标签
+watch(() => props.defaultTab, (newVal) => {
+  if (newVal) {
+    activeTab.value = newVal;
+  }
+});
+
 const popoverRefs1 = ref([]);
 // 当前展开描述的卡牌
 const activeDescCard = ref(null);
@@ -1041,6 +1097,11 @@ function handleTabChange() {
   isDrawing.value = false;
   // 关闭历史记录
   showHistory.value = false;
+}
+
+// ==================== 天赋系统 ====================
+function activateTalent(talentId) {
+  user.activateTalent(talentId)
 }
 
 // 已进化的词条
@@ -1087,6 +1148,8 @@ function doGacha(count) {
   // 播放抽卡动画
   setTimeout(() => {
     const results = user.gachaCard(count);
+    console.log('results=', results);
+
     if (results) {
       gachaResults.value = results;
       isDrawing.value = false;
@@ -1379,7 +1442,14 @@ const displayCards = computed(() =>
 // ==================== 卡牌携带 ====================
 
 // 最大携带卡牌数量（以后要增加直接改这里）
-const maxHandCards = 6;
+const maxHandCards = computed(() => {
+  let count = 6;
+  // 天赋：卡牌大师 - 可携带卡牌数量+1
+  if (user.hasTalent('card_master')) {
+    count += 1;
+  }
+  return count;
+});
 
 // 当前携带的卡牌列表（从 pinia 获取）
 const playerHandList = computed(() => {
@@ -1388,7 +1458,7 @@ const playerHandList = computed(() => {
 
 // 空槽位数量
 const emptyHandSlots = computed(() => {
-  return Math.max(0, maxHandCards - playerHandList.value.length);
+  return Math.max(0, maxHandCards.value - playerHandList.value.length);
 });
 
 // 可选卡牌列表（所有 num >= 1 的卡牌）
@@ -1426,8 +1496,8 @@ function addToHand(cardName) {
   }
 
   // 检查是否达到上限
-  if (playerHandList.value.length >= maxHandCards) {
-    ElMessText(`最多只能携带 ${maxHandCards} 张卡牌`, "warning");
+  if (playerHandList.value.length >= maxHandCards.value) {
+    ElMessText(`最多只能携带 ${maxHandCards.value} 张卡牌`, "warning");
     return;
   }
 
@@ -1903,5 +1973,136 @@ function initCardsToInventory() {
 
 :deep(.el-tabs--border-card>.el-tabs__content) {
   padding: 0;
+}
+
+/* ==============================================
+   手机端适配 - 十连抽结果可滚动
+   ============================================== */
+
+/* 滚动容器优化：确保移动端可以流畅滚动 */
+.gacha-result-container {
+  -webkit-overflow-scrolling: touch;
+  /* 修复 flex 布局中 overflow 不生效的问题 */
+  min-height: 0;
+  /* 预留滚动条空间，避免内容跳动 */
+  scrollbar-gutter: stable;
+}
+
+.gacha-result-container.overflow-y-auto {
+  /* 始终显示滚动条，不用 auto */
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  /* 右边留出滚动操作的空间，方便手指触摸 */
+  padding-right: 2vw !important;
+  box-sizing: border-box;
+}
+
+/* 自定义滚动条样式 - 更宽更容易触摸 */
+.gacha-result-container::-webkit-scrollbar {
+  width: 12px;
+  /* 滚动条宽度，手机端更容易触摸 */
+}
+
+.gacha-result-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.gacha-result-container::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.6);
+  /* 紫色半透明，和主题搭配 */
+  border-radius: 6px;
+}
+
+.gacha-result-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.8);
+}
+
+/* Firefox 滚动条样式 */
+.gacha-result-container {
+  scrollbar-width: thick;
+  /* 宽滚动条 */
+  scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.1);
+}
+
+/* ==============================================
+   卡牌图鉴 - 滚动条优化
+   ============================================== */
+.card-gallery-scroll {
+  /* 始终显示滚动条 */
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch;
+  /* 修复 flex 布局滚动问题 */
+  min-height: 0;
+  /* 预留滚动条空间 */
+  scrollbar-gutter: stable;
+  /* 右边留出触摸空间 */
+  padding-right: 2vw !important;
+  box-sizing: border-box;
+}
+
+/* 自定义滚动条样式 */
+.card-gallery-scroll::-webkit-scrollbar {
+  width: 12px;
+}
+
+.card-gallery-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+.card-gallery-scroll::-webkit-scrollbar-thumb {
+  background: rgba(64, 158, 255, 0.5);
+  /* 蓝色，和主题搭配 */
+  border-radius: 6px;
+}
+
+.card-gallery-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 158, 255, 0.7);
+}
+
+/* Firefox 滚动条 */
+.card-gallery-scroll {
+  scrollbar-width: thick;
+  scrollbar-color: rgba(64, 158, 255, 0.5) rgba(0, 0, 0, 0.05);
+}
+
+/* 十连抽结果包装器 */
+.gacha-result-wrapper {
+  width: 100%;
+}
+
+/* 响应式：平板/小屏 - 4列 */
+@media (max-width: 768px) {
+  .gacha-result-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.5vh !important;
+  }
+}
+
+/* 响应式：手机端 - 3列 */
+@media (max-width: 480px) {
+  .gacha-result-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1vh !important;
+  }
+
+  /* 手机端调整文字大小 */
+  .gacha-result-grid .text-3vh {
+    font-size: 2.5vh !important;
+  }
+
+  .gacha-result-grid .text-4vh {
+    font-size: 3vh !important;
+  }
+}
+
+/* 超小屏适配 - 2列 */
+@media (max-width: 360px) {
+  .gacha-result-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 2vh !important;
+  }
 }
 </style>

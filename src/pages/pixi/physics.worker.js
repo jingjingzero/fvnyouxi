@@ -73,7 +73,7 @@ self.onmessage = (e) => {
     const { left, right, jump } = data.data;
 
     let vx = 0;
-    const speed = 0.2 * data.VW;
+    const speed = 0.22 * data.VW;
     if (left) vx = -speed;
     if (right) vx = speed;
 

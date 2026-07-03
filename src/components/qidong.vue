@@ -28,10 +28,10 @@
           }">
           </div>
         </div>
-        <div class="z-99 flex mr-3vw" v-if="startSelect.index === 0">
-          <div class="flex flex-col items-end text-white iconfont2 mt-15vh pt-2vh px-3vw rounded-5 gap-y-5vh font-bold">
+        <div class="z-99 flex" v-if="startSelect.index === 0">
+          <div class="flex flex-col items-end text-white iconfont2 mt-15vh pt-2vh px-3vw rounded-5 gap-y-8vh font-bold">
             <span v-for="(item, index) of info" :key="index">
-              <span class="bg-#409EFF/50 px-2vw py-2vh rounded-2" @click="enter(index)">
+              <span class="bg-#409EFF/75 px-2vw py-2vh rounded-2" @click="enter(index)">
                 {{ item }}
               </span>
             </span>
@@ -49,6 +49,7 @@ import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import { useCounterStore } from "@/store/counter"; //pinia库
 import { loadAssets } from "./loadAssets";
 import router from "@/router"; //引入路由
+import { ElMessageBox } from 'element-plus'
 import { ElMessText } from "@/pages/zujian/utils.js";
 import { SkeletonBounds } from "@esotericsoftware/spine-core";
 const user = useCounterStore();
@@ -60,9 +61,6 @@ const startSelect = reactive({
 const info = reactive([
   "开始游戏",
   "读取游戏",
-  "画廊",
-  "设置",
-  "档案",
 ]);
 
 async function enter(index) {
@@ -72,32 +70,66 @@ async function enter(index) {
   try {
     user.text = "";
     user.playSound("clickS", false, user.volume * 0.5);
-
     if (index === 0) {
       if (user.SoundArr.length === 0) return;
-      user.resetUser();
-      router.push({ name: "matter" });
-      return
-      user.zhujue01.name = "琳恩";
-      user.zhujue01.sex = 0;
-      user.stopAllSounds();
-      // startSelect.index++;
-      user.playSound("water", true, user.volume * 0.5);
-      // setTimeout(() => {
-      //   startSelect.animationFinished = true;
-      // }, 1600);
+      const saveData = user.autoLoad();
+
+      if (saveData) {
+        ElMessageBox.confirm(
+          '检测到已有游戏存档，开启新游戏将会覆盖现有存档，确定要重新开始吗？',
+          '提示',
+          {
+            confirmButtonText: '确认新开游戏',
+            cancelButtonText: '取消',
+            type: 'warning',
+     closeOnClickModal: false, // 点击遮罩不关闭
+            closeOnPressEscape: true
+          }
+        )
+          .then(() => {
+            // 确认：重置存档，跳转新游戏
+            user.resetUser();
+            router.push({
+              name: "matter",
+              query: {}
+            });
+          })
+          .catch(() => {
+            // 取消 / 点关闭 / ESC：什么都不做，不跳转
+            return;
+          });
+      } else {
+        // 无存档直接新开
+        user.resetUser();
+        router.push({
+          name: "matter",
+          query: {}
+        });
+      }
     } else if (index === 1) {
+      const saveData = user.autoLoad();
+      if (!saveData) {
+        ElMessText("你没有存档");
+        return
+      }
+      router.push({
+        name: "matter",
+        query: saveData ? {
+          map: saveData.currentMap,
+          x: saveData.playerX,
+          y: saveData.playerY,
+          playerDir: saveData.playerDirection,
+          npcDirs: saveData.npcDirections ? JSON.stringify(saveData.npcDirections) : undefined,
+        } : {}
+      });
       user.stopAllSounds();
-      user.cundang(2);
     } else if (index === 2) {
       ElMessText("未开放");
-    } else if (index === 3) {
-      user.menu = 2;
-      user.menuSelect = 3;
-    } else if (index === 4) {
-
-      router.push({ name: "ceshi" });
-    }
+    } 
+    // else if (index === 3) {
+    //   user.menu = 2;
+    //   user.menuSelect = 3;
+    // } 
   } finally {
     // 0.25 秒后释放锁
     setTimeout(() => {

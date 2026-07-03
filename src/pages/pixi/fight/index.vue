@@ -6,9 +6,9 @@
             </button>
         </div>
         <!-- 星铁行动条 UI -->
-        <div class="absolute top-1vh left-1/2 -translate-x-1/2 w-[40%] z-40">
-            <el-progress :percentage="100"  :duration="8" :stroke-width="10" striped striped-flow
-                :text-inside="false" :show-text="false" />
+        <div ref="actionBarRef" class="absolute top-1vh left-1/2 -translate-x-1/2 w-[40%] z-40 tour-target-action-bar">
+            <el-progress :percentage="100" :duration="8" :stroke-width="10" striped striped-flow :text-inside="false"
+                :show-text="false" />
 
             <div class="relative w-full h-0">
                 <div class="absolute -bottom-5 text-xs text-blue-400 font-bold whitespace-nowrap bg-white/35 rounded-full px-1.5"
@@ -18,7 +18,7 @@
                     </div>
                     主角
                 </div>
-                <div v-for="a in allies.filter(x => x.hp > 0)" :key="a.name"
+                <div v-for="a in aliveAllies" :key="a.name"
                     class="absolute -bottom-5 text-xs text-cyan-400 font-bold whitespace-nowrap bg-white/35 rounded-full px-1.5 "
                     :style="{ left: a.actionProgress / 10000 * 100 + '%', transform: 'translateX(-50%)' }">
                     <div class="absolute top--1 left-40%"
@@ -26,7 +26,7 @@
                     </div>
                     {{ a.name }}
                 </div>
-                <div v-for="enemy in enemies.filter(item => item.hp > 0)" :key="enemy.name"
+                <div v-for="enemy in aliveEnemies" :key="enemy.name"
                     class="absolute -bottom-5 text-xs text-red-400 font-bold whitespace-nowrap bg-white/35 rounded-full px-1.5"
                     :style="{ left: enemy.actionProgress / 10000 * 100 + '%', transform: 'translateX(-50%)' }">
                     <div class="absolute top--1 left-40%"
@@ -40,7 +40,7 @@
             <div class="iconfont2">回合 {{ battle.state.round }}</div>
         </div>
         <!-- ✅ 新增：玩家动态血条 -->
-        <!-- <div class="absolute top-3vh left-1vw w-[22vw] z-50">
+        <div class="absolute top-3vh left-1vw w-[22vw] z-50">
             <div class="absolute z-2 text-2.5vh font-bold left-0.5vw h-4.5vh flex items-center"> HP {{
                 Math.ceil(player.hp) }} / {{ player.maxHp }}</div>
             <div class="relative w-full h-4.5vh rounded-full bg-gray-900/80 overflow-hidden shadow-inner">
@@ -51,13 +51,14 @@
                 <div class="absolute top-0 left-0 right-0 h-1/2 bg-white/10 rounded-t-full pointer-events-none">
                 </div>
             </div>
-        </div> -->
+        </div>
         <template v-if="showEndButton">
 
-            <div class="absolute top-2vh right-7.5vw  text-white bg-#F56C6C z-2 text-1.3vw py-1.4vh px-1vw rounded-2"
+            <div ref="endTurnBtnRef"
+                class="absolute top-2vh right-7.5vw  text-white bg-#F56C6C z-2 text-1.3vw py-1.4vh px-1vw rounded-2 tour-target-end-turn"
                 @click="myEndPlayerTurn">结束回合</div>
 
-            <el-icon class="absolute! right-1vw top-10vh z-2" color="#333" @click="openAllCardPopup">
+            <el-icon ref="infoIconRef" class="absolute! right-1vw top-10vh z-2 tour-target-info" color="#333" @click="openAllCardPopup">
                 <InfoFilled />
             </el-icon>
         </template>
@@ -76,29 +77,19 @@
                 transform: card.dragging ? 'rotate(0deg)' : `rotate(${card.angle || 0}deg)`,
                 transformOrigin: 'bottom center',
                 transition: card.dragging ? 'none' : 'left 0.3s ease, top 0.3s ease, transform 0.3s ease'
-            }" @mousedown="handleCardDrag($event, card)" @touchstart="handleCardDrag($event, card)">
-
+            }" @mousedown="startLongPress($event, card)" @touchstart="startLongPress($event, card)"
+            @mouseup="clearLongPress" @touchend="clearLongPress" @mouseleave="clearLongPress">
             <div class="spine-here absolute inset-0"></div>
-
             <template v-if="card.spineLoaded">
                 <div v-if="card.name.length === 2"
-                    class="mt-1.2vh absolute text-3vh iconfont2 w-100% ml-0.5vh text-center" :style="{
-                        color: getCardTextColor(card.name),
-                        textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)'
-                    }">
+                    class="mt-1.2vh absolute text-3vh iconfont2 w-100% ml-0.5vh text-center text-black">
                     {{ card.name }}
                 </div>
                 <div v-else-if="card.name.length === 3"
-                    class="mt-1.2vh absolute text-3vh iconfont2 w-100% left-1vh text-center" :style="{
-                        color: getCardTextColor(card.name),
-                        textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)'
-                    }">
+                    class="mt-1.2vh absolute text-3vh iconfont2 text-black w-100% left-1vh text-center">
                     {{ card.name }}
                 </div>
-                <div v-else class="mt-1.2vh absolute text-3vh iconfont2 w-70% left-4.3vh text-center" :style="{
-                    color: getCardTextColor(card.name),
-                    textShadow: '0 0 2px #000, 0 0 4px #000, 0 1px 2px rgba(0,0,0,0.5)'
-                }">
+                <div v-else class="mt-1.2vh absolute text-3vh iconfont2 text-black w-70% left-4.3vh text-center">
                     {{ card.name }}
                 </div>
 
@@ -114,10 +105,24 @@
                 </div>
             </template>
         </div>
+        <el-col  ref="ref2" class="absolute left-33% w-35vw h-20vh bottom-1vh!"></el-col>
+        <CardDetailPopup ref="cardDetailPopupRef" v-model:visible="showCardPopup" :hand-cards="playerHand"
+            :player="player" :allies="allies" :enemies="enemies" />
+        <pixiIndex ref="pixiIndexRef" :mp="player.mp" :maxMp="player.maxMp" />
+            <el-col  ref="ref1" class="absolute bottom-7vh left-2.5vw w-7vw h-8vh"></el-col>
+        <!-- 🔥 战斗结果弹窗 -->
+        <BattleResultPopup :visible="showBattleResult" :is-victory="battleIsVictory" :exp-gained="battleExpGained"
+            :item-rewards="battleItemRewards" :level-up-info="battleLevelUpInfo" :rounds="battleRounds"
+            @close="closeBattleResult" />
 
-        <CardDetailPopup v-model:visible="showCardPopup" :hand-cards="playerHand" :player="player" :allies="allies"
-            :enemies="enemies" />
-        <pixiIndex :mp="player.mp" :maxMp="player.maxMp" />
+        <!-- 🔥 新手引导 Tour -->
+        <el-tour v-model="tourVisible" :mask="true" :show-close="false"  @close="onTourClose" @finish="onTourClose">
+            <el-tour-step :target="ref1?.$el"  title="灵力数值" description="这个是灵力，打出卡牌需要消耗一定的灵力，具体的消耗每张卡牌左上角有标明。" />
+            <el-tour-step :target="ref2?.$el" title="卡牌区域" description="正下方是卡牌区域，<长按卡牌>可以查看卡牌详情，<拖动卡牌>至上方可以将卡牌打出去。" placement="top" />
+            <el-tour-step target=".tour-target-action-bar" title="行动条" description="正上方是行动条，可以查看敌我双方的行动顺序。" placement="bottom" />
+            <el-tour-step target=".tour-target-info" title="详细信息" description="点击右上角的信息图标，可以查看自身的属性以及敌人的属性。" placement="left" />
+            <el-tour-step target=".tour-target-end-turn" title="结束回合" description="在没有可行动的操作后，点击右上角的结束按钮可以结束回合。" placement="left" />
+        </el-tour>
     </div>
 </template>
 
@@ -130,38 +135,93 @@ import { useCardDrag } from './drag.js'
 import { createBattle } from './battle.js'
 import { createEnemyGroup } from './EnemyGroup.js'
 import { createAllies } from './TeamAllies.js'
-import { useSkill } from './SkillLogic.js'
+import { useSkill, initSkillCache, prewarmEffectPool } from './SkillLogic.js'
 import { resetFastReload } from './SkillReset'
 import CardDetailPopup from './CardDetailPopup.vue'
-import { createCardSpine, getCardTextColor, destroyAllCardSpines } from './CardSpine'
+import BattleResultPopup from './BattleResultPopup.vue'
+import { createCardSpine, destroyAllCardSpines } from './CardSpine'
 import { loadAssets } from "@/components/loadAssets.js";
 import { useDrone, useSkillShadowClone, useSkillReflect } from './SkillDamage';
-import { getAllSummons } from './SkillLogic.js';
+import { getAllSummons, clearBattleSummons } from './SkillLogic.js';
 import pixiIndex from './pixi.vue'
 import { useCounterStore } from "@/store/counter";
+import { initBattleCache } from './battle.js'
+import emitter from "@/bus";
 const user = useCounterStore();
 const emit = defineEmits(['fight-end'])
-
+// ✅ 关键修复：先初始化战斗缓存（天赋数据），再创建战斗实例
+initSkillCache(user);
+initBattleCache(user);
+const ref1 = ref()
+const ref2 = ref()
 const vw = window.innerWidth
 const vh = window.innerHeight
 const showCardPopup = ref(false)
 // 战斗启动开关，页面载入默认未开始
 const battleStarted = ref(false)
 const cardSpineList = ref([])
+
+// ✅ 卡牌详情弹窗引用
+const cardDetailPopupRef = ref(null)
+
+// ✅ 新手引导 Tour 相关
+const tourVisible = ref(false)
+const hasShownTutorial = ref(false) // 标记是否已经显示过新手引导
+const actionBarRef = ref(null)
+const endTurnBtnRef = ref(null)
+const infoIconRef = ref(null)
+const pixiIndexRef = ref(null)
+const cardRefs = ref([])
+
+
+// 引导结束回调
+function onTourClose() {
+    tourVisible.value = false
+    // 标记已看过引导
+    user.pixi.hasSeenBattleTutorial = true
+}
+
+// 开始新手引导
+function startBattleTutorial() {
+    // 延迟一下，确保所有元素都渲染完成
+    nextTick(() => {
+        setTimeout(() => {
+            console.log('开始引导');
+
+            tourVisible.value = true
+        }, 500)
+    })
+}
+
+// ✅ 长按相关变量
+let longPressTimer = null
+const LONG_PRESS_DURATION = 600 // 长按2秒
+let isLongPressTriggered = false
+let longPressStartPos = { x: 0, y: 0 }
+const MOVE_THRESHOLD = 10 // 移动超过10px就取消长按
+
+// 🔥 战斗结果弹窗
+const showBattleResult = ref(false)
+const battleIsVictory = ref(true)
+const battleExpGained = ref(0)
+const battleItemRewards = ref([])
+const battleLevelUpInfo = ref(null)
+const battleRounds = ref(0)
 function openAllCardPopup() {
     showCardPopup.value = true
 }
 
 // 手动启动战斗
 async function startBattle() {
+    // ✅ 开始战斗前清空所有召唤物和状态
+    clearBattleSummons(allies)
+
     battleStarted.value = true
     // battle内部计时器正式开始运行
     battle.resumeLoop()
 
-    // user.pixi.player.playerHand[3] = '瘴气'
-    // // 执行替换
-    // await replaceCard(3, '瘴气')
-    // emit('fight-end', { isWin: true, score: 100 })
+    // 重置新手引导状态，每次战斗的第一次玩家回合都会显示
+    hasShownTutorial.value = false
 }
 const spineRefreshLock = new Map()
 async function refreshSingleCardSpine(targetIndex) {
@@ -249,6 +309,10 @@ const getCardTargetX = (index) => {
 };
 let result = null
 onMounted(async () => {
+    // ✅ 页面加载时先清空所有残留的召唤物
+
+    clearBattleSummons(allies)
+
     await loadAssets()
     await nextTick()
     const cardWidth = window.innerWidth * 0.5
@@ -275,11 +339,74 @@ onMounted(async () => {
         cardSpineList.value.push(result)
     }
 
+    // ✅ 预热特效对象池，避免首次播放动画掉帧
+    // 延迟 200ms，等卡牌渲染稳定后再预热，避免挤在一起更卡
+    setTimeout(() => {
+        prewarmEffectPool()
+    }, 200)
+
+    // 🔥 监听战斗结束事件
+    emitter.on("battleEnd", handleBattleEnd)
+    
+    // 🔥 监听玩家回合开始事件，第一次时显示新手引导
+    emitter.on("playerTurnStart", handlePlayerTurnStart)
 
 })
+
+// 玩家回合开始处理
+function handlePlayerTurnStart() {
+    // 只在第一次玩家回合时显示引导
+    if (!user.pixi.hasSeenBattleTutorial) {
+        hasShownTutorial.value = true
+        startBattleTutorial()
+    }
+}
+// 🔥 处理战斗结束（发放奖励 + 显示弹窗）
+function handleBattleEnd(result) {
+    battleRounds.value = result.rounds
+    battleIsVictory.value = result.isVictory
+    battleExpGained.value = result.expGained
+    battleItemRewards.value = result.itemRewards
+
+    // 如果是胜利，立即发放奖励
+    if (result.isVictory) {
+        // 发放物品奖励
+        result.itemRewards.forEach(item => {
+            user.addItemToInventory(item)
+        })
+
+        // 发放经验并检查升级
+        const levelUpInfo = user.addExp(result.expGained)
+        battleLevelUpInfo.value = levelUpInfo
+    } else {
+        battleLevelUpInfo.value = null
+    }
+
+    // 显示弹窗
+    showBattleResult.value = true
+}
+
+// 🔥 关闭战斗结果弹窗（退出战斗）
+function closeBattleResult() {
+    showBattleResult.value = false
+
+    // 退出战斗，返回主世界
+    setTimeout(() => {
+        emitter.emit("enablePlayerControl")
+    }, 200)
+}
 // 血量百分比（0-100）
 const hpPercent = computed(() => {
     return Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100));
+});
+
+// 🔥 性能优化：缓存存活的友军和敌人，避免模板中每次都filter
+const aliveAllies = computed(() => {
+    return allies.filter(x => x.hp > 0);
+});
+
+const aliveEnemies = computed(() => {
+    return enemies.value.filter(item => item.hp > 0);
 });
 
 // 血条动态颜色：根据血量自动切换绿/黄/红
@@ -307,7 +434,6 @@ const player = createUnit({
     x: user.pixi.activePlayer.x,
     y: user.pixi.activePlayer.y
 })
-console.log('player=', player);
 
 const allies = reactive(createAllies())
 const enemies = ref([])
@@ -317,20 +443,20 @@ const playerHand = ref(
 )
 const usedCardThisTurn = []
 let diren = user.pixi.npcDataList.filter((item) => item.mapId === "desert_02")
-console.log('user.pixi.npcInstance=',user.pixi.npcInstance);
+
 enemies.value = []
-const totalEnemies = diren.length; 
+const totalEnemies = diren.length;
 for (let i = 0; i < diren.length; i++) {
-    const {x,y} = user.pixi.npcInstance[i].npcFight(i,totalEnemies)
+    const { x, y } = user.pixi.npcInstance[i].npcFight(i, totalEnemies)
     enemies.value.push(
         createUnit({
             ...diren[i].data,  // 保留原data的所有属性（name/hp/attack等）
             x: x,     // 追加x坐标
-            y: y*0.9      // 追加y坐标
+            y: y * 0.9      // 追加y坐标
         })
     )
 }
-console.log('enemies=', enemies.value);
+
 /* ===== 战斗核心（创建但不自动启动计时） ===== */
 const battle = createBattle(
     player,
@@ -437,11 +563,11 @@ function useCard(card) {
         const droneCount = getAllSummons('drone').length;
         if (droneCount >= 6) {
             ElMessage.warning('无人机已达上限');
-      card.dragging = false;
-      card.x = card.baseX;
-      card.y = card.baseY;
-      // 强制触发位置重排，确保归位
-      nextTick(() => calcArcCardPos());
+            card.dragging = false;
+            card.x = card.baseX;
+            card.y = card.baseY;
+            // 强制触发位置重排，确保归位
+            nextTick(() => calcArcCardPos());
             return 0; // 直接返回，不扣蓝、不使用卡牌
         }
     }
@@ -462,6 +588,68 @@ function useCard(card) {
 }
 
 let msgLock = false
+
+// ✅ 开始长按计时
+function startLongPress(e, card) {
+    isLongPressTriggered = false
+
+    // 记录起始位置
+    const pageX = e.touches ? e.touches[0].pageX : e.pageX
+    const pageY = e.touches ? e.touches[0].pageY : e.pageY
+    longPressStartPos = { x: pageX, y: pageY }
+
+    // 清除之前的计时器
+    if (longPressTimer) {
+        clearTimeout(longPressTimer)
+    }
+
+    // 2秒后触发长按
+    longPressTimer = setTimeout(() => {
+        isLongPressTriggered = true
+        triggerLongPress(card)
+    }, LONG_PRESS_DURATION)
+
+    // 监听移动，移动超过阈值则取消长按
+    window.addEventListener('mousemove', handleLongPressMove)
+    window.addEventListener('touchmove', handleLongPressMove)
+
+    // 同时继续处理拖拽逻辑
+    handleCardDrag(e, card)
+}
+
+// ✅ 处理长按期间的移动
+function handleLongPressMove(e) {
+    const pageX = e.touches ? e.touches[0].pageX : e.pageX
+    const pageY = e.touches ? e.touches[0].pageY : e.pageY
+
+    const moveX = Math.abs(pageX - longPressStartPos.x)
+    const moveY = Math.abs(pageY - longPressStartPos.y)
+
+    // 移动超过阈值，取消长按
+    if (moveX > MOVE_THRESHOLD || moveY > MOVE_THRESHOLD) {
+        clearLongPress()
+    }
+}
+
+// ✅ 清除长按计时器
+function clearLongPress() {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer)
+        longPressTimer = null
+    }
+    // 移除移动监听
+    window.removeEventListener('mousemove', handleLongPressMove)
+    window.removeEventListener('touchmove', handleLongPressMove)
+}
+
+// ✅ 触发长按，显示卡牌详情
+function triggerLongPress(card) {
+    // 直接打开卡牌详情弹窗（不需要外层主弹窗）
+    if (cardDetailPopupRef.value) {
+        cardDetailPopupRef.value.openCardInfo(card)
+    }
+}
+
 function handleCardDrag(e, card) {
     if (!battleStarted.value) return
     const usable = isCardUsable(card)
@@ -486,9 +674,20 @@ function handleCardDrag(e, card) {
 }
 // 组件销毁：清空战斗定时器、清理spine画布、重置状态
 onUnmounted(async () => {
+    // 🔥 移除事件监听
+    emitter.off("battleEnd", handleBattleEnd)
+    emitter.off("playerTurnStart", handlePlayerTurnStart)
+
+    // ✅ 清除长按计时器
+    clearLongPress()
+
     // 1️⃣ 先停所有战斗逻辑
     battle.pauseLoop()
     battle.destroyBattle()
+
+    // ✅ 清空所有召唤物spine和数据
+    clearBattleSummons(allies)
+
     cardSpineList.value.forEach((item, i) => {
         item?.destroy?.();
     });

@@ -1,14 +1,125 @@
 import { reactive } from 'vue'
 import { tickMiasma, getFinalArmor, calculateSkillDamage, useSkillShooting, calculateFinalDamage } from './SkillDamage'
 import { useCounterStore } from "@/store/counter";
-import { removeSummon, getSummonInstance, getFirePointPosition, playSpineProjectile } from "./SkillLogic"
+import { removeSummon, getSummonInstance, getFirePointPosition, playSpineProjectile, playReflectBuff, removeReflectBuff, removePoisonMist, playSpineEffect } from "./SkillLogic"
 import emitter from "@/bus";
+
 const user = useCounterStore();
 export const BattleSystem = {}
 const POISON_BUFFS = ["瘴毒", "毒雾"];
 let zhandou = false
 // 新增：战斗循环启停标记
 let loopPaused = true
+let VH = window.innerHeight / 100;
+let VW = window.innerWidth / 100;
+
+// ==============================================
+// 🔥 性能优化：缓存Pinia数据，避免频繁访问触发响应式
+// ==============================================
+let _cardDataCache = null;
+let _pixiAppCache = null;
+let _playerInstanceCache = null;
+// 🔥 天赋缓存
+let _talentsCache = [];
+let _userStoreCache = null;
+
+/**
+ * 初始化战斗缓存（战斗开始前调用一次）
+ */
+export function initBattleCache(userStore) {
+  _cardDataCache = userStore.pixi.player.CARD_DATA;
+  _pixiAppCache = userStore.pixi.app;
+  _playerInstanceCache = userStore.pixi.playerInstance;
+  // 🔥 缓存天赋信息
+  _talentsCache = userStore.pixi.player.activatedTalents || [];
+  _userStoreCache = userStore;
+}
+
+/**
+ * 获取卡牌配置（从缓存）
+ */
+function getCardData(name) {
+  return _cardDataCache?.[name];
+}
+
+// ======================================
+// 🔥 天赋系统辅助函数
+// ======================================
+/**
+ * 检查是否激活了某个天赋
+ */
+function hasTalent(talentId) {
+  return _talentsCache?.includes(talentId) || false;
+}
+
+/**
+ * 应用战斗开始时的天赋效果
+ */
+function applyBattleStartTalents(player) {
+  console.log('天赋=', _talentsCache);
+
+  // 天赋：灵力奔涌 - 最大灵力+1，当前灵力+3
+  if (hasTalent('mana_surge')) {
+    player.maxMp += 1;
+    player.mp = Math.min(player.maxMp, player.mp + 3);
+    console.log('[天赋] 灵力奔涌：最大灵力+1，获得3点灵力');
+  }
+
+  // 天赋：战斗狂热 - 攻击力和速度提升15%
+  if (hasTalent('battle_frenzy')) {
+    const atkBonus = Math.floor(player.baseAttack * 0.15);
+    const spdBonus = player.baseSpeed * 0.15;
+    player.attack += atkBonus;
+    player.speed += spdBonus;
+
+    player.buffs.push({
+      name: '战斗狂热',
+      stack: 0,
+      isPermanent: true
+    });
+    console.log('[天赋] 战斗狂热：攻击力+15%，速度+15%');
+  }
+
+  // 天赋：致命一击 - 幸运+15
+  if (hasTalent('critical_strike')) {
+    player.luck += 15;
+    console.log('[天赋] 致命一击：幸运+15');
+  }
+}
+
+/**
+ * 应用回合开始时的天赋效果（玩家回合）
+ */
+function applyPlayerTurnStartTalents(player) {
+  // 天赋：灵韵流转 - 每回合额外获得1点灵力
+  if (hasTalent('mana_regen')) {
+    player.mp = Math.min(player.maxMp, player.mp + 1);
+    console.log('[天赋] 灵韵流转：获得1点灵力');
+  }
+
+  // 天赋：生命回复 - 恢复4%最大生命值
+  if (hasTalent('life_steal')) {
+    const healAmount = Math.floor(player.maxHp * 0.04);
+    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+    console.log(`[天赋] 生命回复：恢复${healAmount}点生命`);
+  }
+}
+
+/**
+ * 获取暴击伤害倍率（天赋加成）
+ */
+export function getCritDamageMultiplier() {
+  let multiplier = 1; // 基础倍率为1，在原有基础上增加
+
+  // 天赋：致命一击 - 暴击伤害提升40%
+  if (hasTalent('critical_strike')) {
+    multiplier += 0.4;
+    console.log('[天赋] 致命一击：暴击伤害+40%');
+  }
+
+  return multiplier;
+}
+
 export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart, playerHand) {
   const state = reactive({
     round: 1,
@@ -42,6 +153,9 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
     e.debuffs = e.debuffs ?? []
     e.speed = e.baseSpeed
   })
+
+  // 🔥 应用战斗开始时的天赋效果
+  applyBattleStartTalents(player);
 
   let globalAT = 0
   const FIRST_CYCLE_AT = 150
@@ -104,9 +218,15 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
   // 1. 行动开始结算（流血、扣回合、刷新速度）
   // ====================
   function onTurnStart(target) {
+    // 🔥 玩家回合开始时的天赋效果
+    if (target === player) {
+      applyPlayerTurnStartTalents(player);
+    }
+
     //有益buff区域
     target.buffs = target.buffs.filter(b => {
       // 只减1次！！！
+      if (b.isPermanent) return true
       b.remaining--
 
       if (b.remaining <= 0) {
@@ -118,13 +238,13 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
         }
         if (b.type === "reflect") {
           target.armor -= b.addArmor;
+          // 移除反弹 buff 动画
+          removeReflectBuff(target);
         }
         if (b.type === "speed_buff") {
           //乘胜追击加速效果
           target.speed -= b.speedUp
         }
-
-
         return false
       }
       return true
@@ -184,7 +304,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
       if (allyUnit._isDead || allyUnit._inAction || !target) return
       allyUnit._inAction = true
 
-      const cfg = user.pixi.player.CARD_DATA.无人机
+      // 🔥 性能优化：从缓存取配置
+      const cfg = getCardData('无人机');
       const rawDmg = cfg.fixedDmg + Math.floor(allyUnit.owner.attack * cfg.atkRatio)
 
       allyUnit.remainingAttacks -= 1
@@ -198,7 +319,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
           // ✅ 2. 先播特效，不管敌人死没死（或者判断原始血量）
           if (target && target.hp > 0) {
             playSpineProjectile(
-              user.pixi.app,
+              // 🔥 性能优化：从缓存取app
+              _pixiAppCache,
               firePos,
               { x: target.x, y: target.y },
               "idle",
@@ -258,7 +380,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
       }
 
       // ✅ 参考主角：读取配置 + 多发连射逻辑
-      const cfg = user.pixi.player.CARD_DATA['射击'];
+      // 🔥 性能优化：从缓存取配置
+      const cfg = getCardData('射击');
       let hitCount = cfg.hitCount || 1;
       const fireInterval = 100;  // 发射间隔
       const flyDuration = 0.3;   // 单颗子弹飞行时长
@@ -270,10 +393,10 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
       }
 
       const startPos = {
-        x: shadowClone.spineInstance.x + 5 * VW,
+        x: shadowClone.spineInstance.x + 5 * (window.innerWidth / 100),
         y: shadowClone.spineInstance.y * 0.75
       };
-      const endPos = { x: target.x - 3 * VW, y: target.y * 0.85 };
+      const endPos = { x: target.x - 3 * (window.innerWidth / 100), y: target.y * 0.85 };
 
       console.log(`👥 影分身射击，发射 ${hitCount} 发子弹`);
 
@@ -284,7 +407,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
           if (!hasAlive) return;
 
           playSpineProjectile(
-            user.pixi.app,
+            // 🔥 性能优化：从缓存取app
+            _pixiAppCache,
             startPos,
             endPos,
             "idle",
@@ -353,6 +477,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
     if (player.mp < player.maxMp) {
       player.mp = Math.min(player.mp + 2, player.maxMp)
     }
+    // 🔥 发出玩家回合开始事件
+    emitter.emit('playerTurnStart')
   }
 
   function playerUseCard(card) {
@@ -385,14 +511,54 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
   }
 
   function enemyAttack(enemyUnit, done) {
-    const baseDmg = Math.floor(Math.random() * 150) + 50
-    let dmg = calcDamage(enemyUnit, player, baseDmg)
+    const baseDmg = Math.floor(Math.random() * 100) + 50
+
+    // 🔥 播放爪击特效（在玩家位置，x轴翻转）
+    const appContainer = _pixiAppCache || user.pixi.app;
+    if (appContainer && player.x !== undefined) {
+      playSpineEffect({
+        effectName: 'zhuaji',
+        container: appContainer,
+        x: player.x+4*VW,
+        y: player.y,
+        scale: 0.4,
+        flipX: true,  // x轴翻转，让爪击朝向玩家
+        animationName: 'animation',
+        loop: false
+      });
+    }
+    console.log("你好")
+    // 🔥 使用统一伤害计算函数
+    // 先备份玩家血量，因为 calculateFinalDamage 会自动扣血
+    const backupPlayerHp = player.hp;
+
+    // 计算最终伤害（敌人攻击玩家，物理伤害，不暴击）
+    const { dmg: finalDmg } = calculateFinalDamage(
+      baseDmg,
+      player,
+      0,
+      'physical',
+      enemyUnit,  // 攻击者是敌人
+      null        // 没有buff，不暴击
+    );
+
+    // 恢复玩家血量（因为 calculateFinalDamage 已经扣过了，我们需要手动处理影分身）
+    player.hp = backupPlayerHp;
+
+    // 🔥 触发玩家受伤效果（闪白滤镜 + 飘伤害数字）
+    const playerInstance = _playerInstanceCache || user.pixi.playerInstance;
+    if (playerInstance?.takeDamage) {
+      // 调用 takeDamage 触发受伤特效和飘字
+      playerInstance.takeDamage(finalDmg, { type: 'physical', isCritical: false }, enemyUnit.attack);
+      // 恢复玩家实例的血量（战斗系统的血量由 battle.js 统一管理）
+      playerInstance.data.data.hp = backupPlayerHp;
+    }
 
     // 影分身承伤逻辑
     const clone = allies.find(a => a.isShadowClone && a.hp > 0)
     if (clone) {
-      const shareDmg = Math.floor(dmg * clone.takeDmgRatio)
-      const selfDmg = dmg - shareDmg
+      const shareDmg = Math.floor(finalDmg * clone.takeDmgRatio)
+      const selfDmg = finalDmg - shareDmg
 
       clone.hp = Math.max(0, clone.hp - shareDmg)
       player.hp = Math.max(0, player.hp - selfDmg)
@@ -406,17 +572,17 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
       }
     } else {
       // 无分身全额吃伤
-      player.hp = Math.max(0, player.hp - dmg)
-      console.log(`⚔️ ${enemyUnit.name} 攻击玩家，造成 ${dmg} 伤害`)
+      player.hp = Math.max(0, player.hp - finalDmg)
+      console.log(`⚔️ ${enemyUnit.name} 攻击玩家，造成 ${finalDmg} 伤害`)
     }
     const reflectBuff = player.buffs.find(b => b.type === "reflect");
     if (reflectBuff && reflectBuff.remaining > 0) {
       const rBase = reflectBuff.reflectBase;
       const rArmor = reflectBuff.reflectArmor;
       // 1.计算反弹原始面板伤害
-      const rawReflectDmg = Math.floor(dmg * rBase + player.armor * rArmor);
+      const rawReflectDmg = Math.floor(finalDmg * rBase + player.armor * rArmor);
       // 2.复用通用LOL护甲公式计算最终反弹伤害，和射击、普攻规则完全一致
-      const realDmg = calculateFinalDamage(rawReflectDmg, enemyUnit, 0, 'null');
+      const realDmg = calculateFinalDamage(rawReflectDmg, enemyUnit, 0, 'physical', player);
       console.log(`🛡️ 反弹伤害(正常吃敌方护甲)：${realDmg}`);
     }
     const selfPoisonMist = enemyUnit.debuffs.find(d => d.name === "毒雾");
@@ -482,7 +648,8 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
           })
           player.speed += speedUp
         }
-        user.pixi.playerInstance?.showBuffText('乘胜追击');
+        // 🔥 性能优化：从缓存取playerInstance
+        _playerInstanceCache?.showBuffText('乘胜追击');
         // console.log("⚡ 乘胜追击触发！速度+20%")
       }
     }
@@ -505,17 +672,72 @@ export function createBattle(player, allies, enemies, useCard, onPlayerTurnStart
     })
 
     // 结束判断
-    if (player.hp <= 0 || enemies.every(e => e.hp <= 0)) {
+    const isVictory = enemies.every(e => e.hp <= 0)
+    const isDefeat = player.hp <= 0
+
+    if (isVictory || isDefeat) {
       if (!zhandou) {
         zhandou = true
         state.battleEnd = true
         clearInterval(timer)
-        emitter.emit("enablePlayerControl");
-        console.log(`🏆 战斗结束！`)
+
+        // 清理毒雾领域动画
+        removePoisonMist();
+
+        // 🔥 计算战斗奖励
+        const rewards = calculateBattleRewards(isVictory, enemies)
+
+        // 🔥 发送战斗结束事件，由Vue组件处理弹窗和奖励发放
+        emitter.emit("battleEnd", {
+          isVictory,
+          expGained: rewards.exp,
+          itemRewards: rewards.items,
+          rounds: state.round
+        })
+
+        console.log(`🏆 战斗结束！${isVictory ? '胜利' : '失败'}`)
+        console.log(`🎁 获得经验：${rewards.exp}，获得物品：`, rewards.items)
+
         setTimeout(() => {
-            zhandou = false
+          zhandou = false
         }, 500);
       }
+    }
+  }
+
+  // ====================
+  // 计算战斗奖励
+  // ====================
+  function calculateBattleRewards(isVictory, enemies) {
+    if (!isVictory) {
+      return { exp: 0, items: [] }
+    }
+
+    // 根据敌人数量和强度计算经验
+    let totalExp = 0
+    enemies.forEach(enemy => {
+      // 基础经验：根据敌人最大生命计算（可调整）
+      totalExp += 20
+    })
+
+    // 最少给50经验
+    totalExp = Math.max(50, totalExp)
+
+    // 物品奖励：灵力晶核（根据敌人数量）
+    const crystalCount = Math.max(1, Math.floor(enemies.length * 1))
+    const items = [{
+      name: "灵力晶核",
+      num: crystalCount,
+      img: "jinghe",
+      miaoshu: "蕴含强大灵力的晶核，可用于抽取卡牌。",
+      sell: 10,
+      status: "material",
+      color: "#8B5CF6"
+    }]
+
+    return {
+      exp: totalExp,
+      items
     }
   }
   BattleSystem.checkBattleEnd = checkBattleEnd

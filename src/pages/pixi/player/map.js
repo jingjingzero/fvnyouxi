@@ -1,5 +1,3 @@
-import { log2 } from "pixi.js";
-
 /**
  * 所有地图定义都在这里
  * 每个 map 是一个函数，接收 WORLD_WIDTH，返回地图数据
@@ -15,10 +13,10 @@ const MAPS = {
             id: "one01",
             name: "第一章地图",
             effects: {
-                reflection: {
-                    enable: true,             // 是否开启水面
-                    waterWorldY: 90 * VH      // 水面高度（世界坐标）
-                },
+                // reflection: {
+                //     enable: true,             // 是否开启水面
+                //     waterWorldY: 90 * VH      // 水面高度（世界坐标）
+                // },
                 // 以后还能加：bloom, blur, fog 等
             },
             lightSource: {
@@ -33,6 +31,12 @@ const MAPS = {
             },
             TopMap: 0,//地面位置
             backgroundImages: ['map1_01', 'map1_02'], //【地图背景】
+            farBackgroundImages: ['map1_01yj', 'map1_02yj'], //【远景背景】（最底层，视差最慢）
+            spineBackground: { //【Spine 动态背景】
+                skelName: 'changjing1_skel',    // spine 骨骼数据别名
+                atlasName: 'changjing1_atlas',  // spine 图集别名
+                animationName: null,            // 动画名称，null 则自动播放第一个动画
+            },
             offsetX: OFFSET, // 区域1在 X=0 位置
             currentGroundY: OFFSETY,
             WORLD_WIDTH: WORLD_WIDTH,
@@ -43,7 +47,7 @@ const MAPS = {
                 // { x: WORLD_WIDTH * 0.97, y: 88 * VH, w: 25 * VH, h: 50 * VH, withBody: true, create: false, zIndex: 0, tietu: null, movable: false },//障碍物
             ],
             TriggerAreaArr: [
-                { x: WORLD_WIDTH * 0.85, y: 89 * VH, w: 15 * VH, h: 10 * VH, color: undefined, withBody: true, create: true, zIndex: -1, movable: false, isSensor: false, label: { name: "电梯", type: true, ticker: null } },
+                //  { x: WORLD_WIDTH * 0.85, y: 89 * VH, w: 15 * VH, h: 10 * VH, color: undefined, withBody: true, create: true, zIndex: -1, movable: false, isSensor: false, label: { name: "电梯", type: true, ticker: null } },
                 //  { x: WORLD_WIDTH * 0.75, y: 84 * VH, w: 15 * VH, h: 10 * VH, color: undefined, withBody: true, create: true, zIndex: 100, movable: false, isSensor: false, label: { name: "电梯", type: true, ticker: null } },
                 {
                     x: WORLD_WIDTH * 0.99,
@@ -100,7 +104,7 @@ const MAPS = {
     // ========================
     desert_01({ WORLD_WIDTH, VH = v => v, VW = v => v }) {
         const OFFSET = 250 * VW; // 👈 定义一个变量
-        const OFFSETY = 80;//地面位置
+        const OFFSETY = 76;//地面位置
 
         return {
             id: "desert_01",
@@ -114,8 +118,14 @@ const MAPS = {
                     enable: false,
                 }
             },
-            TopMap: 3.5,//地面位置
-            backgroundImages: ['wall_01'], //【地图背景】
+            TopMap: 0,//地面位置
+            backgroundImages: ['map1_01', 'map1_02'], //【地图背景】
+            farBackgroundImages: ['map1_01yj', 'map1_02yj'], //【远景背景】（最底层，视差最慢）
+            spineBackground: { //【Spine 动态背景】
+                skelName: 'changjing1_skel',    // spine 骨骼数据别名
+                atlasName: 'changjing1_atlas',  // spine 图集别名
+                animationName: null,            // 动画名称，null 则自动播放第一个动画
+            },
             offsetX: OFFSET,// 区域2 放在 6000 位置，完全不重叠
             currentGroundY: OFFSETY,
             WORLD_WIDTH: WORLD_WIDTH,
@@ -164,7 +174,8 @@ const MAPS = {
                 }
             },
             TopMap: 3.5,//地面位置
-            backgroundImages: ['wall_02'], //【地图背景】
+            backgroundImages: ['wall_02', 'wall_03'], //【地图背景】
+            farBackgroundImages: [], //【远景背景】（最底层，视差最慢）
             offsetX: OFFSET,// 区域2 放在 6000 位置，完全不重叠
             currentGroundY: OFFSETY,
             WORLD_WIDTH: WORLD_WIDTH,

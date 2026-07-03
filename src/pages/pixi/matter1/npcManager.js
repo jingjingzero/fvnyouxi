@@ -44,7 +44,6 @@ export function playerUpdate(Matter, activePlayer, viewport) {
             activePlayer.body.position.y -
             (activePlayer.data?.xuetiaoPosition ?? 20) * VH;
     }
-    console.log('user.pixi.activePlayer=', user.pixi.activePlayer);
 
     activePlayer.speed = user.pixi.activePlayer.speed
     activePlayer.data.data.maxHp = user.pixi.activePlayer.maxHp

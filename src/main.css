@@ -2,8 +2,21 @@
   --base-font-size: 3vw; /* 基于视口高度的 16:9 比例 */
   font-display: block;
   color: #333;
+  /* 禁止文字选中 */
+  -webkit-user-select: none;
+  user-select: none;
+  /* 禁止页面拖拽/滚动回弹（移动端必加） */
+  -webkit-overflow-scrolling: auto;
+  /* 禁止拖动元素、图片拖拽 */
+  -webkit-user-drag: none;
 }
-
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 隐藏滚动条，禁止滚动拖动 */
+  height: 100%;
+  touch-action: none; /* 移动端禁止触摸滑动、拖拽 */
+}
 /* 横竖屏 */
 /* 竖屏 */
 
