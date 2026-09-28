@@ -1,0 +1,26 @@
+{
+ "automappingRulesFile": "",
+ "commands": [],
+ "extensionsPath": "",
+ "folders": [
+  "."
+ ],
+ "propertyTypes": [
+  {
+   "id": 1,
+   "name": "weather",
+   "storageType": "string",
+   "type": "enum",
+   "values": [
+    "sunny",
+    "rain",
+    "fog",
+    "storm",
+    "thunderstorm",
+    "bloodmoon",
+    "snow"
+   ],
+   "valuesAsFlags": false
+  }
+ ]
+}

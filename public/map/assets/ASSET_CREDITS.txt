@@ -1,0 +1,223 @@
+素材来源与授权说明（必须保留署名）
+====================================
+
+本目录中的 castle_tiles.png 来自：
+  素材名：Castle / Dungeon
+  作者  ：Gary Shaw
+  来源  ：https://opengameart.org/content/castle-dungeon
+  授权  ：CC BY 4.0（可商用，必须署名）
+  署名  ：'Castle / Dungeon tiles by Gary Shaw, licensed under CC BY 4.0.'
+
+本目录中的 castle_rpg1.png / castle_rpg2.png 来自：
+  素材名：Castle Tiles for RPG's
+  作者  ：Hyptosis, Zabin, Daniel Cook
+  来源  ：https://opengameart.org/content/castle-tiles-for-rpgs
+  授权  ：CC BY 3.0（可商用，必须署名）
+  署名  ：'Castle Tiles for RPG's by Hyptosis, Zabin and Daniel Cook, licensed under CC BY 3.0.'
+  备注  ：原素材为 32x32 瓦片，已最近邻放大 2 倍至 64x64 以匹配地图
+
+本目录中的 castle_blue.png 来自：
+  素材名：Blue Castle Top Down
+  作者  ：Destron
+  来源  ：https://opengameart.org/content/blue-castle-top-down
+  授权  ：CC0 公有领域（无需署名，可任意商用）
+
+本目录中的 sbs_floor_*.png / sbs_wall_*.png 来自：
+  素材名：SBS - Top Down Dungeon Pack
+  作者  ：Screaming Brain Studios
+  来源  ：https://opengameart.org/content/top-down-dungeon-pack
+  授权  ：CC0 公有领域（无需署名，可任意商用）
+
+本目录中的 castle_lpc_throneA.png / castle_lpc_throneB.png / castle_lpc_hall.png / castle_lpc_living.png 来自：
+  素材名：LPC: Interior Castle Tiles
+  作者  ：Sharm
+  来源  ：https://opengameart.org/content/lpc-interior-castle-tiles
+  授权  ：CC BY 4.0（可商用，必须署名）
+  署名  ：'LPC Interior Castle Tiles by Sharm, licensed under CC BY 4.0.'
+  备注  ：原素材为 32x32 瓦片，已最近邻放大 2 倍至 64x64 以匹配地图；含王座厅/大厅/餐厅/卧室/起居等王室装饰
+
+本目录中的 castle_mega.png 来自：
+  素材名：[LPC] Castle Mega-Pack
+  作者  ：bluecarrot16
+  来源  ：https://opengameart.org/content/lpc-castle-mega-pack
+  授权  ：CC BY-SA 3.0（可商用，必须署名；衍生作品需以相同方式共享）
+  署名  ："LPC Castle Mega-Pack" by bluecarrot16, licensed under CC BY-SA 3.0.
+  备注  ：原素材为 32x32 瓦片，已最近邻放大 2 倍至 64x64；含塔楼/拱门/彩色玫瑰窗/尖塔/木门等城堡建筑外部件
+
+本目录中的 medieval_exterior.png / medieval_interior.png 来自：
+  素材名：Medieval Tileset
+  作者  ：Calciumtrice
+  来源  ：https://opengameart.org/content/medieval-tileset
+  授权  ：CC BY 3.0（可商用，必须署名）
+  署名  ：'Medieval Tileset by Calciumtrice, licensed under CC BY 3.0.'
+  备注  ：原素材为 16x16 瓦片，已最近邻放大 4 倍至 64x64；含中世纪房屋/室内家具/灶台/储物箱等
+
+本目录中的以下 LPC 系列素材（CC BY-SA 3.0，需署名；衍生作品需以相同方式共享）：
+  lpc_castle_ext.png  - LPC castle (Evert) https://opengameart.org/node/50906
+  castle_mega_brn.png / castle_mega_dark.png / castle_mega_extras.png
+                      - [LPC] Castle Mega-Pack (bluecarrot16) https://opengameart.org/content/lpc-castle-mega-pack
+  lpc_lights.png      - [LPC] Castle Lights Repack https://opengameart.org/content/lpc-castle-lights-repack
+  lpc_doors.png       - LPC Animated Castle Doors https://opengameart.org/content/lpc-animated-castle-doors
+  lpc_dungeon.png / lpc_dungeon_ex.png - [LPC] Dungeon Elements (Sharm) https://opengameart.org/content/lpc-dungeon-elements
+  lpc_house_inside.png - LPC House Insides https://opengameart.org/content/lpc-house-insides
+  lpc_signs.png       - [LPC] Hanging signs (Reemax) https://opengameart.org/content/lpc-hanging-signs
+  备注：原素材为 32x32 瓦片，已最近邻放大 2 倍至 64x64（lpc_lights/doors 含动画帧序列）
+
+本目录中的以下素材（CC BY 3.0，可商用，必须署名）：
+  c16_castle.png      - 16x16 Castle Tiles (bart) https://opengameart.org/content/16x16-castle-tiles（16x16 放大 4 倍）
+  lpc_fireplace.png   - LPC Fireplace (Sharm) https://opengameart.org/content/lpc-fireplace
+  lpc_lamp_misc.png / lpc_lamp_hanging.png - LPC Lamp Posts Rework (AntumDeluge) https://opengameart.org/content/lpc-lamp-posts-rework
+  lpc_well.png        - LPC Style Well (Xenodora) https://opengameart.org/content/lpc-style-well
+
+本目录中的 rl_indoor.png 来自：
+  素材名：Roguelike Indoor pack (Kenney Vleugels) https://opengameart.org/content/roguelike-indoor-pack
+  授权  ：CC0 公有领域（无需署名，可任意商用）
+  备注  ：原素材为 16x16 瓦片（1px 间距），已切分并最近邻放大 4 倍至 64x64
+
+本目录中的以下素材（LPC 系列，CC BY-SA，需署名；衍生作品需以相同方式共享）：
+  victorian_garden.png / victorian_market.png / victorian_streets.png
+      - [LPC] Victorian Town Decorations (bluecarrot16 等多人) CC BY-SA 4.0
+        https://opengameart.org/content/lpc-victorian-town-decorations
+  lpc_doors1.png       - LPC Animated Doors CC BY-SA 3.0 https://opengameart.org/content/lpc-animated-doors
+  lpc_flames.png       - [LPC] Flames CC BY-SA 3.0 https://opengameart.org/content/lpc-flames
+  lpc_graves.png       - [LPC] Signposts, graves, line cloths and scare crow (Reemax) CC BY-SA 3.0
+                        https://opengameart.org/content/lpc-signposts-graves-line-cloths-and-scare-crow
+  fantasy32.png        - 32x32 Fantasy Tileset (Jerom) CC BY-SA 3.0 https://opengameart.org/content/32x32-fantasy-tileset
+  备注：原素材为 32x32 瓦片，已最近邻放大 2 倍至 64x64
+
+本目录中的以下素材（CC BY 3.0，可商用，必须署名）：
+  alpc_castle.png      - Another LPC style castle (theidiotmachine) https://opengameart.org/content/another-lpc-style-castle
+
+本目录中的以下素材（CC0 公有领域，无需署名）：
+  chests_32.png        - Treasure chests, 32x32 and 16x16 https://opengameart.org/content/treasure-chests-32x32-and-16x16
+  puny_dungeon.png     - 16x16 Puny Dungeon Tileset https://opengameart.org/content/16x16-puny-dungeon-tileset（16x16 放大 4 倍）
+  rpg_items.png        - RPG Items (Buch) https://opengameart.org/content/rpg-items
+
+本目录中的以下素材（CC BY-SA 3.0 / GPL，需署名；衍生作品需以相同方式共享）：
+  lpc_out_atlas.png / lpc_terrain_atlas.png
+      - LPC Tile Atlas (adrix89) https://opengameart.org/content/lpc-tile-atlas
+        建筑外部/地形大图集，32x32 放大 2 倍
+
+本目录中的 dawnlike_decor.png 来自：
+  素材名：DawnLike - 16x16 Universal Rogue-like tileset (DragonDePlatino)
+  来源  ：https://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181
+  授权  ：CC BY 4.0（可商用，必须署名）
+  署名  ：'DawnLike by DragonDePlatino, licensed under CC BY 4.0.'
+  备注  ：Items/Objects 目录全部 16x16 瓦片已合并为一张 64x64 表
+
+本目录中的 dcss_dungeon.png / dcss_item.png / dcss_misc.png 来自：
+  素材名：Dungeon Crawl Stone Soup Full (MedicineStorm)
+  来源  ：https://opengameart.org/content/dungeon-crawl-32x32-tiles
+  授权  ：CC0 公有领域（无需署名）
+  备注  ：dungeon(地牢瓦片)/item(物品)/misc(杂项) 三个分类已合并为 32x32->64x64 表
+
+本目录中的 hyptosis_main.png 来自：
+  素材名：Hyptosis sprites and tiles (Zabin)
+  来源  ：https://opengameart.org/content/lots-of-free-2d-tiles-and-sprites-by-hyptosis
+  授权  ：CC BY 3.0（可商用，必须署名）
+  署名  ：'Hyptosis tiles by Zabin, licensed under CC BY 3.0.'
+
+建议在游戏"关于/致谢"页或源码 README 中统一注明以上 CC BY / CC BY-SA 素材的署名。
+
+本目录中的 lava_anim.png / lava_static.png 来自：
+  素材名：The Battle for Wesnoth Lava Animation Remixed (Zabin)
+  来源  ：https://opengameart.org/content/the-battle-for-wesnoth-lava-animation-remixed
+  授权  ：CC0 公有领域（无需署名）
+  备注  ：lava_anim 为 4 帧 Tiled 动态瓦片（200ms 循环）；lava_static 为静态岩浆边缘表
+
+本目录中的 lava_dark_stone.png 来自：
+  素材名：Stone and Lava Ground Tiles (Sevarihk)
+  来源  ：https://opengameart.org/content/stone-and-lava-ground-tiles
+  授权  ：CC BY 4.0（可商用，必须署名）
+  署名  ：'Stone and Lava Ground Tiles by Sevarihk, licensed under CC BY 4.0.'
+
+本目录中的 forest_grass.png / forest_water.png / forest_dirt.png / forest_trees.png 来自：
+  素材名：[Free Sample] 16x16 Pixel Forest Tileset - Top-down RPG Style (inkBubi)
+  来源  ：https://opengameart.org/content/free-sample-16x16-pixel-forest-tileset-%E2%80%93-top-down-rpg-style
+  授权  ：CC0 公有领域（无需署名；作者备注如需可附项目链接）
+  备注  ：16x16 放大 4 倍至 64x64；含草地/水域/泥土/树木四张表（free sample 版）
+
+本目录中的 tiny_forest.png / tiny_tree_a.png / tiny_tree_b.png / tiny_props.png 来自：
+  素材名：TinyRPG Stranger Forest (ansimuz)
+  来源  ：https://opengameart.org/content/tinyrpg-stranger-forest-pack
+  授权  ：CC0 公有领域（无需署名）
+  备注  ：16x16 放大 4 倍；tree_a/b 为完整大树（已标 solid 不可通行）；props 含原木/松树/岩石/小屋
+
+本目录中的 nature_obstacles.png 来自：
+  素材名：RC Art - Nature Surface (Reactorcore)
+  来源  ：https://opengameart.org/content/nature-props-surface-forest
+  授权  ：CC0 公有领域（无需署名）
+  备注  ：冷杉/橡树/灌木/岩石等 9 个障碍物精灵拼表，全部已标 solid 不可通行
+
+本目录中的 kenney_medieval_rts.png / kenney_foliage_64.png 来自：
+  素材名：Medieval RTS / Foliage Pack (Kenney Vleugels)
+  来源  ：https://kenney.nl/assets/medieval-rts  /  https://kenney.nl/assets/foliage-pack
+  授权  ：CC0 公有领域（无需署名，可任意商用）
+  备注  ：kenney_medieval_rts 为 58 张 64x64 地面/树组合瓦片 + 21 个透明环境物件（松树/岩石/原木/树桩/火把）拼表；
+         kenney_foliage_64 为 62 个扁平植物/花卉/灌木/岩石元素归一化居中至 64x64 拼表；
+         用于 forest2.tmj（新森林地图，扁平非像素美术）
+
+
+本目录中的 avalon_ground.png / avalon_obj.png / avalon_water_anim.png / avalon_trees.png 来自：
+  素材名：Cliff / Avalon Tileset（含 64x64 手绘地面、物件、树、动画水）
+  作者  ：Leonard Pabin（Lesikar Assassin）
+  来源  ：https://opengameart.org/content/cliff-tileset
+  授权  ：AVALON Copyleft 2009（标注原作者的即可自由使用）
+  备注  ：原生 64x64 手绘（非像素放大）；树来自包内 trees.psd；动画水为本包水流瓦片按 3 帧位移合成
+
+本目录中的 seam_ground.png 来自：
+  素材名：Seamless 64px RPG Tiles（114 个独立 64x64 地面纹理：草/林/水/沙/土路/洞穴/季节）
+  作者  ：CodeSpree
+  来源  ：https://opengameart.org/content/seamless-64px-rpg-tiles
+  授权  ：CC BY-SA 4.0（必须署名）
+  署名  ：'Seamless 64px RPG Tiles by CodeSpree, CC BY-SA 4.0.'
+
+本目录中的 seam_obj.png / seam_trees_big.png / seam_water_anim.png 来自：
+  素材名：Top-down RPG Assets（402 个透明物件：古树/桦树/苹果树/枯树/季节灌木/浆果丛/巨石/篝火/蚁丘）
+  作者  ：CodeSpree
+  来源  ：https://opengameart.org/content/top-down-rpg-assets
+  授权  ：CC BY-SA 4.0（必须署名）
+  署名  ：'Top-down RPG Assets by CodeSpree, CC BY-SA 4.0.'
+  备注  ：大树 256x320（4 季古树）；小物件 64x64；水动画为 seam_ground 水格做的 3 帧位移合成（300ms/帧）
+
+本目录中的 pf_ground.png / pf_high.png / pf_obj.png 来自：
+  素材名：Fantasy RPG Tileset 32x32: Peaceful Forest（明亮卡通像素风森林：22 地面 + 81 悬崖边 + 树/灌木/花/石/坑）
+  作者  ：Snakerser
+  来源  ：https://snakerser.itch.io/peacefulforest
+  授权  ：免费商用、可改、可分发；署名非必需（感谢作者 Snakerser）
+  备注  ：原 32x32 已按 2x 放大成 64x64（NearestNeighbor）接入
+
+本目录中的 hd_grass.png / hd_hill.png / hd_water_anim.png / hd_obj.png 来自：
+  素材名：Basic Hand-Drawn Tileset and Asset Pack V0.1（可爱治愈手绘风：草地/山丘/6帧动画水面/树/杉/灌木/石/树桩）
+  作者  ：schwarnhild
+  来源  ：https://schwarnhild.itch.io/basic-hand-drawn-tileset-and-asset-pack
+  授权  ：免费可商用（royalty-free，无需署名）
+  备注  ：原 128px 网格缩放到 64px 接入（HighQualityBicubic）
+
+本目录中的 pi_grass.png / pi_tree_dark.png / pi_tree_light.png / pi_water.png / pi_fence.png 来自：
+  素材名：Pocket Islands Free Tileset V2.0（治愈像素 Wang tileset：草地/暗树/亮树/水/栅栏，标准 32x32 网格）
+  作者  ：schwarnhild
+  来源  ：https://schwarnhild.itch.io/pocket-islands-tileset-32x32
+  授权  ：免费可商用（royalty-free）
+  备注  ：原 32x32 放大到 64x64（NearestNeighbor）
+
+本目录中的 rodo_castle.png / rodo_boss.png / rodo_door_anim.png / rodo_fuego_anim.png 来自：
+  素材名：Tileset Castle 32x32 Pixel Art Retro（复古城堡：黑墙/拱门/铁栅/木桶/盾牌/火把/开门动画/火苗动画）
+  作者  ：RodoDibuja
+  来源  ：https://rododibuja.itch.io/tiles-castillo-32x32-pixelart
+  授权  ：CC0 公有领域（可商用，无需署名）
+  备注  ：原 32x32 放大到 64x64；火苗 4 帧动画 300ms/帧
+
+本目录中的 ow_ground.png / ow_blend_water.png / ow_obj.png 来自：
+  素材名：Overworld Biomes Free Starter v1.2（俯视角岛屿：草/水/森林/沙地 + grass-water 16 形状 Wang 岸边 + 树/灌木/石/花）
+  作者  ：GegX
+  来源  ：https://gegx.itch.io/overworld-biomes-free
+  授权  ：免费可商用（CC0-like，无收入限制）
+  备注  ：原 32x32 放大到 64x64；Wang 岸边表可在 Tiled 里配 Terrain 后自动拼弯曲河流
+
+本目录中的 st_snow.png / st_spring.png / st_autumn.png 来自：
+  素材名：RPG Nature Tileset - Seasons（俯视角 32px 手绘四季：春/雪/秋）
+  作者  ：Stealthix
+  来源  ：https://stealthix.itch.io/rpg-nature-tileset
+  授权  ：CC0 公有领域
+  备注  ：原 32x32 放大到 64x64；Wang 边可在 Tiled 配 Terrain 自动拼接

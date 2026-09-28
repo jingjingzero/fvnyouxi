@@ -50,6 +50,7 @@ function createManaSpine() {
     const spine = new Spine({
         skeleton: "bluefive_skel",
         atlas: "bluefive_atlas",
+        allowMissingRegions: true,
     });
 
     const targetH = VH(4.5);
@@ -171,7 +172,7 @@ watch([() => props.mp, () => props.maxMp], ([mp, maxMp]) => {
 // ===========================
 onBeforeUnmount(() => {
     if (app) {
-        app.destroy(true, { children: true });
+        app.destroy({ children: true, texture: true, textureSource: true, releaseGlobalResources: false });
         app = null;
     }
 });

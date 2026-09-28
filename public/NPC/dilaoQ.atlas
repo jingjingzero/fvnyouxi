@@ -1,0 +1,11 @@
+dilaoQ.webp
+size:208,68
+filter:Linear,Linear
+主角/侧身
+bounds:2,2,64,68
+rotate:90
+主角/正身
+bounds:72,2,64,64
+主角/背身
+bounds:138,2,64,68
+rotate:90

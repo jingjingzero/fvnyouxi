@@ -46,6 +46,7 @@ function createSpine({
     const spine = new Spine({
         skeleton,
         atlas,
+        allowMissingRegions: true,
     });
 
     app.stage.addChild(spine);
@@ -153,7 +154,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
 
     if (app) {
-        app.destroy(true);
+        app.destroy({ children: true, texture: true, textureSource: true, releaseGlobalResources: false });
         app = null;
     }
 });

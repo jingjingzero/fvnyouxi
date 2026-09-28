@@ -46,7 +46,8 @@ export function createCircleObject(
             COLLISION_GROUPS.FRIEND |
             COLLISION_GROUPS.ENEMY |
             COLLISION_GROUPS.OBSTACLE |
-            COLLISION_GROUPS.BULLET,
+            COLLISION_GROUPS.BULLET |
+            COLLISION_GROUPS.SENSOR,
         },
         label,
       }

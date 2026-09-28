@@ -1,0 +1,655 @@
+{
+    "activeFile": "forest2.tmj",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "全部文件 (*)",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "dungeon.tmj": {
+            "expandedObjectLayers": [
+                5
+            ],
+            "scale": 2,
+            "selectedLayer": 9,
+            "viewCenter": {
+                "x": 685,
+                "y": 316.25
+            }
+        },
+        "dungeon.tmj#AAA": {
+            "scaleInDock": 0.33
+        },
+        "dungeon.tmj#alpc_castle": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#c16_castle": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_blue": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_dg2": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_lpc_hall": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_lpc_living": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_lpc_throneA": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_lpc_throneB": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_mega": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_mega_brn": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_mega_dark": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_mega_extras": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_rpg1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#castle_tiles": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#ceshi": {
+            "dynamicWrapping": false
+        },
+        "dungeon.tmj#chests_32": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#daoju": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dawnlike_decor": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dcss_dungeon": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dcss_item": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dcss_misc": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dungeon_items": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#dungeon_tiles": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#fantasy32": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#hyptosis_main": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_castle_ext": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_doors": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_doors1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_dungeon": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_dungeon_ex": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_fireplace": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_flames": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_graves": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_house_inside": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_lamp_hanging": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_lamp_misc": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_lights": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_out_atlas": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_signs": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_terrain_atlas": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#lpc_well": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#marble_tiles": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#medieval_exterior": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#medieval_interior": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#object": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "dungeon.tmj#pengzhuang": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 0.75
+        },
+        "dungeon.tmj#puny_dungeon": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#rl_indoor": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#rpg_items": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#ruins_source": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#ruins_texture": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_floor_dirt1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_floor_grass1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_floor_sand1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_floor_stone1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_floor_wood1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_wall_brick1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_wall_dirt1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_wall_glass1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#sbs_wall_stone1": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#terrain_tiles": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#victorian_garden": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#victorian_market": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#victorian_streets": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmj#zhangaiwu": {
+            "dynamicWrapping": true
+        },
+        "dungeon2.tmj": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 803.3333333333333,
+                "y": 1333.6666666666665
+            }
+        },
+        "dungeon2.tmj#dungeon_items": {
+            "scaleInDock": 1
+        },
+        "dungeon2.tmj#dungeon_tiles": {
+            "scaleInDock": 1
+        },
+        "dungeon2.tmj#marble_tiles": {
+            "scaleInDock": 1
+        },
+        "forest.tmj": {
+            "scale": 0.33,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2800,
+                "y": 1728.787878787879
+            }
+        },
+        "forest.tmj#castle_dg2": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#forest_grass": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#forest_trees": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#forest_water": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#nature_obstacles": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#tiny_forest": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#tiny_props": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#tiny_tree_a": {
+            "scaleInDock": 1
+        },
+        "forest.tmj#tiny_tree_b": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1963,
+                "y": 793.5
+            }
+        },
+        "forest2.tmj#firefly_anim": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_dirt": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_flower": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_grass": {
+            "scaleInDock": 0.5
+        },
+        "forest2.tmj#painted_props": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_sand": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_water": {
+            "scaleInDock": 1
+        },
+        "forest2.tmj#painted_water_anim": {
+            "scaleInDock": 1
+        },
+        "muban.tmj": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 775,
+                "y": 1140.25
+            }
+        },
+        "muban.tmj#alpc_castle": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#avalon_trees": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#c16_castle": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_blue": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_dg2": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_lpc_hall": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_lpc_living": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_lpc_throneA": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_lpc_throneB": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_mega": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_mega_brn": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_mega_dark": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_mega_extras": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_rpg1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#castle_tiles": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#chests_32": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#dawnlike_decor": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#dcss_dungeon": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#dcss_item": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#dcss_misc": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#dungeon_items": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#dungeon_tiles": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "muban.tmj#fantasy32": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#forest_dirt": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#forest_grass": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#forest_trees": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#forest_water": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hd_grass": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hd_hill": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hd_obj_big": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hd_obj_small": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hd_water_anim": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#hyptosis_main": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lava_anim": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lava_dark_stone": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lava_static": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_castle_ext": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_doors": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_doors1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_dungeon": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_dungeon_ex": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_fireplace": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_flames": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_graves": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_house_inside": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_lamp_hanging": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_lamp_misc": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_lights": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_out_atlas": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_signs": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_terrain_atlas": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#lpc_well": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#marble_tiles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#medieval_exterior": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#medieval_interior": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#nature_obstacles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#object": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "muban.tmj#pf_ground": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#pf_high": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#pi_fence": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#pi_grass": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#pi_tree_dark": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#pi_tree_light": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#pi_water": {
+            "scaleInDock": 0.75
+        },
+        "muban.tmj#puny_dungeon": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#rl_indoor": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#rodo_boss": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#rodo_castle": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#rodo_door": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#rodo_fuego": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#rpg_items": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#ruins_source": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#ruins_texture": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_floor_dirt1": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_floor_grass1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_floor_sand1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_floor_stone1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_floor_wood1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_wall_brick1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_wall_dirt1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_wall_glass1": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#sbs_wall_stone1": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#seam_ground": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#seam_obj": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#seam_trees_big": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#seam_water_anim": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#terrain_tiles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#tiny_forest": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#tiny_props": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#tiny_tree_a": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#tiny_tree_b": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#victorian_garden": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#victorian_market": {
+            "scaleInDock": 1
+        },
+        "muban.tmj#victorian_streets": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "muban.tmj#zhangaiwu": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "river_demo.tmj": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1156,
+                "y": 98.5
+            }
+        },
+        "river_demo.tmj#pi_grass": {
+            "scaleInDock": 1
+        }
+    },
+    "frame.defaultDuration": 250,
+    "last.imagePath": "D:/youxi/fvnyouxi/public/map/assets/zhangaiwu",
+    "openFiles": [
+        "dungeon.tmj",
+        "muban.tmj",
+        "forest.tmj",
+        "forest2.tmj"
+    ],
+    "project": "one.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "river_demo.tmj",
+        "forest2.tmj",
+        "dungeon.tmj",
+        "muban.tmj",
+        "forest.tmj"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    },
+    "tileset.transparentColor": "#000000",
+    "tileset.useTransparentColor": true
+}

@@ -1,33 +1,50 @@
 // ==============================================
-// 创建玩家/ NPC 的物理碰撞体（身体、头部、脚部传感器）
+// 创建玩家/ NPC 的物理碰撞体（主体 + 脚部传感器）
 // ==============================================
 export function createPlayerPhysicsBody(playerW, rectHeight, radius, isFriend, category, Matter, COLLISION_GROUPS) {
-    // 主身体碰撞盒（矩形，负责主体物理碰撞）
-    const mainBody = Matter.Bodies.rectangle(0, 0, playerW, rectHeight, {
-        friction: 0, frictionStatic: 0, frictionAir: 0.02, restitution: 0, label: "playerMain"
+    // 🎯 摩擦参数（玩家移动完全由代码控制 setVelocity，不依赖物理摩擦）
+    //   - friction: 滑动摩擦 = 0 → 玩家贴墙/站障碍物不会被摩擦力影响，跳跃正常
+    //   - frictionStatic: 静摩擦 = 0 → ⚠️ 关键：若设 0.5，玩家水平贴着障碍物侧面时，
+    //     接触面切向是竖直方向，静摩擦会向下拉住玩家，导致「贴墙跳跳得很低」。
+    //     玩家站立稳定不依赖 Matter 静摩擦（靠 footSensor + isOnGround 碰撞判定），
+    //     所以滑动摩擦和静摩擦都设为 0，消除贴墙跳被向下拉住的问题。
+    //   - frictionAir: 空气阻力（0.02）→ 移动中的减速
+    //   - restitution: 弹性 0 → 不反弹
+    const FRICTION = 0;         // 滑动摩擦 0（玩家移动靠 setVelocity 控制）
+    const FRICTION_STATIC = 0;  // 静摩擦 0：消除贴墙跳被向下静摩擦拉住
+    const FRICTION_AIR = 0.02;
+
+    // 主体物理刚体
+    const mainPart = Matter.Bodies.rectangle(0, 0, playerW, rectHeight, {
+        label: "playerMain",
+        friction: FRICTION, frictionStatic: FRICTION_STATIC, frictionAir: FRICTION_AIR, restitution: 0,
+        collisionFilter: { category, mask: COLLISION_GROUPS.OBSTACLE | COLLISION_GROUPS.BULLET }
     });
 
-    // 头部碰撞体（圆形，让角色头部更圆润）
-    const topCircle = Matter.Bodies.circle(0, -rectHeight / 2, radius, { label: "playerTop" });
-
-    // 下半身碰撞体（圆形，让角色底部更圆润）
-    const bottomCircle = Matter.Bodies.circle(0, rectHeight / 2, radius, { label: "playerBottom" });
-
-    // 脚部传感器（细长矩形，用来检测是否落地、踩地面）
-    const footSensor = Matter.Bodies.rectangle(0, rectHeight / 2 + radius, playerW * 0.2, 1, {
-        isSensor: true, label: "playerFoot",
-        collisionFilter: { category: COLLISION_GROUPS.SENSOR, mask: COLLISION_GROUPS.OBSTACLE }
-    });
-
-    // 把 头部 + 身体 + 脚部 合成一个完整物理体
-    const body = Matter.Body.create({
-        parts: [mainBody, topCircle, bottomCircle, footSensor],
-        friction: 0, frictionAir: 0.02,
+    // 脚部传感器（位于主体底部，薄矩形，专门用于地面检测）
+    // 🎯 传感器宽度 = 主体整个宽度（之前只有一半）：站在障碍物边缘时，
+    //    footSensor 也能搭到障碍物顶部，isOnGround 更稳定 → 边缘也能正常跳跃
+    const sensorH = 4;
+    const sensorW = playerW;          // 覆盖主体整个底部宽度
+    const sensorY = rectHeight / 2 + sensorH / 2; // 主体底部下方
+    const footSensor = Matter.Bodies.rectangle(0, sensorY, sensorW, sensorH, {
+        isSensor: true,
+        label: "footSensor",
         collisionFilter: { category, mask: COLLISION_GROUPS.OBSTACLE }
     });
 
-    // 返回所有部件供外部使用
-    return { mainBody, topCircle, bottomCircle, footSensor, body };
+    // 组合为复合刚体（parts[0]=主体, parts[1]=脚部传感器）
+    const body = Matter.Body.create({
+        parts: [mainPart, footSensor],
+        friction: FRICTION,
+        frictionStatic: FRICTION_STATIC,
+        frictionAir: FRICTION_AIR,
+        restitution: 0,
+        label: "playerMain",
+        collisionFilter: { category, mask: COLLISION_GROUPS.OBSTACLE | COLLISION_GROUPS.BULLET }
+    });
+
+    return { body, footSensor };
 }
 
 // ==============================================
@@ -69,13 +86,26 @@ export function updatePlayerVelocity(body, vx, vy, Matter) {
 // ==============================================
 // 自动切换动画： idle 待机 / run 跑 / jump 跳
 // ==============================================
-export function updatePlayerAnimation(spine, isOnGround, absVX, vx, vy, speed) {
-    // 如果不在地面 → 播放跳跃/下落动画
-    if (!isOnGround) {
-        vy < -1 ? spine.playJumpUp() : vy > 1 && spine.playJumpDown();
+
+export function updatePlayerAnimation(spine, isOnGround, absVX, vy, airGap = 0) {
+    // 🎯 腾空判定只看「离地距离」：脚底离地形地面超过阈值才算腾空，
+    //    斜坡/平地抖动（离地 1~3px）不会误触发跳跃动画
+    //    · 高度图地图：airGap = 脚底离地面 px（> 阈值 = 腾空）
+    //    · 非高度图地图：airGap = 0（贴地）/ 999（碰撞判定离地）
+    const AIR_GAP_THRESHOLD = 8; // 离地 8px 以上才播跳跃动画
+    const JUMP_DOWN_VY_THRESHOLD = 1.2; // 🎯 下落速度达到该值才切 jumpdown（避免最高点瞬间突兀切换）
+
+    if (airGap > AIR_GAP_THRESHOLD) {
+        // 🎯 腾空按垂直速度区分：上升 → jumpup；下落速度达到阈值才 → jumpdown
+        //    vy ∈ [0, 阈值)（刚过最高点、下落速度未起）→ 保持当前动画（jumpup），切换更平缓
+        if (vy < 0) {
+            spine.playJumpUp();
+        } else if (vy > JUMP_DOWN_VY_THRESHOLD) {
+            spine.playJumpDown();
+        }
     } else {
-        // 在地面 → 速度快就播放跑步，否则待机
-        absVX > speed * 0.5 ? spine.playRun() : spine.playIdle();
+        // 地面 → 速度快就播放跑步，否则待机
+        absVX !== 0 ? spine.playRun() : spine.playIdle();
     }
 }
 
@@ -84,11 +114,12 @@ export function updatePlayerAnimation(spine, isOnGround, absVX, vx, vy, speed) {
 // ==============================================
 export function updatePlayerDirection(spine, vx) {
     if (vx > 0) {
-        // 速度向右 → 面向右侧
+        // ✅ 方向未变化时跳过 setDirection，避免每帧触发 dirView.scale 变换更新
+        if (spine.direction === 1) return;
         spine.direction = 1;
         spine.setDirection(1);
     } else if (vx < 0) {
-        // 速度向左 → 面向左侧
+        if (spine.direction === -1) return;
         spine.direction = -1;
         spine.setDirection(-1);
     }

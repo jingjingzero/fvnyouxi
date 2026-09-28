@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# 桌面版打包产物
+release
+electron/out
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

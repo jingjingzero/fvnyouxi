@@ -197,7 +197,7 @@ onMounted(async () => {
   });
 });
 onBeforeUnmount(() => {
-  app?.destroy(true);
+  app?.destroy({ children: true, texture: true, textureSource: true, releaseGlobalResources: false });
 });
 //技能CD
 const canvas = ref(null);

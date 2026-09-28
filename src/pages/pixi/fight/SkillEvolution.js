@@ -1,20 +1,9 @@
+// ==============================================
+// 🎯 暴击机制已移除：暴击率/暴击伤害不再参与结算（星级不再提供暴击率）
+//    保留 getEvolutionBuff 签名与 ignoreArmor 字段，兼容 NewCards 调用
+// ==============================================
 export function getEvolutionBuff(card) {
   const buff = { critRate: 0, critMul: 1, ignoreArmor: 0 };
-  if (!card || !card.activeEvos) return buff;
-  if (card.name === '射击') {
-    if (card.activeEvos.includes('概率暴击')) {
-      buff.critRate = 0.5; buff.critMul = 1.4;
-    }
-    if (card.activeEvos.includes('破甲')) {
-      buff.ignoreArmor = 0.3;
-    }
-  } else if (card.name === '激光') {
-    if (card.activeEvos.includes('概率暴击')) {
-      buff.critRate = 0.5; buff.critMul = 1.4;
-    }
-    if (card.activeEvos.includes('破甲')) {
-      buff.ignoreArmor = 0.3;
-    }
-  }
+  if (!card) return buff;
   return buff;
 }

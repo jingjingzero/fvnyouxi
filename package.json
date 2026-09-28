@@ -1,26 +1,35 @@
 {
-  "name": "vue",
+  "name": "zhiyou-debi-an",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "自由的彼岸 - 桌面版游戏",
+  "author": "冯星悦",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite --mode development",
     "prod": "vite --mode production",
     "preview": "vite preview",
     "build": "vite build --mode development",
-    "build:prod": "vite build --mode production"
+    "build:prod": "vite build --mode production",
+    "electron:dev": "electron .",
+    "electron:build": "vite build --mode production && electron-builder --win",
+    "electron:dir": "vite build --mode production && electron-builder --win --dir"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.0.0",
-    "@capacitor/core": "^8.0.0",
+    "@capacitor/core": "^8.4.2",
     "@element-plus/icons-vue": "^2.3.1",
-    "@esotericsoftware/spine-core": "^4.2.101",
-    "@esotericsoftware/spine-pixi-v8": "^4.2.101",
+    "@esotericsoftware/spine-core": "^4.3.13",
+    "@esotericsoftware/spine-pixi-v8": "^4.3.13",
     "@kjgl77/datav-vue3": "^1.7.4",
+    "@pixi/particle-emitter": "^5.0.10",
     "animate.css": "^4.1.1",
     "axios": "^1.7.0",
-    "element-plus": "^2.11.1",
+    "electron-updater": "^6.3.9",
+    "element-plus": "^2.14.5",
     "gsap": "^3.12.7",
     "howler": "^2.2.4",
     "matter-js": "^0.20.0",
@@ -30,8 +39,8 @@
     "pinia": "^2.0.33",
     "pinia-plugin-persistedstate": "^3.1.0",
     "pixi-filters": "^6.1.5",
+    "pixi-tiledmap": "^2.8.5",
     "pixi-viewport": "^6.0.3",
-    "pixi.js": "^8.14.3",
     "sass-loader": "^14.2.1",
     "sat": "^0.9.0",
     "vconsole": "^3.15.1",
@@ -41,8 +50,77 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.2",
     "sass": "^1.86.3",
+    "sharp": "^0.35.3",
     "unocss": "^0.60.2",
+    "unplugin-auto-import": "^21.1.0",
+    "unplugin-vue-components": "^32.1.0",
     "vite": "^5.2.0"
+  },
+  "build": {
+    "appId": "com.fvn.zhiyoudebian",
+    "productName": "自由的彼岸",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${name}-setup-${version}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "自由的彼岸"
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "jingjingzero",
+        "repo": "fvnyouxi",
+        "releaseType": "release"
+      }
+    ],
+    "npmRebuild": false
   }
 }

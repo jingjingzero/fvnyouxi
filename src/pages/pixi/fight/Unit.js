@@ -3,14 +3,10 @@ import { reactive } from 'vue'
 export function createUnit(options = {}) {
   const defaults = {
     name: "未知单位",
-    hp: 100,
-    maxHp: 100,
     mp: 0,
     maxMp: 0,
     attack: 0,
     armor: 0,
-    baseSpeed: 100,
-    speed: 100,
     luck: 0,
     camp: "player",
     buffs: [],

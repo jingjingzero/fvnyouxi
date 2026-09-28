@@ -7,7 +7,7 @@ export async function initPixiApp() {
     width: window.innerWidth,
     height: window.innerHeight,
     backgroundAlpha: 0,
-    antialias: true,
+    antialias: false, // ⚡ 像素/卡通风直接关抗锯齿，性能更好（与主世界 app 一致）
   })
 
   document.body.appendChild(app.canvas)

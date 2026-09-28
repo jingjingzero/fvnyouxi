@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-import { Sprite, Graphics } from "pixi.js";
+import { Sprite, Graphics, Texture } from "pixi.js";
 export function createRectObject(
   x,
   y,
@@ -11,10 +11,9 @@ export function createRectObject(
     zIndex = 0,
     withBody = false,
     isSensor = false,
-    movable = false,
+    isStatic = false,
     label = null,
     create = false,
-    enableAABB = false,
   } = {},
   world, worldContainer, COLLISION_GROUPS
 ) {
@@ -49,20 +48,23 @@ export function createRectObject(
       w,
       h,
       {
-        isStatic: !movable,
+        isStatic: !isStatic,
         isSensor,
         inertia: Infinity,
-        friction: movable ? 1 : 0,
-        frictionStatic: movable ? 2 : 0,
-        frictionAir: movable ? 0.05 : 0,
-        density: movable ? 0.002 : undefined,
+        // 🎯 摩擦：与玩家一致用 0（玩家移动靠 setVelocity 代码控制，不依赖物理摩擦）。
+        //    Matter 实际摩擦 = min(两碰撞体摩擦)，统一 0 保证贴墙跳不被向下静摩擦拉住。
+        friction: 0,        //【滑动摩擦】
+        frictionStatic: 0,  //【静摩擦】
+        frictionAir:0,        //【空气阻力】
+        density:  undefined,//刚体密度（重量
         collisionFilter: {
           category: COLLISION_GROUPS.OBSTACLE,
           mask:
             COLLISION_GROUPS.FRIEND |
             COLLISION_GROUPS.ENEMY |
             COLLISION_GROUPS.OBSTACLE |
-            COLLISION_GROUPS.BULLET,
+            COLLISION_GROUPS.BULLET |
+            COLLISION_GROUPS.SENSOR,
         },
         label,
       }
@@ -107,12 +109,5 @@ export function createRectObject(
   };
 
   /* ---------- ticker（同步） ---------- */
-  if (movable) {
-    obj.ticker = () => {
-      view.x = body.position.x;
-      view.y = body.position.y + h / 2; // ⭐ 中心 → 底部
-    };
-    app.ticker.add(obj.ticker);
-  }
   return obj;
 }

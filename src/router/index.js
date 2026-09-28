@@ -13,10 +13,11 @@ const routes = [
     path: '/ceshi1', name: "ceshi1", component: () => import('@/pages/ceshi1.vue'),
   },
   {
-    path: '/ceshipixi', name: "ceshipixi", component: () => import('@/pages/pixi/ceshipixi.vue'),
+    path: '/matter', name: "matter", component: () => import('@/pages/pixi/matter.vue'),
   },
   {
-    path: '/matter', name: "matter", component: () => import('@/pages/pixi/matter.vue'),
+    // 🎛️ 对话管理系统（可视化编辑/插入对话节点，导出补丁脚本）
+    path: '/dladmin', name: "dladmin", component: () => import('@/pages/pixi/dialogue/DialogueAdmin.vue'),
   },
 ]
 

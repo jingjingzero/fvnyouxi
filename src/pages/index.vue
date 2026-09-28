@@ -25,7 +25,7 @@ const user = useCounterStore();
 
 onMounted(async () => {
   if (user.youxi === 0) {
-    // user.playSound("jiemian", true);
+  
   }
   const settings = await readSettings();
   user.text_speed = settings.text_speed;

@@ -1,5 +1,3 @@
-import { useCounterStore } from "@/store/counter";
-
 const SETTINGS_FILE_NAME = "_settings.json";
 const DEFAULT_SETTINGS = {
   volume: 0.6,
@@ -53,6 +51,7 @@ export async function readSettings() {
 
 // 保存设置
 export async function saveSettings(settings) {
+  const { useCounterStore } = await import("@/store/counter.js");
   const user = useCounterStore();
   const jsonStr = JSON.stringify(settings);
 

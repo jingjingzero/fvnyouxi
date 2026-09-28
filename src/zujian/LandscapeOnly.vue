@@ -17,8 +17,14 @@
 import { ref } from 'vue'
 
 const isLandscape = ref(false)
+const isDesktop = typeof window !== 'undefined' && !!window.desktop?.isDesktop
 
 function checkOrientation() {
+  // 桌面版固定横屏窗口，永远视为横屏
+  if (isDesktop) {
+    isLandscape.value = true
+    return
+  }
   isLandscape.value = window.innerWidth > window.innerHeight
 }
 

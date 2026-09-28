@@ -43,7 +43,7 @@
                 {{ npc.juese }}
               </div>
               <div class="text-12px text-green-600">
-                地图: {{ npc.mapId || 'one01' }}
+                地图: {{ npc.mapId || 'desert_01' }}
               </div>
             </div>
           </div>
@@ -69,7 +69,6 @@
               <div>
                 <div>生成地图</div>
                 <el-select v-model="currentNpc.mapId" placeholder="选择地图" style="width:100%;">
-                  <el-option label="第一章地图" value="one01" />
                   <el-option label="沙漠地图" value="desert_01" />
                 </el-select>
               </div>
@@ -161,7 +160,6 @@ const npcEditorRef = ref(null);
 const npcListRef = ref(null);
 const npcRefs = reactive({}); // 存每个 NPC 的 DOM
 const value = ref("主角编辑");
-console.log('user.pixi.activePlayer=', user.pixi.activePlayer);
 
 const options = [
   "主角编辑",
@@ -204,10 +202,9 @@ function createDefaultNpc() {
     player: 2,
     maxHp: 500,
     currentHp: 500,
-    xuetiaoPosition: 21,
     x: getSafeNpcX(),
     speed: 0.3,
-    mapId: "one01",
+    mapId: "desert_01",
     npcEdit:true
   };
 }

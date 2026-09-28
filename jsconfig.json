@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ] // 配置@符号，指向src目录及其子目录
+      "@/*": ["src/*"]
     }
   }
 }

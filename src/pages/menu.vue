@@ -8,7 +8,7 @@
     />
     <div class="flex w-full h-full z-1">
       <div class="w-30% h-full">
-        <span class="text-#79BBFF iconfont2 text-4vw">菜单栏</span>
+        <span class="text-#79BBFF iconfont2 text-4vw">{{ L('menuBar') }}</span>
         <div class="mt-3vh flex flex-col gap-y-1.2vh">
           <div
             v-for="(item, index) in info"
@@ -18,7 +18,7 @@
             <span
               class="iconfont2 text-2.5vw"
               :class="{ 'text-#A0CFFF': user.menuSelect === index }"
-              >{{ item }}</span
+              >{{ L(item) }}</span
             >
           </div>
           <img
@@ -51,25 +51,25 @@
         <div>
           <div>
             <div class="flex justify-center items-center text-white">
-              文字速度
+              {{ L('textSpeed') }}
             </div>
             <div class="flex justify-between items-center gap-x-4vw">
-              <span>慢</span>
+              <span>{{ L('slow') }}</span>
               <el-slider
                 v-model="user.text_speed"
                 :min="90"
                 :max="99"
                 @change="onTextSpeedChange"
               />
-              <span>快</span>
+              <span>{{ L('fast') }}</span>
             </div>
           </div>
           <div class="mt-5vh">
             <div class="flex justify-center items-center text-white">
-              总音量
+              {{ L('volume') }}
             </div>
             <div class="flex justify-between items-center gap-x-4vw">
-              <span>低</span>
+              <span>{{ L('low') }}</span>
               <el-slider
                 v-model="user.volume"
                 :min="0"
@@ -77,15 +77,15 @@
                 :step="0.05"
                 @change="onMusicChange"
               />
-              <span>高</span>
+              <span>{{ L('high') }}</span>
             </div>
           </div>
           <div class="mt-5vh">
             <div class="flex justify-center items-center text-white">
-              文字大小
+              {{ L('textSize') }}
             </div>
             <div class="flex justify-between items-center gap-x-4vw">
-              <span>低</span>
+              <span>{{ L('low') }}</span>
               <el-slider
                 v-model="user.textSize"
                 :min="16"
@@ -93,12 +93,12 @@
                 :step="1"
                 @change="onTextSizeChange"
               />
-              <span>高</span>
+              <span>{{ L('high') }}</span>
             </div>
           </div>
           <div class="mt-10vh w-full justify-end flex">
             <el-button type="primary" @click="clearMyData"
-              >清除所有缓存数据</el-button
+              >{{ L('clearAllCache') }}</el-button
             >
           </div>
         </div>
@@ -108,7 +108,7 @@
         v-show="user.menuSelect === 5"
       >
         <div>
-          如果你对我的游戏感兴趣，或者有任何剧情的的问题或者赞助的想法，欢迎随时联系我！我非常期待能与更多的游戏爱好者交流，并共同打造出更加精彩的游戏内容。
+          {{ L('aboutText') }}
         </div>
         <div>QQ：1277104448</div>
       </div>
@@ -117,7 +117,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, nextTick, watch } from "vue";
+import { reactive, ref, onMounted } from "vue";
+import { t } from "@/i18n";
 import emitter from "@/bus"; // 引入传值组件
 import { ElMessageBox } from "element-plus";
 import { useCounterStore } from "@/store/counter";
@@ -130,16 +131,17 @@ import {
 } from "./storage.js";
 
 const user = useCounterStore();
-const info = reactive(["历史", "存档", "读档", "首选项", "主菜单", "关于"]);
+const langVersion = ref(0);
+window.addEventListener('fvnyouxi-lang-changed', () => langVersion.value++);
+function L(key) { langVersion.value; return t(key); }
+const info = reactive(["menuHistory", "menuSave", "menuLoad", "menuPrefs", "menuMain", "menuAbout"]);
 let chushiIndex = 0;
-const zidongData = ref([]);
 // 点击左侧栏
 async function menuNum(index) {
-  console.log("index=", index);
   if (index === 4) {
-    await ElMessageBox.confirm("确定要返回主界面吗?", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(L('confirmBackToMenu'), L('notice'), {
+      confirmButtonText: L('confirm'),
+      cancelButtonText: L('cancel'),
       showClose: false, // 不显示右上角的关闭按钮
     })
       .then(() => {
@@ -148,8 +150,7 @@ async function menuNum(index) {
         router.push({ name: "index" });
         user.selectBoolean = false; //关闭搜索场景
         user.youxi = 0;
-        user.stopAllSounds();
-        user.playSound("jiemian", true);
+
       })
       .catch(() => {});
     user.menuSelect = chushiIndex;
@@ -158,9 +159,9 @@ async function menuNum(index) {
     if (user.youxi === 0) {
       return;
     }
-    await ElMessageBox.confirm("确定要覆盖存档吗?", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(L('confirmOverwriteSave'), L('notice'), {
+      confirmButtonText: L('confirm'),
+      cancelButtonText: L('cancel'),
       showClose: false, // 不显示右上角的关闭按钮
     })
       .then(() => {
@@ -171,9 +172,9 @@ async function menuNum(index) {
     user.menuSelect = chushiIndex;
     return;
   } else if (index === 2) {
-    await ElMessageBox.confirm("确定要读档吗?", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(L('confirmLoadSave'), L('notice'), {
+      confirmButtonText: L('confirm'),
+      cancelButtonText: L('cancel'),
       showClose: false, // 不显示右上角的关闭按钮
     })
       .then(() => {
@@ -189,7 +190,7 @@ async function menuNum(index) {
 }
 // 返回当前页面
 function fanhui() {
-  user.playSound("clickS", false, user.volume * 0.5);
+
   if (user.pixi.setting > 0) {
     user.pixi.setting = 0;
     emitter.emit("vnZanting");
@@ -254,20 +255,6 @@ function menuFace() {
   user.animations.splice(0, user.animations.length);
   user.text = "";
 }
-// 历史对话自动拉到最下边
-const messageContainer = ref(null);
-watch(
-  () => user.messages,
-  () => {
-    nextTick(() => {
-      const el = messageContainer.value;
-      if (el) {
-        el.scrollTop = el.scrollHeight;
-      }
-    });
-  },
-  { deep: true }
-);
 //首选项保存
 async function onTextSpeedChange(params) {
   await updateSetting("text_speed", params);

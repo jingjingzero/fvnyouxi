@@ -1,49 +1,53 @@
-import { createElevator } from "./daoju.js";
-export const allElevators = [];
+// 存储当前有效的"地面接触"碰撞对 ID，用于 collisionEnd 精确匹配
+const _groundContactPairs = new Set();
+
+// 从 Matter 碰撞体中获取 gameObject（复合体的 part 需要通过 .parent）
+function _getGameObj(body) {
+  return body.parent?.gameObject || body.gameObject;
+}
 
 export function setupCollisionStart(engine, Matter, VH, physicsWorker) {
   let triggerCooldown = false;
 
   Matter.Events.on(engine, "collisionStart", (event) => {
-    for (const { bodyA, bodyB } of event.pairs) {
-      onCollision(bodyA, bodyB);
+    const pairs = event.pairs;
+    for (let i = 0, len = pairs.length; i < len; i++) {
+      const pair = pairs[i];
+      const bodyA = pair.bodyA;
+      const bodyB = pair.bodyB;
 
-      const playerA = bodyA.parent?.gameObject;
-      const playerB = bodyB.parent?.gameObject;
+      // ---- 地面检测（基于 footSensor 脚部传感器） ----
+      // footSensor（isSensor）与 OBSTACLE 碰撞 → 角色接触地面
+      if (bodyA.label === "footSensor") {
+        const obj = _getGameObj(bodyA);
+        if (obj) {
+          _groundContactPairs.add(pair.id);
+          obj.groundContacts++;
+          obj.isOnGround = true;
+          continue;
+        }
+      }
+      if (bodyB.label === "footSensor") {
+        const obj = _getGameObj(bodyB);
+        if (obj) {
+          _groundContactPairs.add(pair.id);
+          obj.groundContacts++;
+          obj.isOnGround = true;
+          continue;
+        }
+      }
+
+      // ---- 传送触发器检测 ----
+      const playerA = _getGameObj(bodyA);
+      const playerB = _getGameObj(bodyB);
       const isPlayer = (playerA?.data?.player === 1) || (playerB?.data?.player === 1);
-      const isTriggerA = bodyA.label === "teleportTrigger";
-      const isTriggerB = bodyB.label === "teleportTrigger";
-      const hitTrigger = isTriggerA || isTriggerB;
+      const hitTrigger = bodyA.label === "teleportTrigger" || bodyB.label === "teleportTrigger";
 
       if (isPlayer && hitTrigger && !triggerCooldown) {
         triggerCooldown = true;
-        setTimeout(() => triggerCooldown = false, 500);
-      }
-    
-      // ====================== 电梯 ======================
-      if (bodyA.label?.name === "电梯" && bodyB.label === "playerFoot") {
-        const player = bodyB.parent.gameObject;
-
-        if (!bodyA.label.elevatorId) {
-          const id = "elev_" + Date.now() + Math.random();
-          bodyA.label.elevatorId = id;
-          bodyA.label.elevatorBody = bodyA;
-
-          // 发给 Worker 初始化
-          physicsWorker.postMessage({
-            type: "elevator:init",
-            id,
-            bodyY: bodyA.position.y * 1.0595,
-            VH
-          });
-        }
-
-        // 通知 Worker：玩家进入
-        physicsWorker.postMessage({
-          type: "elevator:enter",
-          id: bodyA.label.elevatorId,
-          playerId: player.data.id
-        });
+        const timer = setTimeout(() => triggerCooldown = false, 500);
+        engine.collisionTimers ??= [];
+        engine.collisionTimers.push(timer);
       }
     }
   });
@@ -51,34 +55,22 @@ export function setupCollisionStart(engine, Matter, VH, physicsWorker) {
 
 export function setupCollisionEnd(engine, Matter, physicsWorker) {
   Matter.Events.on(engine, "collisionEnd", (event) => {
-    for (const { bodyA, bodyB } of event.pairs) {
-      if (bodyA.label === "playerFoot") {
-        const obj = bodyA.parent.gameObject;
-        if (obj) { obj.groundContacts--; obj.isOnGround = obj.groundContacts > 0; }
-      }
-      if (bodyB.label === "playerFoot") {
-        const obj = bodyB.parent.gameObject;
-        if (obj) { obj.groundContacts--; obj.isOnGround = obj.groundContacts > 0; }
-      }
+    const pairs = event.pairs;
+    for (let i = 0, len = pairs.length; i < len; i++) {
+      const pair = pairs[i];
+      const bodyA = pair.bodyA;
+      const bodyB = pair.bodyB;
 
-      // 离开电梯
-      if (bodyA.label?.name === "电梯" && bodyB.label === "playerFoot") {
-        const player = bodyB.parent.gameObject;
-        if (bodyA.label.elevatorId) {
-          physicsWorker.postMessage({
-            type: "elevator:leave",
-            id: bodyA.label.elevatorId,
-            playerId: player.data.id
-          });
-        }
+      // 只处理之前标记为地面接触的碰撞对
+      if (!_groundContactPairs.has(pair.id)) continue;
+      _groundContactPairs.delete(pair.id);
+
+      // footSensor 可能在 bodyA 或 bodyB
+      const obj = (bodyA.label === "footSensor" ? _getGameObj(bodyA) : _getGameObj(bodyB));
+      if (obj) {
+        obj.groundContacts--;
+        obj.isOnGround = obj.groundContacts > 0;
       }
     }
   });
 }
-
-function onCollision(bodyA, bodyB) {
-  if (bodyA.label === "playerFoot") { const o = bodyA.parent.gameObject; o && (o.groundContacts++, o.isOnGround = true); }
-  if (bodyB.label === "playerFoot") { const o = bodyB.parent.gameObject; o && (o.groundContacts++, o.isOnGround = true); }
-}
-
-function myTriggerFunction() { }

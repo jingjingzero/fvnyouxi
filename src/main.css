@@ -1,5 +1,7 @@
 :root {
   --base-font-size: 3vw; /* 基于视口高度的 16:9 比例 */
+  /* 🅰️ element-plus 组件字体变量：覆盖其默认字体，全站统一为钉钉进步体 */
+  --el-font-family: "钉钉进步体 Regular2" !important;
   font-display: block;
   color: #333;
   /* 禁止文字选中 */
@@ -13,9 +15,12 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 隐藏滚动条，禁止滚动拖动 */
+  overflow: hidden; /* 隐藏滚动条，禁止页面级滚动 */
   height: 100%;
-  touch-action: none; /* 移动端禁止触摸滑动、拖拽 */
+  overscroll-behavior: none; /* 禁止滚动链/回弹，但保留内部面板滚动 */
+  /* ⚠️ 不能在这里设置 touch-action:none，否则会拦截所有子容器的触摸滑动，
+     导致移动端所有 overflow-y:auto 面板（菜单/任务/背包/图鉴等）都无法滚动。
+     触摸拦截只应放在游戏画布上（见 app.js）。 */
 }
 /* 横竖屏 */
 /* 竖屏 */
@@ -28,7 +33,11 @@ html, body {
 }
 body {
   font-size: var(--base-font-size);
-  
+  /* 🅰️ 全站默认字体：钉钉进步体（未单独指定字体的元素统一使用） */
+  font-family: "钉钉进步体 Regular2";
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.01px;
 }
 .iconfont2 {
   font-family: "钉钉进步体 Regular2" !important;
@@ -56,4 +65,19 @@ body {
   font-weight: 600;
   src: url('@/assets/font/DS-DIGI-1.ttf') format('truetype'); /* 字体文件路径和格式 */
   font-display: swap;
+}
+
+/* 🏆 成就解锁提示：从屏幕底部向上弹出 */
+.el-message.achieve-pop {
+  animation: achieve-pop-up 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes achieve-pop-up {
+  from { transform: translateY(120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* 💾 覆盖保存确认弹窗置顶（存档弹窗 z-9999 之上） */
+.el-overlay.el-message-box-top {
+  z-index: 99999 !important;
 }

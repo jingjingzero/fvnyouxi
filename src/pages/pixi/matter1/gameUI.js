@@ -4,13 +4,13 @@ import { watch, toRef } from "vue"; // ✅ 新增导入
 // PIXI UI 全局变量（抽离后内部管理）
 // ==========================
 let uiContainer;
-let fpsText, posText, jumpButton;
+let fpsText, posText;
 let joystick = null;
 
 // ==========================
 // 初始化全部 PIXI UI
 // ==========================
-export function initGameUI(app, onJump, Sprite, user) {
+export function initGameUI(app, user) {
   uiContainer = new Container();
   app.stage.addChild(uiContainer);
 
@@ -20,49 +20,23 @@ export function initGameUI(app, onJump, Sprite, user) {
     fontFamily: "Arial",
   };
 
-  fpsText = new Text({
-    text: "FPS: 60",
-    style,
-  });
-  fpsText.position.set(20, 50);
+  // fpsText = new Text({
+  //   text: "FPS: 60",
+  //   style,
+  // });
+  // fpsText.position.set(20, 50);
 
-  posText = new Text({
-    text: "x: 0\ny: 0",
-    style,
-  });
-  posText.position.set(120, 10);
-
-  // ==========================
-  // 跳跃按钮创建逻辑不变
-  // ==========================
-  const buttonRadius = app.screen.height * 0.07;
-  const jumpBtnWrap = new Container();
-  jumpBtnWrap.position.set(
-    app.screen.width - buttonRadius - app.screen.width * 0.06,
-    app.screen.height - buttonRadius - app.screen.height * 0.15
-  );
-  jumpBtnWrap.eventMode = "static";
-  const jumpBg = new Graphics()
-    .circle(0, 0, buttonRadius)
-    .fill({ color: 0xffffff, alpha: 0.3 });
-  const jumpIcon = Sprite.from("jump");
-  jumpIcon.anchor.set(0.5);
-  jumpIcon.width = buttonRadius * 1.25;
-  jumpIcon.height = buttonRadius * 1.25;
-  jumpIcon.x = -2;
-  jumpBtnWrap.addChild(jumpBg, jumpIcon);
-  jumpBtnWrap.on("pointerdown", (e) => {
-    e.stopPropagation();
-    onJump();
-  });
-  jumpButton = jumpBtnWrap;
+  // posText = new Text({
+  //   text: "x: 0\ny: 0",
+  //   style,
+  // });
+  // posText.position.set(120, 10);
 
   // 添加所有UI元素到容器
-  uiContainer.addChild(
-    fpsText,
-    posText,
-    jumpBtnWrap
-  );
+  // uiContainer.addChild(
+  //   fpsText,
+  //   posText
+  // );
 
   // 创建摇杆
   createJoystick(app);
@@ -74,10 +48,8 @@ export function initGameUI(app, onJump, Sprite, user) {
   watch(fightRef, (isFight) => {
     // 1. 隐藏左上角文本
     // fpsText.visible = posText.visible = !isFight;
-    // 2. 隐藏跳跃按钮
-    jumpButton.visible = !isFight;
-    // 3. 隐藏摇杆（加可选链，绝对不会报错）
-if (joystick?.container) joystick.container.visible = !isFight;
+    // 2. 隐藏摇杆（加可选链，绝对不会报错）
+    if (joystick?.container) joystick.container.visible = !isFight;
 
     // ✅ 【可选懒人写法】如果战斗场景不需要任何游戏UI，直接写这一行就行，上面三行都可以删掉
     // uiContainer.visible = !isFight;
@@ -181,15 +153,29 @@ function createJoystick(app) {
 // UI 更新
 // ==========================
 let fpsCounter = 0;
-export function updateGameUI(fps, activePlayer) {
+// 摄像头（viewport）引用，由 matter.vue 注入，用于显示镜头坐标
+let viewportRef = null;
+
+/**
+ * 注入摄像头引用（matter.vue 创建 viewport 后调用）
+ * @param {Object} vp - pixi-viewport 实例
+ */
+export function setViewportRef(vp) {
+  viewportRef = vp;
+}
+
+export function updateGameUI(ticker, activePlayer) {
   fpsCounter++;
 
   if (fpsCounter % 5 !== 0) return;
 
-  fpsText.text = `FPS: ${fps.value}`;
-  posText.text =
-    `x:${activePlayer.body.position.x.toFixed(0)}
-   y:${activePlayer.body.position.y.toFixed(0)}`;
+  fpsText.text = `FPS: ${Math.round(ticker.FPS)}`;
+  // 显示摄像头（镜头）坐标 + 人物坐标
+  const cx = viewportRef?.center?.x ?? 0;
+  const cy = viewportRef?.center?.y ?? 0;
+  const px = activePlayer?.body?.position?.x ?? 0;
+  const py = activePlayer?.body?.position?.y ?? 0;
+  posText.text = `摄:${cx.toFixed(0)},${cy.toFixed(0)} 人:${px.toFixed(0)},${py.toFixed(0)}`;
 }
 
 // ==========================

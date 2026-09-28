@@ -18,6 +18,7 @@ export default {
     ask: "询问",
     next: "下一步",
     back: "返回",
+    help: "查看说明",
   },
 
   // ========== NPC：精灵 ==========

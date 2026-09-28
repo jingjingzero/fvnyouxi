@@ -1,0 +1,36 @@
+/**
+ * Translation group: jieju01 (English)
+ * Mirrors translations/jieju01.js, keys identical, values translated.
+ */
+export default {
+  jjone01: { speaker: "", text: "The guilt in my heart was instantly swallowed by the fear of death." },
+  jjone02: { speaker: "player", text: "...I'm sorry." },
+  jjone03: { speaker: "", text: "I know I am selfish and despicable, but I don't want to die here. I still have a bright future ahead. I have to make it back alive!" },
+  jjone04: { speaker: "", text: "And so I left the cat behind and ran away alone. I lowered my gaze, and as I passed it, I didn't even dare to meet its eyes." },
+  jjone05: { speaker: "", text: "After sprinting some distance, I couldn't help looking back, only to see the cat turning and fleeing in the opposite direction." },
+  jjone06: { speaker: "", text: "The monsters completely ignored me as I fled. They all turned around and chased after the cat at full speed." },
+  jjone07: { speaker: "", text: "A flash of relief surged through me as I secretly congratulated myself on my choice." },
+  jjone08: { speaker: "", text: "But that relief vanished in an instant. A heavy guilt flooded my heart, suffocating me." },
+  jjone09: { speaker: "", text: "And so I ran and ran, until I was completely exhausted and stumbled to a stop." },
+  jjone10: { speaker: "player", text: "Phew, they shouldn't be chasing me anymore, right?" },
+  jjone11: { speaker: "", text: "I wiped off my sweat and carefully surveyed my surroundings." },
+  jjone12: { speaker: "", text: "The surroundings were terrifyingly quiet. At some point, the sky had gone completely dark." },
+  jjone13: { speaker: "player", text: "What should I do now?" },
+  jjone14: { speaker: "player", text: "It's fine. The group said someone will come in thirty days. I have a sensor implanted in my body, so they'll definitely be able to find me." },
+  jjone15: { speaker: "player", text: "I just can't send word of the danger here for now, but since they can't reach me, they should be able to guess how dangerous this place is." },
+  jjone16: { speaker: "player", text: "I just need to hide safely for thirty days. Get through this period, and I can return home." },
+  jjone17: { speaker: "player", text: "Sorry, little one. I hope you manage to escape." },
+  jjone18: { speaker: "", text: "Just as I was sorting out the situation and barely calming myself, faint rustling sounds rose all around me. I immediately crouched into a bush and peered out cautiously." },
+  jjone19: { speaker: "", text: "What came into view was the most horrifying scene I had ever seen in my life." },
+  jjone20: { speaker: "", text: "Countless monsters roamed through the forest, their dark figures scattered in every direction." },
+  jjone21: { speaker: "", text: "I hurriedly lowered myself, slowed my breathing, and held completely still, praying over and over that they wouldn't notice me." },
+  jjone22: { speaker: "", text: "But it was all wishful thinking." },
+  jjone23: { speaker: "", text: "A sharp, icy claw seized my neck and hoisted me into the air." },
+  jjone24: { speaker: "", text: "Suffocation spread through my body in an instant as bone-deep terror engulfed me." },
+  jjone25: { speaker: "", text: "I twisted and struggled with all my might, trying to escape, but it was useless." },
+  jjone26: { speaker: "", text: "No matter how hard I tried, I couldn't draw in a single breath of air." },
+  jjone27: { speaker: "", text: "My chest was about to burst, my lungs empty and burning with pain, every inch of my ribcage contracting and throbbing wildly." },
+  jjone28: { speaker: "", text: "I convulsed and kicked wildly, my whole body numb with pain, my struggles growing weaker and weaker." },
+  jjone29: { speaker: "", text: "I couldn't even let out a cry. I slowly lost consciousness in boundless agony, my body growing cold and stiff, and in the throes of suffocation, I died." },
+  jjone30: { speaker: "", text: "(Achievement unlocked: A Cruel End), returning to the previous node" },
+};

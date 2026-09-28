@@ -1,0 +1,36 @@
+/**
+ * 翻译分组：jieju01
+ * 由 jingling-translations.js 拆分生成；编辑本文件即可，无需改索引。
+ */
+export default {
+  jjone01: { speaker: "", text: "心底的愧疚转瞬被死亡的恐惧吞噬。" },
+  jjone02: { speaker: "player", text: "...对不起了。" },
+  jjone03: { speaker: "", text: "我清楚自己自私又卑劣，但我不想死在这里。我还有大好的前程，我一定要活着回去！" },
+  jjone04: { speaker: "", text: "就这样我抛下猫咪独自逃跑了，我垂下视线，擦身而过时我甚至不敢和它对视。" },
+  jjone05: { speaker: "", text: "狂奔出一段距离，我忍不住回头，却看见猫咪扭头向着反方向逃窜。" },
+  jjone06: { speaker: "", text: "而那群怪物全然无视逃窜的我，全数调转方向，追着猫咪疾驰而去。" },
+  jjone07: { speaker: "", text: "一丝侥幸猛地涌上心头，暗自庆幸自己做出了选择。" },
+  jjone08: { speaker: "", text: "可这份庆幸转瞬即逝，沉重的罪恶感瞬间覆没心底，压得我喘不过气。" },
+  jjone09: { speaker: "", text: "就这样，我一直跑，一直跑，直到精疲力竭后才踉跄着停下脚步。" },
+  jjone10: { speaker: "player", text: "呼，应该不会追上来了吧。" },
+  jjone11: { speaker: "", text: "我擦了擦汗水，仔细打量起周围。" },
+  jjone12: { speaker: "", text: "周围安静的可怕，天色不知何时彻底暗了下来。" },
+  jjone13: { speaker: "player", text: "接下来该怎么办？" },
+  jjone14: { speaker: "player", text: "没事的，集团那边说了，只要三十天后会有人来的，我体内有他们植入的感应器，他们肯定可以找到我的。" },
+  jjone15: { speaker: "player", text: "只是现在没法传递这里的危险讯息，但迟迟联络不上我，他们应该能猜到这里的危险。" },
+  jjone16: { speaker: "player", text: "我只需要安稳躲藏三十天，熬过这段时间，就能顺利回去了。" },
+  jjone17: { speaker: "player", text: "抱歉啊，小家伙，希望你能顺利逃走。" },
+  jjone18: { speaker: "", text: "正当我梳理现状、勉强平复心绪时，四周接连响起细碎的窸窣声响。我立刻蜷身躲进灌木丛，悄悄朝外张望。" },
+  jjone19: { speaker: "", text: "入目一幕，是我此生见过最惊悚的画面。" },
+  jjone20: { speaker: "", text: "密密麻麻、数不尽的怪物在林间游荡，黑影遍布四面八方。" },
+  jjone21: { speaker: "", text: "我连忙压低身子，放缓呼吸，屏住所有动静，只能在心底不停祈祷，祈祷它们不会发现自己。" },
+  jjone22: { speaker: "", text: "可惜一切都是奢望。" },
+  jjone23: { speaker: "", text: " 锋利冰冷的利爪瞬间扼住我的脖颈，硬生生将我凌空提起。" },
+  jjone24: { speaker: "", text: " 窒息瞬间蔓延全身，深入骨髓的恐惧包裹着我。" },
+  jjone25: { speaker: "", text: " 我疯狂扭动身体挣扎，用尽全身力气想要逃脱，却毫无用处。" },
+  jjone26: { speaker: "", text: " 无论我怎么用力，都吸不到一丝空气。" },
+  jjone27: { speaker: "", text: " 胸口闷得快要炸开，肺里空荡荡又火辣辣地疼，每一寸胸腔都在疯狂收缩、胀痛。" },
+  jjone28: { speaker: "", text: " 我疯狂抽搐、蹬腿，浑身剧痛发麻，挣扎越来越无力。" },
+  jjone29: { speaker: "", text: " 我连哀嚎都发不出，只能在无边痛苦里慢慢失去意识，身体一点点冰冷僵硬，在窒息的剧痛里，缓缓死去。" },
+  jjone30: { speaker: "", text: "(达成成就:残酷的终点)，即将返回至上一个节点" },
+};

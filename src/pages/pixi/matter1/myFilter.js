@@ -2,6 +2,7 @@
 export function shakeViewport(target, intensity = 8, duration = 300,gsap) {
   if (!target) return;
 
+   
   const startTime = performance.now();
 
   function step() {
